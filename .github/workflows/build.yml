@@ -1,0 +1,125 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # 官方 Qt 二进制自带 LinguistTools（lrelease），无需另装；
+  # 6.10 起 qt_deploy_runtime_dependencies() 支持 EXCLUDE_PLUGIN_TYPES，能筛掉用不到的插件
+  QT_VERSION: "6.10.3"
+
+jobs:
+  linux:
+    name: Linux deb
+    # 用较老的发行版编译，产物的 glibc 要求更低，新系统都能装
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          cache: true
+          # qtbase 里没有 SerialPort，它是独立的 addon
+          modules: qtserialport
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build patchelf
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+        env:
+          QT_QPA_PLATFORM: offscreen
+
+      - name: Package (deb)
+        run: cmake --build build --target package
+
+      # archive: false 直接上传文件本身，避免 Actions 再包一层 zip（只支持单个文件）
+      - uses: actions/upload-artifact@v7
+        with:
+          path: build/*.deb
+          archive: false
+          if-no-files-found: error
+
+  windows:
+    name: Windows portable
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: win64_msvc2022_64
+          cache: true
+          modules: qtserialport
+
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      # 安装即部署：把 Qt 的 DLL 和插件一起拷进 dist，目标机器无需另装 Qt。
+      # --prefix 必须是绝对路径，Qt 6.10 的部署脚本不接受相对前缀。
+      - name: Deploy Qt
+        run: cmake --install build --config Release --prefix "${{ github.workspace }}/dist"
+
+      - name: Add license files
+        run: |
+          Copy-Item LICENSE, THIRD-PARTY-NOTICES.md dist\bin\
+          New-Item -ItemType Directory -Force dist\bin\licenses | Out-Null
+          Copy-Item LICENSES\*.txt dist\bin\licenses\
+
+      # 命名格式与 deb 一致：rts-tools_<版本>_x64.zip（Windows 习惯叫 x64），版本号取自 CMakeLists.txt
+      - name: Zip
+        run: |
+          $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(rts-tools VERSION ([0-9.]+)').Matches[0].Groups[1].Value
+          Compress-Archive -Path dist\* -DestinationPath "rts-tools_${version}_x64.zip"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: rts-tools_*_x64.zip
+          archive: false
+          if-no-files-found: error
+
+  release:
+    name: Attach to release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # skip-decompress：否则 Windows 的 zip 会被当成压缩包解开，Release 里就没有 zip 了
+      - uses: actions/download-artifact@v8
+        with:
+          skip-decompress: true
+          merge-multiple: true
+          path: artifacts
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/*.deb
+            artifacts/*.zip

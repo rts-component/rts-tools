@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=RTS Plot
+Exec=rts-plot
+Icon=rts-plot
+Categories=Utility;Development;
+Terminal=false

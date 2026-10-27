@@ -1,0 +1,2 @@
+// rts-tools 可执行文件的图标（由 CMake 配置后交给 windres）
+IDI_ICON1 ICON "@CMAKE_CURRENT_SOURCE_DIR@/resources/images/rts-tools.ico"

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=RTS Tools
+Exec=rts-tools
+Icon=rts-tools
+Categories=Utility;Development;
+Terminal=false
