@@ -34,7 +34,6 @@ private slots:
 void TstCsvRowList::valuesSurviveAddRemoveMove()
 {
     CsvRowList list;
-    list.resize(600, 400);
     QVector<CsvGroup> groups{makeGroup("a", 2), makeGroup("b", 2)};
     list.setGroups(groups);
     list.setValues(0, {"1", "2"});
@@ -42,20 +41,16 @@ void TstCsvRowList::valuesSurviveAddRemoveMove()
     groups.append(makeGroup("c", 3));
     list.setGroups(groups);
     QCOMPARE(list.count(), 3);
-    // 行内容不对外暴露，这里通过渲染图确认值没有被清成占位符
-    const QImage withValues = list.viewport()->grab().toImage();
+    QCOMPARE(list.m_rows.at(0).values, QStringList({"1", "2"}));
 
     list.clearValues();
-    const QImage cleared = list.viewport()->grab().toImage();
-    QVERIFY(withValues != cleared);
+    QVERIFY(list.m_rows.at(0).values.isEmpty());
 
     list.setValues(0, {"1", "2"});
     groups.removeAt(2);
     list.setGroups(groups);
-    // 删掉第三行后，前两行的画面（含第一行的值）与之前完全一致
-    const QImage afterRemove = list.viewport()->grab().toImage();
-    QCOMPARE(afterRemove.copy(0, 0, 600, 140), withValues.copy(0, 0, 600, 140));
     QCOMPARE(list.count(), 2);
+    QCOMPARE(list.m_rows.at(0).values, QStringList({"1", "2"}));
 }
 
 void TstCsvRowList::clickOnPartsEmitsSignals()

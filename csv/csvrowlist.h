@@ -56,6 +56,8 @@ protected:
     bool viewportEvent(QEvent *event) override;
 
 private:
+    friend class TstCsvRowList;
+
     enum class Part { None, Enabled, Edit, CurveCheck, Menu, Fx, CardCurve };
 
     struct Row
