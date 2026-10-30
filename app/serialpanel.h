@@ -14,7 +14,10 @@ class SerialPanel;
 }
 QT_END_NAMESPACE
 
+class QIODevice;
+class QLineEdit;
 class QSerialPort;
+class RttSession;
 class QTimer;
 class ReceiveLogView;
 
@@ -42,6 +45,12 @@ private:
     void updatePortComboBoxWidth();
     void togglePort();
     void closePort();
+    void openRtt();
+    void onPortOpened(const QString &sourceName);
+    void updateSourceWidgets();
+    bool isConnected() const;
+    void loadRttDevice();
+    void saveRttDevice() const;
 
     void handleReadyRead();
     void flushReceiveQueue();
@@ -63,6 +72,10 @@ private:
 
     Ui::SerialPanel *ui;
     QSerialPort *m_port = nullptr;
+    RttSession *m_rtt = nullptr;
+    QIODevice *m_device = nullptr; // 当前数据源：串口或 RTT 的 socket
+    QLineEdit *m_rttDeviceEdit = nullptr;
+    bool m_rttConnecting = false;
     QTimer *m_flushTimer = nullptr;
     QTimer *m_periodicTimer = nullptr;
     QTimer *m_sendStateTimer = nullptr; // 发送区状态延迟落盘

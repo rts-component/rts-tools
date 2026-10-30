@@ -282,6 +282,22 @@
 <context>
     <name>SerialPanel</name>
     <message>
+        <source>RTT (J-Link)</source>
+        <translation>RTT（J-Link）</translation>
+    </message>
+    <message>
+        <source>J-Link RTT</source>
+        <translation>J-Link RTT</translation>
+    </message>
+    <message>
+        <source>Enter the target device name first, e.g. STM32F407VG.</source>
+        <translation>请先填写目标芯片型号，例如 STM32F407VG。</translation>
+    </message>
+    <message>
+        <source>Device, e.g. STM32F407VG</source>
+        <translation>芯片型号，如 STM32F407VG</translation>
+    </message>
+    <message>
         <source>rts-tools</source>
         <translation>rts-tools</translation>
     </message>
@@ -458,6 +474,37 @@ Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
     <message>
         <source>Interface language</source>
         <translation>界面语言</translation>
+    </message>
+</context>
+<context>
+    <name>RttSession</name>
+    <message>
+        <source>Cannot start J-Link: %1</source>
+        <translation>无法启动 J-Link：%1</translation>
+    </message>
+    <message>
+        <source>J-Link exited unexpectedly.
+
+%1</source>
+        <translation>J-Link 意外退出。
+
+%1</translation>
+    </message>
+    <message>
+        <source>The RTT connection was closed.</source>
+        <translation>RTT 连接已断开。</translation>
+    </message>
+    <message>
+        <source>J-Link Commander was not found. Install the SEGGER J-Link software or add it to PATH.</source>
+        <translation>没有找到 J-Link Commander。请安装 SEGGER J-Link 软件，或把它加入 PATH。</translation>
+    </message>
+    <message>
+        <source>Timed out waiting for the J-Link RTT port.
+
+%1</source>
+        <translation>等待 J-Link 的 RTT 端口超时。
+
+%1</translation>
     </message>
 </context>
 </TS>

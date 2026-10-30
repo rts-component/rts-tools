@@ -42,6 +42,8 @@ rts_enable_warnings(rts-common)
 qt_add_executable(rts-tools
     WIN32 MACOSX_BUNDLE
     app/main.cpp
+    app/rttsession.cpp
+    app/rttsession.h
     app/serialpanel.cpp
     app/serialpanel.h
     app/serialpanel.ui
