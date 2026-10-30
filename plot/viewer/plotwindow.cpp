@@ -11,6 +11,7 @@
 #include <QDoubleSpinBox>
 #include <QLineEdit>
 #include <QDateTime>
+#include <QEvent>
 #include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -172,10 +173,10 @@ QWidget *PlotWindow::buildSidePanel(QWidget *root)
                                      tr("Pause / resume the view"), 32);
     m_pauseButton->setCheckable(true);
 
-    auto *fitButton = makeActionButton(panel, QStringLiteral("plotAction"),
+    m_fitButton = makeActionButton(panel, QStringLiteral("plotAction"),
                                        PlotIcons::fit(QColor(0x3a, 0x40, 0x48)), tr("Fit"),
                                        tr("Fit all data to the view and follow new samples"), 26);
-    auto *clearButton = makeActionButton(panel, QStringLiteral("plotAction"),
+    m_clearButton = makeActionButton(panel, QStringLiteral("plotAction"),
                                          PlotIcons::trash(QColor(0x3a, 0x40, 0x48)), tr("Clear"),
                                          tr("Clear buffered samples of every series"), 26);
 
@@ -185,8 +186,8 @@ QWidget *PlotWindow::buildSidePanel(QWidget *root)
     toolsRow->addWidget(m_pauseButton);
 
     QHBoxLayout *toolsSubRow = makeRow(5);
-    toolsSubRow->addWidget(fitButton);
-    toolsSubRow->addWidget(clearButton);
+    toolsSubRow->addWidget(m_fitButton);
+    toolsSubRow->addWidget(m_clearButton);
     toolsRow->addLayout(toolsSubRow);
 
     m_autoXCheck = new QCheckBox(tr("X"), panel);
@@ -194,7 +195,8 @@ QWidget *PlotWindow::buildSidePanel(QWidget *root)
     m_autoYCheck = new QCheckBox(tr("Y"), panel);
     m_autoYCheck->setChecked(true);
     QHBoxLayout *autoRow = makeRow(6);
-    autoRow->addWidget(new QLabel(tr("Auto:"), panel));
+    m_autoLabel = new QLabel(tr("Auto:"), panel);
+    autoRow->addWidget(m_autoLabel);
     autoRow->addWidget(m_autoXCheck);
     autoRow->addWidget(m_autoYCheck);
     autoRow->addStretch();
@@ -219,7 +221,8 @@ QWidget *PlotWindow::buildSidePanel(QWidget *root)
     measureRow->addWidget(m_measureYCheck);
     measureRow->addStretch();
     QHBoxLayout *cacheRow = makeRow(6);
-    cacheRow->addWidget(new QLabel(tr("Cache:"), panel));
+    m_cacheLabel = new QLabel(tr("Cache:"), panel);
+    cacheRow->addWidget(m_cacheLabel);
     cacheRow->addWidget(m_cacheCombo, 1);
 
     m_seriesHost = new QWidget;
@@ -245,14 +248,14 @@ QWidget *PlotWindow::buildSidePanel(QWidget *root)
     panelLayout->addWidget(scroll, 1);
 
     // 水平参考线（最多 5 条）：左下角
-    auto *hlineTitle = new QLabel(tr("Horizontal lines"), panel);
+    m_hlineTitle = new QLabel(tr("Horizontal lines"), panel);
     m_hlineAddButton = new QToolButton(panel);
     m_hlineAddButton->setObjectName(QStringLiteral("plotAction"));
     m_hlineAddButton->setText(QStringLiteral("+"));
     m_hlineAddButton->setFixedSize(22, 22);
     m_hlineAddButton->setCursor(Qt::PointingHandCursor);
     QHBoxLayout *hlineHeader = makeRow(-1); // -1 = 沿用样式默认间距
-    hlineHeader->addWidget(hlineTitle, 1);
+    hlineHeader->addWidget(m_hlineTitle, 1);
     hlineHeader->addWidget(m_hlineAddButton);
     m_hlineLayout = new QVBoxLayout;
     m_hlineLayout->setContentsMargins(0, 0, 0, 0);
@@ -261,9 +264,44 @@ QWidget *PlotWindow::buildSidePanel(QWidget *root)
     panelLayout->addLayout(m_hlineLayout);
 
     connect(m_hlineAddButton, &QToolButton::clicked, this, &PlotWindow::addHLine);
-    connect(fitButton, &QToolButton::clicked, this, &PlotWindow::fitView);
-    connect(clearButton, &QToolButton::clicked, this, [this] { m_client->clearAllSamples(); });
+    connect(m_fitButton, &QToolButton::clicked, this, &PlotWindow::fitView);
+    connect(m_clearButton, &QToolButton::clicked, this, [this] { m_client->clearAllSamples(); });
     return panel;
+}
+
+void PlotWindow::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange)
+        retranslateUi();
+    QMainWindow::changeEvent(event);
+}
+
+// 切换语言后重设所有带文字的控件；按当前状态生成文字的部分（标题、系列行、参考线行）重建
+void PlotWindow::retranslateUi()
+{
+    setWindowTitle(tr("rts-plot"));
+    m_pauseButton->setText(m_pauseButton->isChecked() ? tr("Resume") : tr("Pause"));
+    m_pauseButton->setToolTip(tr("Pause / resume the view"));
+    m_fitButton->setText(tr("Fit"));
+    m_fitButton->setToolTip(tr("Fit all data to the view and follow new samples"));
+    m_clearButton->setText(tr("Clear"));
+    m_clearButton->setToolTip(tr("Clear buffered samples of every series"));
+    m_autoLabel->setText(tr("Auto:"));
+    m_cacheLabel->setText(tr("Cache:"));
+    m_cacheCombo->setItemText(
+            0, tr("Max (%1)").arg(QLocale().toString(PlotClient::kMaxSamplesPerSeries)));
+    m_measureCheck->setText(tr("X Measure"));
+    m_measureCheck->setToolTip(tr("Pause first, then drag the two vertical lines to measure "
+                                  "the index / time difference"));
+    m_measureYCheck->setText(tr("Y Measure"));
+    m_measureYCheck->setToolTip(tr("Pause first, then drag the two horizontal lines to measure "
+                                   "the value difference"));
+    m_hlineTitle->setText(tr("Horizontal lines"));
+    refreshTitle();
+    refreshStatus();
+    rebuildSeriesRows();
+    rebuildHLineRows();
+    m_canvasDirty = true;
 }
 
 // 控件与画布/数据源之间的信号连接；需要 m_canvas 已创建

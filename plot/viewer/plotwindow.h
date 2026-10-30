@@ -24,6 +24,9 @@ public:
 
     void chooseGroup();
 
+protected:
+    void changeEvent(QEvent *event) override;
+
 private:
     struct SeriesRow
     {
@@ -37,6 +40,7 @@ private:
     QWidget *buildHeader(QWidget *root);
     QWidget *buildSidePanel(QWidget *root);
     void connectSignals();
+    void retranslateUi();
     void rebuildSeriesRows();
     void addHLine();
     void rebuildHLineRows();
@@ -62,6 +66,11 @@ private:
     QCheckBox *m_measureYCheck = nullptr;
     QComboBox *m_cacheCombo = nullptr;
     QToolButton *m_pauseButton = nullptr;
+    QToolButton *m_fitButton = nullptr;
+    QToolButton *m_clearButton = nullptr;
+    QLabel *m_autoLabel = nullptr;
+    QLabel *m_cacheLabel = nullptr;
+    QLabel *m_hlineTitle = nullptr;
     QLabel *m_titleLabel = nullptr;
     QLabel *m_connectionLabel = nullptr;
     QLabel *m_statusLabel = nullptr;
