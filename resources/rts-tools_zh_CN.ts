@@ -298,6 +298,62 @@
         <translation>芯片型号，如 STM32F407VG</translation>
     </message>
     <message>
+        <source>RTT Settings</source>
+        <translation>RTT 设置</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>设置</translation>
+    </message>
+    <message>
+        <source>Auto search</source>
+        <translation>自动搜索</translation>
+    </message>
+    <message>
+        <source>Specified address</source>
+        <translation>指定地址</translation>
+    </message>
+    <message>
+        <source>Specified address and range</source>
+        <translation>指定地址和范围</translation>
+    </message>
+    <message>
+        <source>MCU model</source>
+        <translation>MCU 型号</translation>
+    </message>
+    <message>
+        <source>Control block</source>
+        <translation>控制块</translation>
+    </message>
+    <message>
+        <source>Address (hex)</source>
+        <translation>地址（十六进制）</translation>
+    </message>
+    <message>
+        <source>Range size (hex)</source>
+        <translation>范围大小（十六进制）</translation>
+    </message>
+    <message>
+        <source>Invalid address. Enter a hex value.</source>
+        <translation>地址无效，请输入十六进制数。</translation>
+    </message>
+    <message>
+        <source>Invalid range size. Enter a hex value.</source>
+        <translation>范围大小无效，请输入十六进制数。</translation>
+    </message>
+    <message>
+        <source>Update list</source>
+        <translation>更新列表</translation>
+    </message>
+    <message>
+        <source>Updating...</source>
+        <translation>更新中…</translation>
+    </message>
+    <message>
+        <source>Get the supported device list from J-Link</source>
+        <translation>从 J-Link 获取支持的芯片列表</translation>
+    </message>
+    <message>
         <source>rts-tools</source>
         <translation>rts-tools</translation>
     </message>

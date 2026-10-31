@@ -43,6 +43,8 @@ qt_add_executable(rts-tools
     WIN32 MACOSX_BUNDLE
     app/main.cpp
     app/rttsession.cpp
+    app/rttsettingsdialog.cpp
+    app/rttsettingsdialog.h
     app/rttsession.h
     app/serialpanel.cpp
     app/serialpanel.h

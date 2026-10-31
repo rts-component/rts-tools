@@ -27,12 +27,7 @@ RttSession::RttSession(QObject *parent)
     connect(m_retryTimer, &QTimer::timeout, this, &RttSession::tryConnect);
 
     m_process->setProcessChannelMode(QProcess::MergedChannels);
-#ifdef Q_OS_WIN
-    // JLink.exe 是控制台程序；不加这个标志，从 GUI 程序启动时会弹出一个黑窗口
-    m_process->setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *args) {
-        args->flags |= 0x08000000; // CREATE_NO_WINDOW
-    });
-#endif
+    hideConsoleWindow(m_process);
     connect(m_process, &QProcess::readyRead, this, [this] {
         m_processOutput.append(m_process->readAll());
         if (m_processOutput.size() > kMaxOutputBytes)
@@ -57,6 +52,18 @@ RttSession::RttSession(QObject *parent)
         if (m_active && !m_retryTimer->isActive())
             fail(tr("The RTT connection was closed."));
     });
+}
+
+void RttSession::hideConsoleWindow(QProcess *process)
+{
+#ifdef Q_OS_WIN
+    // JLink.exe 是控制台程序；不加这个标志，从 GUI 程序启动时会弹出一个黑窗口
+    process->setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *args) {
+        args->flags |= 0x08000000; // CREATE_NO_WINDOW
+    });
+#else
+    Q_UNUSED(process)
+#endif
 }
 
 RttSession::~RttSession()
@@ -121,7 +128,7 @@ QString RttSession::findJLinkExecutable()
     return {};
 }
 
-void RttSession::start(const QString &device)
+void RttSession::start(const RttSettings &settings)
 {
     stop();
 
@@ -135,11 +142,29 @@ void RttSession::start(const QString &device)
     m_active = true;
     m_attempts = 0;
     m_processOutput.clear();
-    // -autoconnect 1：启动后立即连接目标，JLinkExe 连上后才会开 RTT 端口
-    m_process->start(program, {QStringLiteral("-device"), device, QStringLiteral("-if"),
-                               QStringLiteral("SWD"), QStringLiteral("-speed"),
-                               QStringLiteral("4000"), QStringLiteral("-autoconnect"),
-                               QStringLiteral("1"), QStringLiteral("-NoGui"), QStringLiteral("1")});
+
+    QStringList arguments = {QStringLiteral("-device"), settings.device, QStringLiteral("-if"),
+                             QStringLiteral("SWD"), QStringLiteral("-speed"),
+                             QStringLiteral("4000"), QStringLiteral("-NoGui"),
+                             QStringLiteral("1")};
+    // 自动搜索：-autoconnect 1 启动后立即连接目标，JLinkExe 连上后才会开 RTT 端口。
+    // 指定地址/范围：控制块位置要在连接前设好，所以改由 stdin 依次发命令。
+    if (settings.search == RttSettings::Search::Auto)
+        arguments << QStringLiteral("-autoconnect") << QStringLiteral("1");
+    m_process->start(program, arguments);
+
+    if (settings.search == RttSettings::Search::Address) {
+        m_process->write(QStringLiteral("exec SetRTTAddr 0x%1\n")
+                                 .arg(settings.address, 0, 16)
+                                 .toLatin1());
+    } else if (settings.search == RttSettings::Search::Range) {
+        m_process->write(QStringLiteral("exec SetRTTSearchRanges 0x%1 0x%2\n")
+                                 .arg(settings.address, 0, 16)
+                                 .arg(settings.size, 0, 16)
+                                 .toLatin1());
+    }
+    if (settings.search != RttSettings::Search::Auto)
+        m_process->write("connect\n");
     m_retryTimer->start();
 }
 
