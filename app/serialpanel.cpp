@@ -4,6 +4,8 @@
 #include "common/plotpaths.h"
 #include "common/translation.h"
 #include "app/receivelogview.h"
+#include "app/rttsession.h"
+#include "app/rttsettingsdialog.h"
 #include "highlight/highlightdialog.h"
 #include "ui_serialpanel.h"
 
@@ -20,6 +22,14 @@
 #include <QActionGroup>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QDialogButtonBox>
+#include <QDialog>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QSplitter>
+#include <QTcpSocket>
 #include <QMessageBox>
 #include <QMenu>
 #include <QPlainTextEdit>
@@ -51,7 +61,13 @@ constexpr int kDefaultPeriodicIntervalMs = 1000;        // 定时发送默认间
 constexpr int kHexBytesPerLine = 16;
 constexpr int kMinPortComboWidth = 100;                 // 端口下拉框最小宽度
 constexpr int kMaxPortComboWidth = 480;                 // 端口下拉框最大宽度，超长描述交给省略显示
+const char kRttSource[] = "rtt";                      // 端口下拉框里 RTT 条目的数据值
 constexpr int kSendStateSaveDelayMs = 600;              // 发送区状态延迟落盘，避免每敲一个字都写文件
+
+QString rttFilePath()
+{
+    return JsonStore::settingsPath(QStringLiteral("rtt.json"));
+}
 
 // 发送区的可保存状态（Hex 发送 / 结束符 / 待发送内容）与其它设置一样放在数据目录的 settings 下
 QString sendPanelFilePath()
@@ -108,6 +124,8 @@ SerialPanel::SerialPanel(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SerialPanel)
     , m_port(new QSerialPort(this))
+    , m_rtt(new RttSession(this))
+    , m_device(m_port)
 {
     ui->setupUi(this);
 
@@ -115,6 +133,7 @@ SerialPanel::SerialPanel(QWidget *parent)
     setWindowTitle(tr("rts-tools %1").arg(QCoreApplication::applicationVersion()));
 
     setupLanguageButton();
+    setupAboutButton();
 
     m_logView = new ReceiveLogView(ui->receiveLog, this);
 
@@ -137,6 +156,27 @@ SerialPanel::SerialPanel(QWidget *parent)
     connect(m_periodicTimer, &QTimer::timeout, this, &SerialPanel::sendData);
 
     connect(m_port, &QSerialPort::readyRead, this, &SerialPanel::handleReadyRead);
+    connect(m_rtt->socket(), &QTcpSocket::readyRead, this, &SerialPanel::handleReadyRead);
+    connect(m_rtt, &RttSession::connected, this, [this] {
+        m_rttConnecting = false;
+        m_device = m_rtt->socket();
+        onPortOpened(QStringLiteral("rtt"));
+    });
+    connect(m_rtt, &RttSession::failed, this, [this](const QString &message) {
+        closePort();
+        QMessageBox::warning(this, tr("J-Link RTT"), message);
+    });
+
+    // RTT 没有波特率，选中它时波特率框换成“设置”按钮，用来填目标芯片型号
+    m_rttSettingsButton = new QPushButton(this);
+    m_rttSettingsButton->setMinimumHeight(28);
+    m_rttSettingsButton->setMaximumWidth(120); // 放在 QSplitter 里，不限宽的话最大化时会被拉得很长
+    ui->connectionBarSplitter->insertWidget(
+            ui->connectionBarSplitter->indexOf(ui->baudRateComboBox) + 1, m_rttSettingsButton);
+    loadRttDevice();
+    connect(m_rttSettingsButton, &QPushButton::clicked, this, &SerialPanel::editRttSettings);
+    connect(ui->portComboBox, &QComboBox::currentIndexChanged, this,
+            [this] { updateSourceWidgets(); });
     connect(m_port, &QSerialPort::errorOccurred, this, [this](QSerialPort::SerialPortError error) {
         if (error != QSerialPort::ResourceError && error != QSerialPort::PermissionError)
             return;
@@ -161,7 +201,7 @@ SerialPanel::SerialPanel(QWidget *parent)
     });
     connect(ui->saveLogButton, &QPushButton::clicked, this, &SerialPanel::saveLog);
     connect(ui->sendButton, &QPushButton::clicked, this, [this] {
-        if (!m_port->isOpen()) {
+        if (!isConnected()) {
             QMessageBox::information(this, tr("Serial port"), tr("Open the port first."));
             return;
         }
@@ -207,6 +247,7 @@ SerialPanel::~SerialPanel()
 {
     if (m_port->isOpen())
         m_port->close();
+    m_rtt->stop();
     m_logFile.close();
     saveSendPanelState(); // 关掉前把还没落盘的发送区状态写一次
     delete ui;
@@ -215,7 +256,7 @@ SerialPanel::~SerialPanel()
 bool SerialPanel::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == ui->portComboBox) {
-        if (event->type() == QEvent::MouseButtonPress && !m_port->isOpen())
+        if (event->type() == QEvent::MouseButtonPress && !isConnected() && !m_rttConnecting)
             refreshPorts();
         else if (event->type() == QEvent::FontChange || event->type() == QEvent::StyleChange)
             updatePortComboBoxWidth();
@@ -269,6 +310,52 @@ void SerialPanel::setupLanguageButton()
     });
 }
 
+void SerialPanel::setupAboutButton()
+{
+    QPixmap icon(24, 24);
+    icon.fill(Qt::transparent);
+    QPainter painter(&icon);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QPen(Qt::white, 1.6));
+    painter.drawEllipse(QRectF(3, 3, 18, 18));
+    painter.drawPoint(QPointF(12, 7.5));
+    painter.drawLine(QPointF(12, 11), QPointF(12, 17));
+
+    ui->aboutButton->setIcon(QIcon(icon));
+    ui->aboutButton->setIconSize(QSize(22, 22));
+    connect(ui->aboutButton, &QToolButton::clicked, this, &SerialPanel::showAbout);
+}
+
+void SerialPanel::showAbout()
+{
+    const QString version = QCoreApplication::applicationVersion();
+    const QString text =
+            tr("<h3>rts-tools %1</h3>"
+               "<p>Serial / J-Link RTT debugging tool with CSV parsing and live plots.</p>"
+               "<p>Built with Qt %2.</p>"
+               "<p>Released under the MIT License. Qt is used under the LGPLv3; "
+               "see THIRD-PARTY-NOTICES.md.</p>"
+               "<p><a href=\"https://github.com/rts-component/rts-tools\">"
+               "github.com/rts-component/rts-tools</a></p>")
+                    .arg(version, QString::fromLatin1(qVersion()));
+    // 不用 QMessageBox：全局样式表给它的正文设了 min-width，富文本又不自动撑宽，
+    // 文字会被截掉。自己搭一个对话框，正文标签换行、宽度固定。
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("About rts-tools"));
+    auto *label = new QLabel(text, &dialog);
+    label->setTextFormat(Qt::RichText);
+    label->setWordWrap(true);
+    label->setOpenExternalLinks(true);
+    label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    label->setMinimumWidth(460);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok, &dialog);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    auto *layout = new QVBoxLayout(&dialog);
+    layout->addWidget(label);
+    layout->addWidget(buttons);
+    dialog.exec();
+}
+
 void SerialPanel::applyUiLanguage(const QString &language)
 {
     if (language.isEmpty() || language == UiLanguage::saved())
@@ -289,18 +376,20 @@ void SerialPanel::updateLanguageButton()
         action->setChecked(code == language);
     }
     ui->languageButton->setToolTip(tr("Interface language"));
+    ui->aboutButton->setToolTip(tr("About"));
 }
 
 void SerialPanel::retranslateUi()
 {
     ui->retranslateUi(this);
     setWindowTitle(tr("rts-tools %1").arg(QCoreApplication::applicationVersion()));
-    ui->openPortButton->setText(m_port->isOpen() ? tr("Close") : tr("Open"));
+    ui->openPortButton->setText(isConnected() || m_rttConnecting ? tr("Close") : tr("Open"));
     // 展开/收起按钮的文字取决于当前状态，.ui 里只有默认的“展开”
     setTabsFrameVisible(!ui->tabsFrame->isHidden());
     updateLanguageButton();
-    if (ui->portComboBox->currentData().toString().isEmpty())
-        refreshPorts(); // “没有可用串口”占位条目要跟着换语言
+    updateSourceWidgets();
+    if (!isConnected() && !m_rttConnecting)
+        refreshPorts(); // “没有可用串口”和 RTT 条目的文字要跟着换语言
 }
 
 void SerialPanel::setTabsFrameVisible(bool visible)
@@ -323,12 +412,14 @@ void SerialPanel::refreshPorts()
     }
     if (ports.isEmpty())
         ui->portComboBox->addItem(tr("No serial port"), QString());
+    ui->portComboBox->addItem(tr("RTT (J-Link)"), QString::fromLatin1(kRttSource));
 
     const int index = ui->portComboBox->findData(previous);
     if (index >= 0)
         ui->portComboBox->setCurrentIndex(index);
 
     updatePortComboBoxWidth();
+    updateSourceWidgets();
 }
 
 // QComboBox 默认按最长条目确定宽度，当前文本较短时右侧会留出大片空白，
@@ -352,14 +443,68 @@ void SerialPanel::updatePortComboBoxWidth()
     ui->portComboBox->setFixedWidth(qBound(kMinPortComboWidth, width, kMaxPortComboWidth));
 }
 
+bool SerialPanel::isConnected() const
+{
+    return m_device->isOpen();
+}
+
+void SerialPanel::loadRttDevice()
+{
+    const QJsonObject object = JsonStore::read(rttFilePath()).object();
+    m_rttSettings.device = object.value(QLatin1String("device")).toString();
+    const int search = object.value(QLatin1String("search")).toInt();
+    if (search >= 0 && search <= static_cast<int>(RttSettings::Search::Range))
+        m_rttSettings.search = static_cast<RttSettings::Search>(search);
+    m_rttSettings.address = object.value(QLatin1String("address"))
+                                    .toString()
+                                    .toUInt(nullptr, 16);
+    m_rttSettings.size = object.value(QLatin1String("size")).toString().toUInt(nullptr, 16);
+    if (m_rttSettings.size == 0)
+        m_rttSettings.size = RttSettings().size;
+}
+
+void SerialPanel::saveRttDevice() const
+{
+    QJsonObject object;
+    object.insert(QLatin1String("device"), m_rttSettings.device);
+    object.insert(QLatin1String("search"), static_cast<int>(m_rttSettings.search));
+    object.insert(QLatin1String("address"), QString::number(m_rttSettings.address, 16));
+    object.insert(QLatin1String("size"), QString::number(m_rttSettings.size, 16));
+    JsonStore::write(rttFilePath(), QJsonDocument(object), "RTT setting");
+}
+
+// 返回 false 表示用户取消
+bool SerialPanel::editRttSettings()
+{
+    RttSettingsDialog dialog(m_rttSettings, this);
+    if (dialog.exec() != QDialog::Accepted)
+        return false;
+    m_rttSettings = dialog.settings();
+    saveRttDevice();
+    return true;
+}
+
+// 按当前选的数据源显示波特率框或 RTT 的芯片型号框
+void SerialPanel::updateSourceWidgets()
+{
+    const bool rtt = ui->portComboBox->currentData().toString() == QLatin1String(kRttSource);
+    ui->baudRateComboBox->setVisible(!rtt);
+    m_rttSettingsButton->setVisible(rtt);
+    m_rttSettingsButton->setText(tr("Settings"));
+}
+
 void SerialPanel::togglePort()
 {
-    if (m_port->isOpen()) {
+    if (isConnected() || m_rttConnecting) {
         closePort();
         return;
     }
 
     const QString portName = ui->portComboBox->currentData().toString();
+    if (portName == QLatin1String(kRttSource)) {
+        openRtt();
+        return;
+    }
     bool baudOk = false;
     const qint32 baudRate = ui->baudRateComboBox->currentText().trimmed().toInt(&baudOk);
     if (portName.isEmpty() || !baudOk || baudRate <= 0) {
@@ -381,6 +526,30 @@ void SerialPanel::togglePort()
         return;
     }
 
+    m_device = m_port;
+    onPortOpened(portName);
+}
+
+void SerialPanel::openRtt()
+{
+    if (m_rttSettings.device.isEmpty()) {
+        QMessageBox::warning(this, tr("J-Link RTT"),
+                             tr("Enter the target device name first, e.g. STM32F407VG."));
+        editRttSettings();
+        return;
+    }
+
+    // 连接要等 JLinkExe 连上目标，期间按钮显示“关闭”，点一下就取消
+    m_rttConnecting = true;
+    ui->openPortButton->setText(tr("Close"));
+    ui->portComboBox->setEnabled(false);
+    m_rttSettingsButton->setEnabled(false);
+    m_rtt->start(m_rttSettings);
+}
+
+// 数据源（串口或 RTT）已连上：清计数、锁住连接参数、开日志
+void SerialPanel::onPortOpened(const QString &sourceName)
+{
     m_pending.clear();
     m_rxBytes = 0;
     m_txBytes = 0;
@@ -391,9 +560,10 @@ void SerialPanel::togglePort()
     ui->openPortButton->setText(tr("Close"));
     ui->portComboBox->setEnabled(false);
     ui->baudRateComboBox->setEnabled(false);
+    m_rttSettingsButton->setEnabled(false);
 
     // 打开端口即开始把收到的数据写入日志文件（界面暂停刷新也照写）
-    startLogFile(portName);
+    startLogFile(sourceName);
 }
 
 void SerialPanel::closePort()
@@ -404,6 +574,9 @@ void SerialPanel::closePort()
 
     if (m_port->isOpen())
         m_port->close();
+    m_rtt->stop();
+    m_rttConnecting = false;
+    m_device = m_port;
 
     // 关闭端口时把缓冲中剩余的数据显示出来
     flushReceiveQueue();
@@ -412,11 +585,12 @@ void SerialPanel::closePort()
     ui->openPortButton->setText(tr("Open"));
     ui->portComboBox->setEnabled(true);
     ui->baudRateComboBox->setEnabled(true);
+    m_rttSettingsButton->setEnabled(true);
 }
 
 void SerialPanel::handleReadyRead()
 {
-    const QByteArray bytes = m_port->readAll();
+    const QByteArray bytes = m_device->readAll();
     if (bytes.isEmpty())
         return;
 
@@ -546,7 +720,7 @@ void SerialPanel::updateCounters()
 
 void SerialPanel::sendData()
 {
-    if (!m_port->isOpen()) {
+    if (!isConnected()) {
         if (m_periodicTimer->isActive())
             m_periodicTimer->stop();
         ui->periodicSendCheckBox->setChecked(false);
@@ -563,7 +737,7 @@ void SerialPanel::sendData()
         return;
     }
 
-    const qint64 written = m_port->write(payload);
+    const qint64 written = m_device->write(payload);
     if (written > 0) {
         m_txBytes += quint64(written);
         updateCounters();
@@ -627,7 +801,7 @@ void SerialPanel::updatePeriodicSend(bool enabled)
         m_periodicTimer->stop();
         return;
     }
-    if (!m_port->isOpen()) {
+    if (!isConnected()) {
         ui->periodicSendCheckBox->setChecked(false);
         QMessageBox::information(this, tr("Periodic send"), tr("Open the port first."));
         return;

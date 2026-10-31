@@ -1,4 +1,5 @@
 #include "common/plotendpoints.h"
+#include "common/jsonstore.h"
 #include "common/translation.h"
 #include "plot/viewer/endpointdialog.h"
 #include "plot/viewer/plotclient.h"
@@ -7,6 +8,9 @@
 #include <QApplication>
 #include <QCommandLineOption>
 #include <QCommandLineParser>
+#include <QDir>
+#include <QFileInfo>
+#include <QFileSystemWatcher>
 #include <QIcon>
 #include <QMessageBox>
 #include <QStyleFactory>
@@ -22,6 +26,22 @@ int main(int argc, char *argv[])
     app.setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
 
     UiLanguage::apply(QStringLiteral("rts-plot"));
+
+    // 语言由 rts-tools 里切换并写入共用的 language.json；监视它，已打开的窗口也跟着换。
+    // 保存时文件会被整体替换，所以监视所在目录（先建好），再按文件名过滤。
+    const QString languageFile = JsonStore::settingsPath(QStringLiteral("language.json"));
+    QDir().mkpath(QFileInfo(languageFile).absolutePath());
+    QFileSystemWatcher languageWatcher;
+    languageWatcher.addPath(QFileInfo(languageFile).absolutePath());
+    QString appliedLanguage = UiLanguage::saved();
+    QObject::connect(&languageWatcher, &QFileSystemWatcher::directoryChanged, &app,
+                     [&appliedLanguage] {
+                         const QString now = UiLanguage::saved();
+                         if (now == appliedLanguage)
+                             return;
+                         appliedLanguage = now;
+                         UiLanguage::apply(QStringLiteral("rts-plot"));
+                     });
 
     QCommandLineParser parser;
     parser.setApplicationDescription(

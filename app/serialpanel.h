@@ -6,6 +6,8 @@
 
 #include <QByteArray>
 #include <QString>
+#include "app/rttsession.h"
+
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -14,7 +16,11 @@ class SerialPanel;
 }
 QT_END_NAMESPACE
 
+class QIODevice;
+class QPushButton;
+class QLineEdit;
 class QSerialPort;
+class RttSession;
 class QTimer;
 class ReceiveLogView;
 
@@ -34,6 +40,8 @@ private:
     void setTabsFrameVisible(bool visible);
 
     void setupLanguageButton();
+    void setupAboutButton();
+    void showAbout();
     void applyUiLanguage(const QString &language);
     void updateLanguageButton();
     void retranslateUi();
@@ -42,6 +50,13 @@ private:
     void updatePortComboBoxWidth();
     void togglePort();
     void closePort();
+    void openRtt();
+    void onPortOpened(const QString &sourceName);
+    void updateSourceWidgets();
+    bool isConnected() const;
+    void loadRttDevice();
+    void saveRttDevice() const;
+    bool editRttSettings();
 
     void handleReadyRead();
     void flushReceiveQueue();
@@ -63,6 +78,11 @@ private:
 
     Ui::SerialPanel *ui;
     QSerialPort *m_port = nullptr;
+    RttSession *m_rtt = nullptr;
+    QIODevice *m_device = nullptr; // 当前数据源：串口或 RTT 的 socket
+    QPushButton *m_rttSettingsButton = nullptr;
+    RttSettings m_rttSettings;
+    bool m_rttConnecting = false;
     QTimer *m_flushTimer = nullptr;
     QTimer *m_periodicTimer = nullptr;
     QTimer *m_sendStateTimer = nullptr; // 发送区状态延迟落盘

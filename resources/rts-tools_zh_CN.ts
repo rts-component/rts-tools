@@ -282,6 +282,90 @@
 <context>
     <name>SerialPanel</name>
     <message>
+        <source>RTT (J-Link)</source>
+        <translation>RTT（J-Link）</translation>
+    </message>
+    <message>
+        <source>J-Link RTT</source>
+        <translation>J-Link RTT</translation>
+    </message>
+    <message>
+        <source>Enter the target device name first, e.g. STM32F407VG.</source>
+        <translation>请先填写目标芯片型号，例如 STM32F407VG。</translation>
+    </message>
+    <message>
+        <source>Device, e.g. STM32F407VG</source>
+        <translation>芯片型号，如 STM32F407VG</translation>
+    </message>
+    <message>
+        <source>RTT Settings</source>
+        <translation>RTT 设置</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>设置</translation>
+    </message>
+    <message>
+        <source>Auto search</source>
+        <translation>自动搜索</translation>
+    </message>
+    <message>
+        <source>Specified address</source>
+        <translation>指定地址</translation>
+    </message>
+    <message>
+        <source>Specified address and range</source>
+        <translation>指定地址和范围</translation>
+    </message>
+    <message>
+        <source>MCU model</source>
+        <translation>MCU 型号</translation>
+    </message>
+    <message>
+        <source>Control block</source>
+        <translation>控制块</translation>
+    </message>
+    <message>
+        <source>Address (hex)</source>
+        <translation>地址（十六进制）</translation>
+    </message>
+    <message>
+        <source>Range size (hex)</source>
+        <translation>范围大小（十六进制）</translation>
+    </message>
+    <message>
+        <source>Invalid address. Enter a hex value.</source>
+        <translation>地址无效，请输入十六进制数。</translation>
+    </message>
+    <message>
+        <source>Invalid range size. Enter a hex value.</source>
+        <translation>范围大小无效，请输入十六进制数。</translation>
+    </message>
+    <message>
+        <source>Update list</source>
+        <translation>更新列表</translation>
+    </message>
+    <message>
+        <source>Updating...</source>
+        <translation>更新中…</translation>
+    </message>
+    <message>
+        <source>Get the supported device list from J-Link</source>
+        <translation>从 J-Link 获取支持的芯片列表</translation>
+    </message>
+    <message>
+        <source>About</source>
+        <translation>关于</translation>
+    </message>
+    <message>
+        <source>About rts-tools</source>
+        <translation>关于 rts-tools</translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;Serial / J-Link RTT debugging tool with CSV parsing and live plots.&lt;/p&gt;&lt;p&gt;Built with Qt %2.&lt;/p&gt;&lt;p&gt;Released under the MIT License. Qt is used under the LGPLv3; see THIRD-PARTY-NOTICES.md.&lt;/p&gt;&lt;p&gt;&lt;a href="https://github.com/rts-component/rts-tools"&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</source>
+        <translation>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;串口 / J-Link RTT 调试工具，支持 CSV 解析与实时曲线。&lt;/p&gt;&lt;p&gt;基于 Qt %2 构建。&lt;/p&gt;&lt;p&gt;以 MIT 许可证发布；Qt 按 LGPLv3 使用，详见 THIRD-PARTY-NOTICES.md。&lt;/p&gt;&lt;p&gt;&lt;a href="https://github.com/rts-component/rts-tools"&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</translation>
+    </message>
+    <message>
         <source>rts-tools</source>
         <translation>rts-tools</translation>
     </message>
@@ -458,6 +542,37 @@ Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
     <message>
         <source>Interface language</source>
         <translation>界面语言</translation>
+    </message>
+</context>
+<context>
+    <name>RttSession</name>
+    <message>
+        <source>Cannot start J-Link: %1</source>
+        <translation>无法启动 J-Link：%1</translation>
+    </message>
+    <message>
+        <source>J-Link exited unexpectedly.
+
+%1</source>
+        <translation>J-Link 意外退出。
+
+%1</translation>
+    </message>
+    <message>
+        <source>The RTT connection was closed.</source>
+        <translation>RTT 连接已断开。</translation>
+    </message>
+    <message>
+        <source>J-Link Commander was not found. Install the SEGGER J-Link software or add it to PATH.</source>
+        <translation>没有找到 J-Link Commander。请安装 SEGGER J-Link 软件，或把它加入 PATH。</translation>
+    </message>
+    <message>
+        <source>Timed out waiting for the J-Link RTT port.
+
+%1</source>
+        <translation>等待 J-Link 的 RTT 端口超时。
+
+%1</translation>
     </message>
 </context>
 </TS>
