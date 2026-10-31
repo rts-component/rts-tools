@@ -10,6 +10,10 @@
 #include "highlight/highlightdialog.h"
 #include "ui_serialpanel.h"
 
+#ifndef RTS_TOOLS_GIT_SHA
+#define RTS_TOOLS_GIT_SHA ""
+#endif
+
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QDateTime>
@@ -331,6 +335,7 @@ void SerialPanel::setupAboutButton()
 void SerialPanel::showAbout()
 {
     const QString version = QCoreApplication::applicationVersion();
+    const QString commit = QStringLiteral(RTS_TOOLS_GIT_SHA);
     const QString text =
             tr("<h3>rts-tools %1</h3>"
                "<p>Serial / J-Link RTT debugging tool with CSV parsing and live plots.</p>"
@@ -339,7 +344,8 @@ void SerialPanel::showAbout()
                "see THIRD-PARTY-NOTICES.md.</p>"
                "<p><a href=\"https://github.com/rts-component/rts-tools\">"
                "github.com/rts-component/rts-tools</a></p>")
-                    .arg(version, QString::fromLatin1(qVersion()));
+                    .arg(commit.isEmpty() ? version : version + QStringLiteral(" @") + commit,
+                         QString::fromLatin1(qVersion()));
     // 不用 QMessageBox：全局样式表给它的正文设了 min-width，富文本又不自动撑宽，
     // 文字会被截掉。自己搭一个对话框，正文标签换行、宽度固定。
     QDialog dialog(this);

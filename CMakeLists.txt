@@ -131,6 +131,31 @@ target_include_directories(rts-tools PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # 版本号显示在窗口标题上，只在这一处维护
 target_compile_definitions(rts-tools PRIVATE RTS_TOOLS_VERSION="${PROJECT_VERSION}")
 
+# 关于对话框里显示编译所基于的提交；配置时取一次，不在 git 仓库里（如源码包）则留空。
+# 工作区有未提交改动时加 -dirty 后缀
+find_package(Git QUIET)
+set(RTS_GIT_SHA "")
+if(GIT_FOUND)
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --short=10 HEAD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE RTS_GIT_SHA
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+    if(RTS_GIT_SHA)
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} status --porcelain --untracked-files=no
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            OUTPUT_VARIABLE rts_git_status
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET)
+        if(rts_git_status)
+            string(APPEND RTS_GIT_SHA "-dirty")
+        endif()
+    endif()
+endif()
+target_compile_definitions(rts-tools PRIVATE RTS_TOOLS_GIT_SHA="${RTS_GIT_SHA}")
+
 qt_add_translations(
     TARGETS rts-tools
     TS_FILES resources/rts-tools_zh_CN.ts
