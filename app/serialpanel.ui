@@ -77,13 +77,13 @@ QPushButton#openPortButton:pressed, QPushButton#sendButton:pressed {
     background-color: #0086bd;
     border-color: #0086bd;
 }
-QToolButton#languageButton {
+QToolButton#languageButton, QToolButton#aboutButton {
     background-color: transparent;
     border: none;
     border-radius: 4px;
     padding: 3px;
 }
-QToolButton#languageButton:hover {
+QToolButton#languageButton:hover, QToolButton#aboutButton:hover {
     background-color: #676a72;
 }
 QToolButton#languageButton::menu-indicator {
@@ -393,6 +393,25 @@ QGroupBox#statusBar QLabel {
          </property>
          <property name="popupMode">
           <enum>QToolButton::ToolButtonPopupMode::InstantPopup</enum>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QToolButton" name="aboutButton">
+         <property name="minimumSize">
+          <size>
+           <width>32</width>
+           <height>28</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>32</width>
+           <height>28</height>
+          </size>
          </property>
          <property name="toolButtonStyle">
           <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>

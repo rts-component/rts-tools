@@ -22,6 +22,10 @@
 #include <QActionGroup>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QDialogButtonBox>
+#include <QDialog>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSplitter>
@@ -129,6 +133,7 @@ SerialPanel::SerialPanel(QWidget *parent)
     setWindowTitle(tr("rts-tools %1").arg(QCoreApplication::applicationVersion()));
 
     setupLanguageButton();
+    setupAboutButton();
 
     m_logView = new ReceiveLogView(ui->receiveLog, this);
 
@@ -165,6 +170,7 @@ SerialPanel::SerialPanel(QWidget *parent)
     // RTT 没有波特率，选中它时波特率框换成“设置”按钮，用来填目标芯片型号
     m_rttSettingsButton = new QPushButton(this);
     m_rttSettingsButton->setMinimumHeight(28);
+    m_rttSettingsButton->setMaximumWidth(120); // 放在 QSplitter 里，不限宽的话最大化时会被拉得很长
     ui->connectionBarSplitter->insertWidget(
             ui->connectionBarSplitter->indexOf(ui->baudRateComboBox) + 1, m_rttSettingsButton);
     loadRttDevice();
@@ -304,6 +310,52 @@ void SerialPanel::setupLanguageButton()
     });
 }
 
+void SerialPanel::setupAboutButton()
+{
+    QPixmap icon(24, 24);
+    icon.fill(Qt::transparent);
+    QPainter painter(&icon);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QPen(Qt::white, 1.6));
+    painter.drawEllipse(QRectF(3, 3, 18, 18));
+    painter.drawPoint(QPointF(12, 7.5));
+    painter.drawLine(QPointF(12, 11), QPointF(12, 17));
+
+    ui->aboutButton->setIcon(QIcon(icon));
+    ui->aboutButton->setIconSize(QSize(22, 22));
+    connect(ui->aboutButton, &QToolButton::clicked, this, &SerialPanel::showAbout);
+}
+
+void SerialPanel::showAbout()
+{
+    const QString version = QCoreApplication::applicationVersion();
+    const QString text =
+            tr("<h3>rts-tools %1</h3>"
+               "<p>Serial / J-Link RTT debugging tool with CSV parsing and live plots.</p>"
+               "<p>Built with Qt %2.</p>"
+               "<p>Released under the MIT License. Qt is used under the LGPLv3; "
+               "see THIRD-PARTY-NOTICES.md.</p>"
+               "<p><a href=\"https://github.com/rts-component/rts-tools\">"
+               "github.com/rts-component/rts-tools</a></p>")
+                    .arg(version, QString::fromLatin1(qVersion()));
+    // 不用 QMessageBox：全局样式表给它的正文设了 min-width，富文本又不自动撑宽，
+    // 文字会被截掉。自己搭一个对话框，正文标签换行、宽度固定。
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("About rts-tools"));
+    auto *label = new QLabel(text, &dialog);
+    label->setTextFormat(Qt::RichText);
+    label->setWordWrap(true);
+    label->setOpenExternalLinks(true);
+    label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    label->setMinimumWidth(460);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok, &dialog);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    auto *layout = new QVBoxLayout(&dialog);
+    layout->addWidget(label);
+    layout->addWidget(buttons);
+    dialog.exec();
+}
+
 void SerialPanel::applyUiLanguage(const QString &language)
 {
     if (language.isEmpty() || language == UiLanguage::saved())
@@ -324,6 +376,7 @@ void SerialPanel::updateLanguageButton()
         action->setChecked(code == language);
     }
     ui->languageButton->setToolTip(tr("Interface language"));
+    ui->aboutButton->setToolTip(tr("About"));
 }
 
 void SerialPanel::retranslateUi()

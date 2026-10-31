@@ -40,6 +40,8 @@ private:
     void setTabsFrameVisible(bool visible);
 
     void setupLanguageButton();
+    void setupAboutButton();
+    void showAbout();
     void applyUiLanguage(const QString &language);
     void updateLanguageButton();
     void retranslateUi();
