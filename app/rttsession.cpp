@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QProcess>
+#include <QSettings>
 #include <QStandardPaths>
 #include <QTcpSocket>
 #include <QTimer>
@@ -74,7 +75,31 @@ QString RttSession::findJLinkExecutable()
     if (!path.isEmpty())
         return path;
 
-    // 没在 PATH 里时去 SEGGER 的默认安装位置找
+#ifdef Q_OS_WIN
+    const QSettings::Format registryFormats[] = {
+        QSettings::Registry64Format,
+        QSettings::Registry32Format,
+    };
+    const QSettings::Scope registryScopes[] = {
+        QSettings::UserScope,
+        QSettings::SystemScope,
+    };
+    for (QSettings::Format format : registryFormats) {
+        for (QSettings::Scope scope : registryScopes) {
+            const QSettings settings(format, scope, QStringLiteral("SEGGER"),
+                                     QStringLiteral("J-Link"));
+            const QString installPath = settings.value(QStringLiteral("InstallPath")).toString();
+            if (installPath.isEmpty())
+                continue;
+
+            const QString candidate = QDir(installPath).filePath(name);
+            if (QFileInfo(candidate).isFile())
+                return candidate;
+        }
+    }
+#endif
+
+    // 再检查 SEGGER 的默认安装位置，兼容未写入注册表的安装。
     QStringList roots;
 #ifdef Q_OS_WIN
     roots << QStringLiteral("C:/Program Files/SEGGER") << QStringLiteral("C:/Program Files (x86)/SEGGER");
