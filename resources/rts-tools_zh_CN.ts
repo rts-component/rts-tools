@@ -282,6 +282,22 @@
 <context>
     <name>SerialPanel</name>
     <message>
+        <source>New version %1 available, click to update</source>
+        <translation>发现新版本 %1，点击升级</translation>
+    </message>
+    <message>
+        <source>Check for updates</source>
+        <translation>检查更新</translation>
+    </message>
+    <message>
+        <source>Could not check for updates: %1</source>
+        <translation>检查更新失败：%1</translation>
+    </message>
+    <message>
+        <source>You are using the latest version (%1).</source>
+        <translation>当前已是最新版本（%1）。</translation>
+    </message>
+    <message>
         <source>RTT (J-Link)</source>
         <translation>RTT（J-Link）</translation>
     </message>
@@ -573,6 +589,104 @@ Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
         <translation>等待 J-Link 的 RTT 端口超时。
 
 %1</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateChecker</name>
+    <message>
+        <source>Unexpected response from the update server</source>
+        <translation>更新服务器返回了无法识别的内容</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateDialog</name>
+    <message>
+        <source>Update available</source>
+        <translation>发现新版本</translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;rts-tools %1 is available&lt;/h3&gt;&lt;p&gt;You are using %2.&lt;/p&gt;</source>
+        <translation>&lt;h3&gt;rts-tools %1 已发布&lt;/h3&gt;&lt;p&gt;当前版本 %2。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Release notes are not available here.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;%1&quot;&gt;View release notes on GitHub&lt;/a&gt;&lt;/p&gt;</source>
+        <translation>&lt;p&gt;暂时无法在此显示更新说明。&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;%1&quot;&gt;在 GitHub 上查看更新说明&lt;/a&gt;&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Open download page</source>
+        <translation>打开下载页面</translation>
+    </message>
+    <message>
+        <source>Update now</source>
+        <translation>立即升级</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>稍后</translation>
+    </message>
+    <message>
+        <source>&lt;span style=&quot;color:#c0392b&quot;&gt;%1&lt;/span&gt;</source>
+        <translation>&lt;span style=&quot;color:#c0392b&quot;&gt;%1&lt;/span&gt;</translation>
+    </message>
+    <message>
+        <source>Cannot create the download folder: %1</source>
+        <translation>无法创建下载目录：%1</translation>
+    </message>
+    <message>
+        <source>Cannot write %1: %2</source>
+        <translation>无法写入 %1：%2</translation>
+    </message>
+    <message>
+        <source>Downloading %1 ...</source>
+        <translation>正在下载 %1 ...</translation>
+    </message>
+    <message>
+        <source>Download failed: %1</source>
+        <translation>下载失败：%1</translation>
+    </message>
+    <message>
+        <source>Download is incomplete, please try again.</source>
+        <translation>下载不完整，请重试。</translation>
+    </message>
+    <message>
+        <source>Downloaded to %1. Please install it with your package manager.</source>
+        <translation>已下载到 %1，请用系统的软件包管理器安装。</translation>
+    </message>
+    <message>
+        <source>Installing, please authenticate when prompted ...</source>
+        <translation>正在安装，请在弹出提示时输入授权 ...</translation>
+    </message>
+    <message>
+        <source>Installation was cancelled. The package is saved at %1.</source>
+        <translation>安装已取消，安装包保存在 %1。</translation>
+    </message>
+    <message>
+        <source>Installation failed: %1</source>
+        <translation>安装失败：%1</translation>
+    </message>
+    <message>
+        <source>Cannot start the installer: %1</source>
+        <translation>无法启动安装程序：%1</translation>
+    </message>
+    <message>
+        <source>Extracting ...</source>
+        <translation>正在解压 ...</translation>
+    </message>
+    <message>
+        <source>Extraction failed: %1</source>
+        <translation>解压失败：%1</translation>
+    </message>
+    <message>
+        <source>Cannot start the updater: %1</source>
+        <translation>无法启动更新程序：%1</translation>
+    </message>
+    <message>
+        <source>Downloaded to %1. Please install it manually.</source>
+        <translation>已下载到 %1，请手动安装。</translation>
+    </message>
+    <message>
+        <source>Update installed. Restarting ...</source>
+        <translation>升级完成，正在重启 ...</translation>
     </message>
 </context>
 </TS>

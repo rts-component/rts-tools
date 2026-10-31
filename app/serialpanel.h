@@ -7,6 +7,7 @@
 #include <QByteArray>
 #include <QString>
 #include "app/rttsession.h"
+#include "app/updatechecker.h"
 
 #include <QWidget>
 
@@ -42,6 +43,11 @@ private:
     void setupLanguageButton();
     void setupAboutButton();
     void showAbout();
+    void setupUpdateButton();
+    void updateUpdateButton();
+    void checkForUpdates(bool manual);
+    void onUpdateChecked(bool ok, const ReleaseInfo &info, const QString &error);
+    void showUpdateDialog();
     void applyUiLanguage(const QString &language);
     void updateLanguageButton();
     void retranslateUi();
@@ -82,6 +88,10 @@ private:
     QIODevice *m_device = nullptr; // 当前数据源：串口或 RTT 的 socket
     QPushButton *m_rttSettingsButton = nullptr;
     RttSettings m_rttSettings;
+    UpdateChecker *m_updateChecker = nullptr;
+    ReleaseInfo m_latestRelease;
+    bool m_updateAvailable = false;
+    bool m_manualUpdateCheck = false;
     bool m_rttConnecting = false;
     QTimer *m_flushTimer = nullptr;
     QTimer *m_periodicTimer = nullptr;

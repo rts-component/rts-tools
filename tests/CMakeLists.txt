@@ -53,3 +53,14 @@ target_include_directories(test_csvrowlist PRIVATE ${PROJECT_SOURCE_DIR})
 rts_enable_warnings(test_csvrowlist)
 add_test(NAME test_csvrowlist COMMAND test_csvrowlist)
 set_tests_properties(test_csvrowlist PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# 版本比较与 Release 解析（不发网络请求）
+qt_add_executable(test_updatechecker
+    test_updatechecker.cpp
+    ${PROJECT_SOURCE_DIR}/app/updatechecker.cpp
+    ${PROJECT_SOURCE_DIR}/app/updatechecker.h
+)
+target_link_libraries(test_updatechecker PRIVATE Qt::Core Qt::Network Qt::Test)
+target_include_directories(test_updatechecker PRIVATE ${PROJECT_SOURCE_DIR})
+rts_enable_warnings(test_updatechecker)
+add_test(NAME test_updatechecker COMMAND test_updatechecker)

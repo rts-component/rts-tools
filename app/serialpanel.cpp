@@ -6,6 +6,7 @@
 #include "app/receivelogview.h"
 #include "app/rttsession.h"
 #include "app/rttsettingsdialog.h"
+#include "app/updatedialog.h"
 #include "highlight/highlightdialog.h"
 #include "ui_serialpanel.h"
 
@@ -134,6 +135,7 @@ SerialPanel::SerialPanel(QWidget *parent)
 
     setupLanguageButton();
     setupAboutButton();
+    setupUpdateButton();
 
     m_logView = new ReceiveLogView(ui->receiveLog, this);
 
@@ -356,6 +358,88 @@ void SerialPanel::showAbout()
     dialog.exec();
 }
 
+void SerialPanel::setupUpdateButton()
+{
+    m_updateChecker = new UpdateChecker(this);
+    connect(m_updateChecker, &UpdateChecker::finished, this, &SerialPanel::onUpdateChecked);
+    connect(ui->updateButton, &QToolButton::clicked, this, [this] {
+        if (m_updateAvailable)
+            showUpdateDialog();
+        else
+            checkForUpdates(true);
+    });
+    updateUpdateButton();
+    // 启动时静默检查一次，稍等片刻不和界面初始化抢资源
+    QTimer::singleShot(3000, this, [this] { checkForUpdates(false); });
+}
+
+void SerialPanel::updateUpdateButton()
+{
+    QPixmap icon(24, 24);
+    icon.fill(Qt::transparent);
+    QPainter painter(&icon);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QPen(Qt::white, 1.6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter.drawEllipse(QRectF(3, 3, 18, 18));
+    painter.drawLine(QPointF(12, 17), QPointF(12, 8));
+    painter.drawLine(QPointF(8.5, 11.5), QPointF(12, 8));
+    painter.drawLine(QPointF(15.5, 11.5), QPointF(12, 8));
+    if (m_updateAvailable) {
+        // 有新版本时右上角点一个红点
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(QStringLiteral("#ff4d4f")));
+        painter.drawEllipse(QRectF(15, 1, 8, 8));
+    }
+    painter.end();
+
+    ui->updateButton->setIcon(QIcon(icon));
+    ui->updateButton->setIconSize(QSize(22, 22));
+    ui->updateButton->setToolTip(m_updateAvailable
+                                         ? tr("New version %1 available, click to update").arg(m_latestRelease.version)
+                                         : tr("Check for updates"));
+}
+
+void SerialPanel::checkForUpdates(bool manual)
+{
+    if (m_updateChecker->isChecking())
+        return;
+    m_manualUpdateCheck = manual;
+    ui->updateButton->setEnabled(false);
+    m_updateChecker->check();
+}
+
+void SerialPanel::onUpdateChecked(bool ok, const ReleaseInfo &info, const QString &error)
+{
+    ui->updateButton->setEnabled(true);
+    const bool manual = m_manualUpdateCheck;
+    m_manualUpdateCheck = false;
+
+    if (!ok) {
+        // 启动时的自动检查失败（离线等）不打扰用户
+        if (manual)
+            QMessageBox::warning(this, tr("Check for updates"),
+                                 tr("Could not check for updates: %1").arg(error));
+        return;
+    }
+    m_updateAvailable = UpdateChecker::isNewer(info.version, QCoreApplication::applicationVersion());
+    if (m_updateAvailable)
+        m_latestRelease = info;
+    updateUpdateButton();
+
+    if (m_updateAvailable)
+        showUpdateDialog();
+    else if (manual)
+        QMessageBox::information(this, tr("Check for updates"),
+                                 tr("You are using the latest version (%1).")
+                                         .arg(QCoreApplication::applicationVersion()));
+}
+
+void SerialPanel::showUpdateDialog()
+{
+    UpdateDialog dialog(m_latestRelease, this);
+    dialog.exec();
+}
+
 void SerialPanel::applyUiLanguage(const QString &language)
 {
     if (language.isEmpty() || language == UiLanguage::saved())
@@ -377,6 +461,7 @@ void SerialPanel::updateLanguageButton()
     }
     ui->languageButton->setToolTip(tr("Interface language"));
     ui->aboutButton->setToolTip(tr("About"));
+    updateUpdateButton();
 }
 
 void SerialPanel::retranslateUi()

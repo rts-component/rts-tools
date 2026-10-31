@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(rts-tools VERSION 0.1.1 LANGUAGES CXX)
+project(rts-tools VERSION 0.2.0 LANGUAGES CXX)
 
 # 发行版的 Qt 插件本身没有 RPATH，Qt 部署脚本里 CMake 内置的 RPATH_SET 写不进去，
 # Linux 上要用 patchelf（构建机需安装，必须在 find_package 之前设置）
@@ -46,6 +46,10 @@ qt_add_executable(rts-tools
     app/rttsettingsdialog.cpp
     app/rttsettingsdialog.h
     app/rttsession.h
+    app/updatechecker.cpp
+    app/updatechecker.h
+    app/updatedialog.cpp
+    app/updatedialog.h
     app/serialpanel.cpp
     app/serialpanel.h
     app/serialpanel.ui
