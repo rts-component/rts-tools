@@ -625,6 +625,11 @@ QGroupBox#statusBar QLabel {
             <string>CSV</string>
            </attribute>
           </widget>
+          <widget class="ArmFlashPanel" name="armFlashPanel">
+           <attribute name="title">
+            <string>ARM Flash</string>
+           </attribute>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -1006,6 +1011,11 @@ QGroupBox#statusBar QLabel {
    <class>CsvPanel</class>
    <extends>QWidget</extends>
    <header>csv/csvpanel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ArmFlashPanel</class>
+   <extends>QWidget</extends>
+   <header>flash/armflashpanel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

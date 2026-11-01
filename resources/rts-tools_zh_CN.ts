@@ -689,4 +689,445 @@ Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
         <translation>升级完成，正在重启 ...</translation>
     </message>
 </context>
+<context>
+    <name>ArmFlashPanel</name>
+    <message>
+        <source>Select firmware</source>
+        <translation>选择固件</translation>
+    </message>
+    <message>
+        <source>Firmware (*.bin *.hex *.elf *.axf);;All files (*)</source>
+        <translation>固件 (*.bin *.hex *.elf *.axf);;所有文件 (*)</translation>
+    </message>
+    <message>
+        <source>Select flash algorithm</source>
+        <translation>选择 Flash 算法</translation>
+    </message>
+    <message>
+        <source>Flash algorithm (*.FLM *.flm);;All files (*)</source>
+        <translation>Flash 算法 (*.FLM *.flm);;所有文件 (*)</translation>
+    </message>
+    <message>
+        <source>Select an existing firmware file</source>
+        <translation>请选择一个存在的固件文件</translation>
+    </message>
+    <message>
+        <source>Select an existing FLM file</source>
+        <translation>请选择一个存在的 FLM 文件</translation>
+    </message>
+    <message>
+        <source>Enter the chip name (for example STM32F103C8)</source>
+        <translation>请输入芯片名(例如 STM32F103C8)</translation>
+    </message>
+    <message>
+        <source>BIN flash address is not a valid number</source>
+        <translation>BIN 烧录地址不是有效的数字</translation>
+    </message>
+    <message>
+        <source>ARM Flash</source>
+        <translation>ARM Flash</translation>
+    </message>
+    <message>
+        <source>Done: </source>
+        <translation>完成:</translation>
+    </message>
+    <message>
+        <source>Failed: </source>
+        <translation>失败:</translation>
+    </message>
+    <message>
+        <source>Firmware</source>
+        <translation>固件</translation>
+    </message>
+    <message>
+        <source>Path to .bin / .hex / .elf</source>
+        <translation>.bin / .hex / .elf 文件路径</translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation>浏览...</translation>
+    </message>
+    <message>
+        <source>FLM file</source>
+        <translation>FLM 文件</translation>
+    </message>
+    <message>
+        <source>Path to flash algorithm (.FLM)</source>
+        <translation>Flash 算法(.FLM)文件路径</translation>
+    </message>
+    <message>
+        <source>Debug probe</source>
+        <translation>调试器</translation>
+    </message>
+    <message>
+        <source>Chip</source>
+        <translation>芯片</translation>
+    </message>
+    <message>
+        <source>e.g. STM32F103C8, or Cortex-M0+ if not listed</source>
+        <translation>例如 STM32F103C8;列表里没有时填 Cortex-M0+</translation>
+    </message>
+    <message>
+        <source>BIN flash address</source>
+        <translation>BIN 烧录地址</translation>
+    </message>
+    <message>
+        <source>Reset and run after finishing</source>
+        <translation>完成后复位并运行</translation>
+    </message>
+    <message>
+        <source>Program</source>
+        <translation>烧录</translation>
+    </message>
+    <message>
+        <source>Erase</source>
+        <translation>擦除</translation>
+    </message>
+    <message>
+        <source>Verify</source>
+        <translation>校验</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Flash output will appear here</source>
+        <translation>烧录输出会显示在这里</translation>
+    </message>
+    <message>
+        <source>Update list</source>
+        <translation>更新列表</translation>
+    </message>
+    <message>
+        <source>Updating...</source>
+        <translation>更新中...</translation>
+    </message>
+    <message>
+        <source>Get the supported device list from J-Link</source>
+        <translation>从 J-Link 获取支持的芯片列表</translation>
+    </message>
+    <message>
+        <source>RAM size is not a valid number</source>
+        <translation>RAM 大小不是有效的数字</translation>
+    </message>
+    <message>
+        <source>RAM start address is not a valid number</source>
+        <translation>RAM 起始地址不是有效的数字</translation>
+    </message>
+    <message>
+        <source>Default: %1</source>
+        <translation>默认:%1</translation>
+    </message>
+    <message>
+        <source>Default: as needed</source>
+        <translation>默认:按需</translation>
+    </message>
+    <message>
+        <source>RAM start address</source>
+        <translation>RAM 起始地址</translation>
+    </message>
+    <message>
+        <source>RAM size</source>
+        <translation>RAM 大小</translation>
+    </message>
+    <message>
+        <source>RAM used to run the flash algorithm. Taken from the J-Link device list when the chip is listed (read-only); otherwise enter it manually</source>
+        <translation>用来运行 Flash 算法的 RAM。芯片在 J-Link 列表里时取列表的值(不可修改),否则请手动输入</translation>
+    </message>
+    <message>
+        <source>Enter the flash address for the .bin file</source>
+        <translation>请输入 .bin 文件的烧录地址</translation>
+    </message>
+    <message>
+        <source>Address in flash where the .bin file is written</source>
+        <translation>.bin 文件写入 Flash 的地址</translation>
+    </message>
+    <message>
+        <source>Elapsed time: %1 s</source>
+        <translation>耗时:%1 秒</translation>
+    </message>
+</context>
+<context>
+    <name>FlashWorker</name>
+    <message>
+        <source>Flash algorithm: %1, %2 KB at 0x%3, page %4 bytes, %5 sector group(s)</source>
+        <translation>Flash 算法:%1,%2 KB,起始 0x%3,页 %4 字节,%5 组扇区</translation>
+    </message>
+    <message>
+        <source>Firmware: %1 bytes in %2 segment(s)</source>
+        <translation>固件:%1 字节,共 %2 段</translation>
+    </message>
+    <message>
+        <source>Starting J-Link GDB server for %1</source>
+        <translation>正在为 %1 启动 J-Link GDB Server</translation>
+    </message>
+    <message>
+        <source>Connected to the target</source>
+        <translation>已连接目标</translation>
+    </message>
+    <message>
+        <source>Reset failed (%1), trying to halt only</source>
+        <translation>复位失败(%1),改为只停住内核</translation>
+    </message>
+    <message>
+        <source>Erase completed</source>
+        <translation>擦除完成</translation>
+    </message>
+    <message>
+        <source>Verifying</source>
+        <translation>正在校验</translation>
+    </message>
+    <message>
+        <source>Program completed and verified</source>
+        <translation>烧录完成并校验通过</translation>
+    </message>
+    <message>
+        <source>Verify passed</source>
+        <translation>校验通过</translation>
+    </message>
+    <message>
+        <source>Cancelled</source>
+        <translation>已取消</translation>
+    </message>
+    <message>
+        <source>Warning: the target could not be reset: %1</source>
+        <translation>警告:无法复位目标:%1</translation>
+    </message>
+    <message>
+        <source>Reset after failure did not succeed: %1</source>
+        <translation>失败后的复位没有成功:%1</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>Not an ELF file</source>
+        <translation>不是 ELF 文件</translation>
+    </message>
+    <message>
+        <source>Only 32-bit little-endian ELF is supported</source>
+        <translation>只支持 32 位小端 ELF</translation>
+    </message>
+    <message>
+        <source>ELF file is not for ARM</source>
+        <translation>ELF 文件不是 ARM 平台的</translation>
+    </message>
+    <message>
+        <source>ELF program header table is truncated</source>
+        <translation>ELF 程序头表被截断</translation>
+    </message>
+    <message>
+        <source>ELF segment is outside the file</source>
+        <translation>ELF 段超出文件范围</translation>
+    </message>
+    <message>
+        <source>ELF section header table is truncated</source>
+        <translation>ELF 节头表被截断</translation>
+    </message>
+    <message>
+        <source>ELF section is outside the file</source>
+        <translation>ELF 节超出文件范围</translation>
+    </message>
+    <message>
+        <source>Cannot open %1: %2</source>
+        <translation>无法打开 %1：%2</translation>
+    </message>
+    <message>
+        <source>Firmware file is empty</source>
+        <translation>固件文件是空的</translation>
+    </message>
+    <message>
+        <source>Intel HEX line %1: %2</source>
+        <translation>Intel HEX 第 %1 行:%2</translation>
+    </message>
+    <message>
+        <source>missing &apos;:&apos;</source>
+        <translation>缺少 &apos;:&apos;</translation>
+    </message>
+    <message>
+        <source>malformed record</source>
+        <translation>记录格式错误</translation>
+    </message>
+    <message>
+        <source>length mismatch</source>
+        <translation>长度不一致</translation>
+    </message>
+    <message>
+        <source>checksum error</source>
+        <translation>校验和错误</translation>
+    </message>
+    <message>
+        <source>bad address record</source>
+        <translation>地址记录错误</translation>
+    </message>
+    <message>
+        <source>missing end-of-file record</source>
+        <translation>缺少结束记录</translation>
+    </message>
+    <message>
+        <source>ELF file has no loadable segments</source>
+        <translation>ELF 文件没有可加载的段</translation>
+    </message>
+    <message>
+        <source>RAM is too small: the algorithm needs %1 bytes (code + stack + page buffer) but only %2 bytes are configured</source>
+        <translation>RAM 太小:算法需要 %1 字节(代码 + 栈 + 页缓冲),但只配置了 %2 字节</translation>
+    </message>
+    <message>
+        <source>Downloading flash algorithm to RAM at %1 (%2 bytes)</source>
+        <translation>正在把 Flash 算法下载到 RAM %1(%2 字节)</translation>
+    </message>
+    <message>
+        <source>The flash algorithm in target RAM does not read back correctly; check the RAM address/size</source>
+        <translation>目标 RAM 里的 Flash 算法回读不一致,请检查 RAM 地址/大小</translation>
+    </message>
+    <message>
+        <source>The flash algorithm stopped abnormally at PC=%1</source>
+        <translation>Flash 算法异常停止,PC=%1</translation>
+    </message>
+    <message>
+        <source>Flash algorithm Init failed (code %1)</source>
+        <translation>Flash 算法 Init 失败(返回 %1)</translation>
+    </message>
+    <message>
+        <source>Flash algorithm UnInit failed (code %1)</source>
+        <translation>Flash 算法 UnInit 失败(返回 %1)</translation>
+    </message>
+    <message>
+        <source>Cancelled</source>
+        <translation>已取消</translation>
+    </message>
+    <message>
+        <source>Erase failed at %1 (code %2)</source>
+        <translation>在 %1 擦除失败(返回 %2)</translation>
+    </message>
+    <message>
+        <source>Firmware range %1 + %2 bytes is outside the flash device (%3 – %4)</source>
+        <translation>固件范围 %1 + %2 字节超出了 Flash 器件范围(%3 – %4)</translation>
+    </message>
+    <message>
+        <source>Erasing %1 sector(s)</source>
+        <translation>正在擦除 %1 个扇区</translation>
+    </message>
+    <message>
+        <source>Programming %1 page(s) of %2 bytes</source>
+        <translation>正在编程 %1 页(每页 %2 字节)</translation>
+    </message>
+    <message>
+        <source>Programming failed at %1 (code %2)</source>
+        <translation>在 %1 编程失败(返回 %2)</translation>
+    </message>
+    <message>
+        <source>Erasing the whole chip</source>
+        <translation>正在整片擦除</translation>
+    </message>
+    <message>
+        <source>Chip erase failed (code %1)</source>
+        <translation>整片擦除失败(返回 %1)</translation>
+    </message>
+    <message>
+        <source>The algorithm has no EraseChip; erasing %1 sector(s)</source>
+        <translation>算法没有 EraseChip,改为逐个擦除 %1 个扇区</translation>
+    </message>
+    <message>
+        <source>Verify failed at %1: target has 0x%2, expected 0x%3</source>
+        <translation>在 %1 校验失败:目标是 0x%2,期望 0x%3</translation>
+    </message>
+    <message>
+        <source>FLM file has no loadable code</source>
+        <translation>FLM 文件没有可加载的代码</translation>
+    </message>
+    <message>
+        <source>FLM algorithm is too large or not linked at address 0</source>
+        <translation>FLM 算法太大,或没有链接在地址 0</translation>
+    </message>
+    <message>
+        <source>FLM file is missing required functions (Init, UnInit, EraseSector, ProgramPage)</source>
+        <translation>FLM 文件缺少必需的函数(Init、UnInit、EraseSector、ProgramPage)</translation>
+    </message>
+    <message>
+        <source>FLM file has no FlashDevice description</source>
+        <translation>FLM 文件没有 FlashDevice 描述</translation>
+    </message>
+    <message>
+        <source>FLM FlashDevice description is invalid</source>
+        <translation>FLM 的 FlashDevice 描述无效</translation>
+    </message>
+    <message>
+        <source>FLM FlashDevice description is truncated</source>
+        <translation>FLM 的 FlashDevice 描述被截断</translation>
+    </message>
+    <message>
+        <source>The GDB server exited before accepting a connection</source>
+        <translation>GDB Server 在接受连接前就退出了</translation>
+    </message>
+    <message>
+        <source>Cannot connect to the GDB server on port %1</source>
+        <translation>无法连接端口 %1 上的 GDB Server</translation>
+    </message>
+    <message>
+        <source>Failed to send to the GDB server</source>
+        <translation>向 GDB Server 发送数据失败</translation>
+    </message>
+    <message>
+        <source>The GDB server did not respond</source>
+        <translation>GDB Server 没有响应</translation>
+    </message>
+    <message>
+        <source>The GDB server rejected the packet</source>
+        <translation>GDB Server 拒绝了数据包</translation>
+    </message>
+    <message>
+        <source>Not connected to the GDB server</source>
+        <translation>未连接 GDB Server</translation>
+    </message>
+    <message>
+        <source>The GDB server replied &quot;%1&quot;</source>
+        <translation>GDB Server 回复了 &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Timed out waiting for the target to stop</source>
+        <translation>等待目标停止超时</translation>
+    </message>
+    <message>
+        <source>The target exited unexpectedly</source>
+        <translation>目标意外退出</translation>
+    </message>
+    <message>
+        <source>Cannot read target memory at 0x%1</source>
+        <translation>无法读取目标内存 0x%1</translation>
+    </message>
+    <message>
+        <source>Short read from target memory at 0x%1</source>
+        <translation>读取目标内存 0x%1 时数据不足</translation>
+    </message>
+    <message>
+        <source>Cannot write target memory at 0x%1: %2</source>
+        <translation>无法写入目标内存 0x%1:%2</translation>
+    </message>
+    <message>
+        <source>Cannot read register %1</source>
+        <translation>无法读取寄存器 %1</translation>
+    </message>
+    <message>
+        <source>Cannot write register %1: %2</source>
+        <translation>无法写入寄存器 %1:%2</translation>
+    </message>
+    <message>
+        <source>J-Link software not found (%1). Install the SEGGER J-Link package.</source>
+        <translation>未找到 J-Link 软件(%1),请安装 SEGGER J-Link 软件包</translation>
+    </message>
+    <message>
+        <source>No free local port for the GDB server</source>
+        <translation>没有可用于 GDB Server 的本机端口</translation>
+    </message>
+    <message>
+        <source>Cannot start %1: %2</source>
+        <translation>无法启动 %1：%2</translation>
+    </message>
+    <message>
+        <source>Cannot create a temporary file: %1</source>
+        <translation>无法创建临时文件:%1</translation>
+    </message>
+</context>
 </TS>

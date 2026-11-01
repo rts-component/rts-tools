@@ -276,6 +276,7 @@ void SerialPanel::changeEvent(QEvent *event)
         retranslateUi();
         // LanguageChange 只发给顶层窗口，CSV 面板要自己再刷一遍
         ui->csvPanel->retranslateUi();
+        ui->armFlashPanel->retranslateUi();
     }
     QWidget::changeEvent(event);
 }

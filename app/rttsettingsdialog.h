@@ -7,9 +7,8 @@
 
 class QComboBox;
 class QLineEdit;
-class QProcess;
+class JLinkDeviceList;
 class QPushButton;
-class QStringListModel;
 
 // J-Link RTT 设置：目标芯片型号，以及 RTT 控制块的查找方式
 class RttSettingsDialog : public QDialog
@@ -23,8 +22,6 @@ public:
 
 private:
     void updateEnabled();
-    void loadDeviceList();    // 读缓存；没有缓存就向 J-Link 要
-    void refreshDeviceList(); // 让 JLinkExe 导出支持的芯片列表
     void accept() override;
 
     QLineEdit *m_deviceEdit = nullptr;
@@ -32,8 +29,7 @@ private:
     QLineEdit *m_addressEdit = nullptr;
     QLineEdit *m_sizeEdit = nullptr;
     QPushButton *m_refreshButton = nullptr;
-    QStringListModel *m_deviceModel = nullptr;
-    QProcess *m_listProcess = nullptr;
+    JLinkDeviceList *m_deviceList = nullptr;
 };
 
 #endif // RTTSETTINGSDIALOG_H

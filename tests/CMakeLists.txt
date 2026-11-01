@@ -64,3 +64,17 @@ target_link_libraries(test_updatechecker PRIVATE Qt::Core Qt::Network Qt::Test)
 target_include_directories(test_updatechecker PRIVATE ${PROJECT_SOURCE_DIR})
 rts_enable_warnings(test_updatechecker)
 add_test(NAME test_updatechecker COMMAND test_updatechecker)
+
+# ARM Flash：FLM/固件解析、算法执行（假探针）、GDB 远程协议（本机假服务端）
+function(rts_add_flash_test name)
+    qt_add_executable(${name} ${ARGN})
+    target_link_libraries(${name} PRIVATE Qt::Core Qt::Network Qt::Test rts-flash)
+    target_include_directories(${name} PRIVATE ${PROJECT_SOURCE_DIR})
+    rts_enable_warnings(${name})
+    add_test(NAME ${name} COMMAND ${name})
+endfunction()
+
+rts_add_test(test_jlinkdevicelist test_jlinkdevicelist.cpp)
+rts_add_flash_test(test_flmfile test_flmfile.cpp)
+rts_add_flash_test(test_flashalgo test_flashalgo.cpp)
+rts_add_flash_test(test_gdbremoteprobe test_gdbremoteprobe.cpp)

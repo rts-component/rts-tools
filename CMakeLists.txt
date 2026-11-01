@@ -34,10 +34,36 @@ add_library(rts-common STATIC
     common/translation.h
     common/plotendpoints.cpp
     common/plotendpoints.h
+    common/jlinkdevicelist.cpp
+    common/jlinkdevicelist.h
+    common/jlinkpaths.cpp
+    common/jlinkpaths.h
 )
 target_include_directories(rts-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(rts-common PUBLIC Qt::Core Qt::Gui)
 rts_enable_warnings(rts-common)
+
+# ARM Flash 烧录的非界面部分：FLM/固件解析、GDB 探针、算法执行；单元测试也链接它
+add_library(rts-flash STATIC
+    flash/elf32.cpp
+    flash/elf32.h
+    flash/flmfile.cpp
+    flash/flmfile.h
+    flash/firmwareimage.cpp
+    flash/firmwareimage.h
+    flash/probe.h
+    flash/gdbremoteprobe.cpp
+    flash/gdbremoteprobe.h
+    flash/probeserver.cpp
+    flash/probeserver.h
+    flash/flashalgo.cpp
+    flash/flashalgo.h
+    flash/flashworker.cpp
+    flash/flashworker.h
+)
+target_include_directories(rts-flash PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(rts-flash PUBLIC Qt::Core Qt::Network rts-common)
+rts_enable_warnings(rts-flash)
 
 qt_add_executable(rts-tools
     WIN32 MACOSX_BUNDLE
@@ -70,6 +96,8 @@ qt_add_executable(rts-tools
     csv/csvgroupdialog.cpp
     csv/csvgroupdialog.h
     csv/csvicons.h
+    flash/armflashpanel.cpp
+    flash/armflashpanel.h
     plot/server/plotserver.cpp
     plot/server/plotserver.h
     plot/server/plotlauncher.cpp
@@ -167,6 +195,7 @@ qt_add_translations(
 
 target_link_libraries(rts-tools
     PRIVATE
+        rts-flash
         Qt::Core
         Qt::Widgets
         Qt::SerialPort
