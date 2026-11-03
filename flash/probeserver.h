@@ -7,15 +7,18 @@
 
 #include <memory>
 
-// 启动并管理厂商提供的 GDB Server 工具（目前是 SEGGER 的 JLinkGDBServerCLExe），
+// 启动并管理 GDB Server 工具（SEGGER 的 JLinkGDBServerCLExe，或者 DAPLink 用的 OpenOCD），
 // 我们只通过它开的本机 TCP 端口说 GDB 协议，不链接任何厂商库。
 // 同步使用，和 GdbRemoteProbe 在同一个线程里。
 class ProbeServer
 {
 public:
+    enum class Kind { JLink, OpenOcdCmsisDap };
+
     struct Config
     {
-        QString device;     // 芯片名，J-Link 必须知道（如 STM32F103C8，不确定时可用 Cortex-M3）
+        Kind kind = Kind::JLink;
+        QString device;     // 芯片名，J-Link 必须知道（如 STM32F103C8，不确定时可用 Cortex-M3）；OpenOCD 不用
         int speedKHz = 4000;
     };
 

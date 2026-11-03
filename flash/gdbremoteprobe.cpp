@@ -280,6 +280,11 @@ bool GdbRemoteProbe::halt()
     return monitor(QStringLiteral("halt"));
 }
 
+bool GdbRemoteProbe::runFreely(const QString &monitorCommand)
+{
+    return monitor(monitorCommand);
+}
+
 bool GdbRemoteProbe::reset()
 {
     if (m_running && !interrupt())

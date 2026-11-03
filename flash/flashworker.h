@@ -14,7 +14,10 @@ struct FlashRequest
     Operation operation = Operation::Program;
     QString firmwarePath;
     QString flmPath;
-    QString device;                   // 探针工具需要的芯片名
+    enum class ProbeType { JLink, DapLink };
+
+    ProbeType probe = ProbeType::JLink;
+    QString device;                   // J-Link 需要的芯片名（DAPLink 不用）
     quint32 binAddress = 0x08000000;  // .bin 固件的写入地址（.hex/.elf 自带地址）
     quint32 ramAddress = 0x20000000;  // 下载算法用的 RAM 起点
     quint32 ramSize = 0;              // 0 = 按算法需要的大小，不检查总容量

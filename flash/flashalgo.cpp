@@ -200,11 +200,28 @@ bool FlashAlgo::program(const QVector<FirmwareSegment> &segments)
 
     QVector<quint32> sectors(sectorSet.begin(), sectorSet.end());
     std::sort(sectors.begin(), sectors.end());
-    const int total = int(sectors.size() + pages.size());
+    // 算法有整片擦除就整片擦（更快，但固件范围之外的数据也会被擦掉），没有才按固件覆盖的扇区擦
+    const bool chipErase = m_flm.eraseChipOffset != FlmFile::kNoEntry;
+    const int eraseSteps = chipErase ? 1 : int(sectors.size());
+    const int total = int(eraseSteps + pages.size());
     int done = 0;
 
-    log(QObject::tr("Erasing %1 sector(s)").arg(sectors.size()));
-    if (!initAlgo(Erase) || !eraseSectors(sectors, &done, total) || !uninitAlgo(Erase))
+    if (!initAlgo(Erase))
+        return false;
+    if (chipErase) {
+        log(QObject::tr("Erasing the whole chip"));
+        quint32 result = 0;
+        if (!call(m_flm.eraseChipOffset, {}, kChipEraseTimeoutMs, &result))
+            return false;
+        if (result != 0)
+            return fail(QObject::tr("Chip erase failed (code %1)").arg(result));
+        reportProgress(++done, total);
+    } else {
+        log(QObject::tr("Erasing %1 sector(s)").arg(sectors.size()));
+        if (!eraseSectors(sectors, &done, total))
+            return false;
+    }
+    if (!uninitAlgo(Erase))
         return false;
 
     log(QObject::tr("Programming %1 page(s) of %2 bytes").arg(pages.size()).arg(m_flm.pageSize));

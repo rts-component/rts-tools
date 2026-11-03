@@ -31,12 +31,16 @@ public:
 private:
     void insertHighlighted(QTextCursor &cursor, const QString &text);
     void rehighlight();
+    void scrollToEnd();
     void trim();
 
     QPlainTextEdit *m_edit = nullptr;
     QVector<HighlightRule> m_rules;
     QTimer *m_rehighlightTimer = nullptr; // 合并连续的规则改动，避免反复重排整篇日志
+    QTimer *m_scrollTimer = nullptr; // 节流期内收到的数据，延后补一次滚动
     QElapsedTimer m_scrollThrottle;
+    bool m_following = true;  // 用户停在底部时为真；只由用户的滚动操作改变
+    bool m_appending = false; // append/裁剪期间滚动条的变化不是用户操作，忽略
 };
 
 #endif // RECEIVELOGVIEW_H

@@ -33,6 +33,19 @@ ReceiveLogView::ReceiveLogView(QPlainTextEdit *edit, QObject *parent)
     m_rehighlightTimer->setInterval(kRehighlightDelayMs);
     connect(m_rehighlightTimer, &QTimer::timeout, this, &ReceiveLogView::rehighlight);
 
+    m_scrollTimer = new QTimer(this);
+    m_scrollTimer->setSingleShot(true);
+    m_scrollTimer->setInterval(kScrollThrottleMs);
+    connect(m_scrollTimer, &QTimer::timeout, this, &ReceiveLogView::scrollToEnd);
+
+    // 文档增删会让滚动条的值和范围短暂失配，所以不从“当前是否在底部”推断意图，
+    // 只在用户自己拖动/滚轮时更新跟随状态
+    connect(m_edit->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
+        if (m_appending)
+            return;
+        m_following = value >= m_edit->verticalScrollBar()->maximum() - 4;
+    });
+
     m_scrollThrottle.start();
 }
 
@@ -43,8 +56,20 @@ void ReceiveLogView::setRules(const QVector<HighlightRule> &rules, bool rehighli
         m_rehighlightTimer->start();
 }
 
+void ReceiveLogView::scrollToEnd()
+{
+    QScrollBar *scrollBar = m_edit->verticalScrollBar();
+    m_appending = true;
+    scrollBar->setValue(scrollBar->maximum());
+    m_appending = false;
+    m_following = true;
+    m_scrollThrottle.restart();
+}
+
 void ReceiveLogView::clear()
 {
+    m_scrollTimer->stop();
+    m_following = true;
     m_edit->clear();
 }
 
@@ -53,9 +78,9 @@ void ReceiveLogView::append(const QString &text, bool continueLine)
     if (text.isEmpty())
         return;
 
-    QScrollBar *scrollBar = m_edit->verticalScrollBar();
-    const bool followOutput = scrollBar->value() >= scrollBar->maximum() - 4;
+    const bool followOutput = m_following;
 
+    m_appending = true;
     m_edit->setUpdatesEnabled(false);
 
     // 按行插入，并把超长行切成固定长度，避免单个 QTextBlock 越滚越大导致整块重排版
@@ -92,11 +117,15 @@ void ReceiveLogView::append(const QString &text, bool continueLine)
 
     trim();
     m_edit->setUpdatesEnabled(true);
+    m_appending = false;
 
     // 滚动到底会触发全文高度排版，按 ~150ms 节流，既跟手又不拖慢接收
-    if (followOutput && m_scrollThrottle.elapsed() >= kScrollThrottleMs) {
-        scrollBar->setValue(scrollBar->maximum());
-        m_scrollThrottle.restart();
+    // 被节流跳过的那次由定时器补上，否则最后一批数据到了却停在旧位置
+    if (followOutput) {
+        if (m_scrollThrottle.elapsed() >= kScrollThrottleMs)
+            scrollToEnd();
+        else if (!m_scrollTimer->isActive())
+            m_scrollTimer->start();
     }
 }
 

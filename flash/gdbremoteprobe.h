@@ -31,6 +31,9 @@ public:
     // 复位用的 monitor 命令；J-Link 是 "reset"，openocd 是 "reset halt"
     void setResetCommand(const QString &command) { m_resetCommand = command; }
 
+    // 让内核直接跑起来并脱离控制（OpenOCD 用）：发 monitor 命令，之后不再认为内核在受控运行
+    bool runFreely(const QString &monitorCommand);
+
     bool reset() override;
     bool halt() override;
     bool resume() override;

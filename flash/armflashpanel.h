@@ -1,12 +1,12 @@
 #ifndef ARMFLASHPANEL_H
 #define ARMFLASHPANEL_H
 
+#include "common/jlinkdevicelist.h"
 #include "flash/flashworker.h"
 
 #include <QElapsedTimer>
 #include <QWidget>
 
-class JLinkDeviceList;
 class QCheckBox;
 class QComboBox;
 class QLabel;
@@ -37,6 +37,9 @@ private:
     void browseFlm();
     void updateAddressVisible();
     bool isBinFirmware() const;
+    bool isDapLink() const;
+    JLinkDeviceList::RamArea ramAreaFromList(const QString &device) const;
+    void updateProbeFields();
     void updateRamFields();
     void startOperation(FlashRequest::Operation operation);
     bool buildRequest(FlashRequest::Operation operation, FlashRequest *request, QString *error) const;
@@ -54,6 +57,7 @@ private:
     QPushButton *m_flmBrowseButton = nullptr;
     QLabel *m_probeLabel = nullptr;
     QComboBox *m_probeCombo = nullptr;
+    QComboBox *m_speedCombo = nullptr;
     QLabel *m_chipLabel = nullptr;
     QLineEdit *m_chipEdit = nullptr;
     QPushButton *m_chipRefreshButton = nullptr;

@@ -125,9 +125,11 @@ private slots:
 
     void programErasesThenWritesPages()
     {
+        FlmFile flm; // 没有 EraseChip 的算法：只擦固件覆盖的扇区
+        QVERIFY(FlmFile::parse(ElfBuilder::buildTestFlm(false), &flm, nullptr));
         FakeProbe probe;
         probe.flash.fill('\0'); // 先全部置 0：不擦除就写不进去，能证明擦除生效
-        FlashAlgo algo(probe, m_flm, kRam, kRamSize, {});
+        FlashAlgo algo(probe, flm, kRam, kRamSize, {});
         QVERIFY(algo.load());
 
         const QByteArray data = pattern(0x300);
@@ -196,6 +198,20 @@ private slots:
         FlashAlgo algo(probe, m_flm, kRam, 0x400, {});
         QVERIFY(!algo.load());
         QVERIFY(algo.error().contains(QStringLiteral("RAM")));
+    }
+
+    void programUsesChipEraseWhenAvailable()
+    {
+        FakeProbe probe;
+        probe.flash.fill('\0');
+        FlashAlgo algo(probe, m_flm, kRam, kRamSize, {});
+        QVERIFY(algo.load());
+        const QByteArray data = pattern(0x300);
+        QVERIFY2(algo.program({{kFlash + 0x100, data}}), qPrintable(algo.error()));
+        QVERIFY(probe.chipErased);
+        QVERIFY(probe.erasedSectors.isEmpty());
+        QCOMPARE(probe.flash.mid(0x100, 0x300), data);
+        QCOMPARE(probe.flash.at(0x400), char(0xFF)); // 整片擦除：固件之外也被擦了
     }
 
     void eraseChipUsesAlgorithmFunction()

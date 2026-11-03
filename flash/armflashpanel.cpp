@@ -65,13 +65,16 @@ ArmFlashPanel::ArmFlashPanel(QWidget *parent)
 
     m_probeLabel = new QLabel(this);
     m_probeCombo = new QComboBox(this);
-    m_probeCombo->addItems({QStringLiteral("J-Link"), QStringLiteral("CMSIS-DAP"),
+    m_probeCombo->addItems({QStringLiteral("J-Link"), QStringLiteral("DAPLink"),
                             QStringLiteral("ST-Link")});
-    // 目前只有 J-Link 后端；其余先灰掉
-    if (auto *model = qobject_cast<QStandardItemModel *>(m_probeCombo->model())) {
-        for (int i = 1; i < model->rowCount(); ++i)
-            model->item(i)->setEnabled(false);
-    }
+    // 目前有 J-Link 和 DAPLink 两个后端；其余先灰掉
+    if (auto *model = qobject_cast<QStandardItemModel *>(m_probeCombo->model()))
+        model->item(2)->setEnabled(false);
+
+    m_speedCombo = new QComboBox(this);
+    for (int khz : {1000, 2000, 4000, 8000, 10000})
+        m_speedCombo->addItem(QStringLiteral("%1 MHz").arg(khz / 1000), khz);
+    m_speedCombo->setCurrentIndex(m_speedCombo->findData(4000));
 
     m_chipLabel = new QLabel(this);
     m_chipEdit = new QLineEdit(this);
@@ -107,7 +110,8 @@ ArmFlashPanel::ArmFlashPanel(QWidget *parent)
     form->addWidget(m_flmEdit, 1, 1, 1, 2);
     form->addWidget(m_flmBrowseButton, 1, 3);
     form->addWidget(m_probeLabel, 2, 0);
-    form->addWidget(m_probeCombo, 2, 1, 1, 3);
+    form->addWidget(m_probeCombo, 2, 1, 1, 2);
+    form->addWidget(m_speedCombo, 2, 3);
     form->addWidget(m_chipLabel, 3, 0);
     form->addWidget(m_chipEdit, 3, 1, 1, 2);
     form->addWidget(m_chipRefreshButton, 3, 3);
@@ -141,11 +145,12 @@ ArmFlashPanel::ArmFlashPanel(QWidget *parent)
     m_chipEdit->setCompleter(completer);
     connect(m_chipRefreshButton, &QPushButton::clicked, m_deviceList, &JLinkDeviceList::refresh);
     connect(m_deviceList, &JLinkDeviceList::refreshingChanged, this, [this](bool refreshing) {
-        m_chipRefreshButton->setEnabled(!refreshing);
+        m_chipRefreshButton->setEnabled(!refreshing && !isDapLink() && !m_busy);
         m_chipRefreshButton->setText(refreshing ? tr("Updating...") : tr("Update list"));
     });
     m_deviceList->load();
     connect(m_chipEdit, &QLineEdit::textChanged, this, &ArmFlashPanel::updateRamFields);
+    connect(m_probeCombo, &QComboBox::currentIndexChanged, this, &ArmFlashPanel::updateProbeFields);
     connect(m_ramAddressEdit, &QLineEdit::textEdited, this, [this](const QString &text) { m_manualRamAddress = text; });
     connect(m_ramSizeEdit, &QLineEdit::textEdited, this, [this](const QString &text) { m_manualRamSize = text; });
     connect(m_deviceList->model(), &QAbstractItemModel::modelReset, this, &ArmFlashPanel::updateRamFields);
@@ -176,7 +181,7 @@ ArmFlashPanel::ArmFlashPanel(QWidget *parent)
 
     loadConfig();
     updateAddressVisible();
-    updateRamFields();
+    updateProbeFields();
     retranslateUi();
 }
 
@@ -239,6 +244,8 @@ bool ArmFlashPanel::buildRequest(FlashRequest::Operation operation, FlashRequest
     r.firmwarePath = m_firmwareEdit->text().trimmed();
     r.flmPath = m_flmEdit->text().trimmed();
     r.device = m_chipEdit->text().trimmed();
+    r.probe = isDapLink() ? FlashRequest::ProbeType::DapLink : FlashRequest::ProbeType::JLink;
+    r.speedKHz = m_speedCombo->currentData().toInt();
     r.runAfter = m_runAfterCheck->isChecked();
 
     if (operation != Operation::Erase && !QFile::exists(r.firmwarePath)) {
@@ -249,7 +256,7 @@ bool ArmFlashPanel::buildRequest(FlashRequest::Operation operation, FlashRequest
         *error = tr("Select an existing FLM file");
         return false;
     }
-    if (r.device.isEmpty()) {
+    if (r.probe == FlashRequest::ProbeType::JLink && r.device.isEmpty()) {
         *error = tr("Enter the chip name (for example STM32F103C8)");
         return false;
     }
@@ -267,7 +274,7 @@ bool ArmFlashPanel::buildRequest(FlashRequest::Operation operation, FlashRequest
 
     // RAM：芯片在 J-Link 列表里就用列表的值（界面上不可改）；否则用手填的，
     // 没填起始地址就用默认起点，没填大小就不限（按算法实际需要）
-    const JLinkDeviceList::RamArea listed = m_deviceList->ramArea(r.device);
+    const JLinkDeviceList::RamArea listed = ramAreaFromList(r.device);
     if (listed.isValid()) {
         r.ramAddress = listed.address;
         r.ramSize = listed.size;
@@ -287,9 +294,29 @@ bool ArmFlashPanel::buildRequest(FlashRequest::Operation operation, FlashRequest
     return true;
 }
 
+bool ArmFlashPanel::isDapLink() const
+{
+    return m_probeCombo->currentText() == QLatin1String("DAPLink");
+}
+
+// 芯片列表来自 J-Link，DAPLink 不用它
+JLinkDeviceList::RamArea ArmFlashPanel::ramAreaFromList(const QString &device) const
+{
+    return isDapLink() ? JLinkDeviceList::RamArea() : m_deviceList->ramArea(device);
+}
+
+void ArmFlashPanel::updateProbeFields()
+{
+    const bool dapLink = isDapLink();
+    m_chipLabel->setEnabled(!dapLink);
+    m_chipEdit->setEnabled(!dapLink && !m_busy);
+    m_chipRefreshButton->setEnabled(!dapLink && !m_busy && !m_deviceList->isRefreshing());
+    updateRamFields();
+}
+
 void ArmFlashPanel::updateRamFields()
 {
-    const JLinkDeviceList::RamArea listed = m_deviceList->ramArea(m_chipEdit->text().trimmed());
+    const JLinkDeviceList::RamArea listed = ramAreaFromList(m_chipEdit->text().trimmed());
     if (listed.isValid()) {
         m_ramAddressEdit->setText(hexText(listed.address));
         m_ramSizeEdit->setText(hexText(listed.size));
@@ -338,12 +365,11 @@ void ArmFlashPanel::setBusy(bool busy)
     for (QWidget *widget : {static_cast<QWidget *>(m_programButton), static_cast<QWidget *>(m_eraseButton),
                             static_cast<QWidget *>(m_verifyButton), static_cast<QWidget *>(m_browseButton),
                             static_cast<QWidget *>(m_flmBrowseButton), static_cast<QWidget *>(m_firmwareEdit),
-                            static_cast<QWidget *>(m_flmEdit), static_cast<QWidget *>(m_chipEdit),
-                            static_cast<QWidget *>(m_chipRefreshButton),
+                            static_cast<QWidget *>(m_flmEdit), static_cast<QWidget *>(m_probeCombo), static_cast<QWidget *>(m_speedCombo),
                             static_cast<QWidget *>(m_addressEdit), static_cast<QWidget *>(m_runAfterCheck)})
         widget->setEnabled(!busy);
     updateAddressVisible();
-    updateRamFields();
+    updateProbeFields();
     m_cancelButton->setEnabled(busy);
 }
 
@@ -360,6 +386,12 @@ void ArmFlashPanel::loadConfig()
     m_firmwareEdit->setText(o.value(QStringLiteral("firmware")).toString());
     m_flmEdit->setText(o.value(QStringLiteral("flm")).toString());
     m_chipEdit->setText(o.value(QStringLiteral("chip")).toString());
+    const int speedIndex = m_speedCombo->findData(o.value(QStringLiteral("speedKHz")).toInt());
+    if (speedIndex >= 0)
+        m_speedCombo->setCurrentIndex(speedIndex);
+    const int probeIndex = m_probeCombo->findText(o.value(QStringLiteral("probe")).toString());
+    if (probeIndex >= 0 && m_probeCombo->model()->index(probeIndex, 0).flags().testFlag(Qt::ItemIsEnabled))
+        m_probeCombo->setCurrentIndex(probeIndex);
     m_addressEdit->setText(o.value(QStringLiteral("address")).toString(m_addressEdit->text()));
     m_manualRamAddress = o.value(QStringLiteral("ramAddress")).toString();
     m_manualRamSize = o.value(QStringLiteral("ramSize")).toString();
@@ -372,6 +404,8 @@ void ArmFlashPanel::saveConfig() const
     o.insert(QStringLiteral("firmware"), m_firmwareEdit->text());
     o.insert(QStringLiteral("flm"), m_flmEdit->text());
     o.insert(QStringLiteral("chip"), m_chipEdit->text());
+    o.insert(QStringLiteral("probe"), m_probeCombo->currentText());
+    o.insert(QStringLiteral("speedKHz"), m_speedCombo->currentData().toInt());
     o.insert(QStringLiteral("address"), m_addressEdit->text());
     o.insert(QStringLiteral("ramAddress"), m_manualRamAddress);
     o.insert(QStringLiteral("ramSize"), m_manualRamSize);
@@ -388,6 +422,7 @@ void ArmFlashPanel::retranslateUi()
     m_flmEdit->setPlaceholderText(tr("Path to flash algorithm (.FLM)"));
     m_flmBrowseButton->setText(tr("Browse..."));
     m_probeLabel->setText(tr("Debug probe"));
+    m_speedCombo->setToolTip(tr("SWD clock speed. Lower it if connecting or programming is unreliable"));
     m_chipLabel->setText(tr("Chip"));
     m_chipEdit->setPlaceholderText(tr("e.g. STM32F103C8, or Cortex-M0+ if not listed"));
     m_chipRefreshButton->setText(m_deviceList->isRefreshing() ? tr("Updating...") : tr("Update list"));

@@ -67,16 +67,23 @@ void FlashWorker::run(const FlashRequest &request)
 
     ProbeServer server;
     ProbeServer::Config config;
+    const bool dapLink = request.probe == FlashRequest::ProbeType::DapLink;
+    config.kind = dapLink ? ProbeServer::Kind::OpenOcdCmsisDap : ProbeServer::Kind::JLink;
     config.device = request.device;
     config.speedKHz = request.speedKHz;
     GdbRemoteProbe probe;
     probe.setCancelCheck([this] { return m_cancel.load(); });
+    if (dapLink)
+        probe.setResetCommand(QStringLiteral("reset halt"));
 
     // 服务器端口是先探测空闲再交给它绑定的，中间可能被别的进程抢走；这种情况下服务器会立刻退出，换端口重试一次
     QString connectError;
     bool connected = false;
     for (int attempt = 0; attempt < 2 && !connected; ++attempt) {
-        emit log(tr("Starting J-Link GDB server for %1").arg(request.device));
+        if (dapLink)
+            emit log(tr("Starting OpenOCD for DAPLink"));
+        else
+            emit log(tr("Starting J-Link GDB server for %1").arg(request.device));
         if (!server.start(config, &error))
             return done(false, error);
         if (probe.open(server.port(), kConnectTimeoutMs, [&server] { return server.isAlive(); })) {
@@ -87,7 +94,7 @@ void FlashWorker::run(const FlashRequest &request)
         const QString serverOutput = server.output().trimmed();
         if (!serverOutput.isEmpty())
             connectError += QLatin1Char('\n') + serverOutput;
-        const bool targetProblem = serverOutput.contains(QLatin1String("Could not connect"));
+        const bool targetProblem = serverOutput.contains(QLatin1String(dapLink ? "Error:" : "Could not connect"));
         if (m_cancel || targetProblem || server.isAlive())
             break;
         server.stop();
@@ -140,7 +147,8 @@ void FlashWorker::run(const FlashRequest &request)
 
     if (success && request.runAfter && request.operation != Operation::Erase) {
         // 复位后内核停在复位向量，随后 detach，J-Link 服务器会放开内核让程序跑起来
-        if (!probe.reset())
+        // OpenOCD 在 detach 时不会放开内核，所以复位后要明确让它跑起来
+        if (!probe.reset() || (dapLink && !probe.runFreely(QStringLiteral("resume"))))
             message += QLatin1Char('\n') + tr("Warning: the target could not be reset: %1").arg(probe.lastError());
     } else if (!success) {
         // 失败/取消：内核可能还停在算法的 RAM 残片里，复位一次让目标回到干净的状态
