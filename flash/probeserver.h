@@ -3,6 +3,7 @@
 
 #include <QProcess>
 #include <QString>
+#include <QStringList>
 #include <QTemporaryFile>
 
 #include <memory>
@@ -21,6 +22,12 @@ public:
         QString device;     // 芯片名，J-Link 必须知道（如 STM32F103C8，不确定时可用 Cortex-M3）；OpenOCD 不用
         int speedKHz = 4000;
     };
+
+    // OpenOCD（CMSIS-DAP）的命令行；RTT 也用它，所以单独提供。preInit 在 init 前执行，postInit 在 init 后
+    static QStringList openOcdArguments(int speedKHz, const QStringList &preInit = {},
+                                        const QStringList &postInit = {});
+    // OpenOCD 的路径，找不到返回空
+    static QString findOpenOcd();
 
     ProbeServer() = default;
     ~ProbeServer();

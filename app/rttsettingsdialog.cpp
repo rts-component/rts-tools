@@ -33,6 +33,8 @@ QString formatHex(quint32 value)
 
 RttSettingsDialog::RttSettingsDialog(const RttSettings &settings, QWidget *parent)
     : QDialog(parent)
+    , m_probeCombo(new QComboBox(this))
+    , m_speedCombo(new QComboBox(this))
     , m_deviceEdit(new QLineEdit(settings.device, this))
     , m_searchCombo(new QComboBox(this))
     , m_addressEdit(new QLineEdit(formatHex(settings.address), this))
@@ -45,6 +47,13 @@ RttSettingsDialog::RttSettingsDialog(const RttSettings &settings, QWidget *paren
     m_searchCombo->addItem(tr("Specified address and range"));
     m_searchCombo->setCurrentIndex(static_cast<int>(settings.search));
 
+    m_probeCombo->addItem(QStringLiteral("J-Link"));
+    m_probeCombo->addItem(QStringLiteral("DAPLink"));
+    m_probeCombo->setCurrentIndex(static_cast<int>(settings.probe));
+    for (int khz : {1000, 2000, 4000, 8000, 10000})
+        m_speedCombo->addItem(QStringLiteral("%1 MHz").arg(khz / 1000), khz);
+    m_speedCombo->setCurrentIndex(qMax(0, m_speedCombo->findData(settings.speedKHz)));
+
     auto *form = new QFormLayout;
     m_refreshButton = new QPushButton(tr("Update list"), this);
     m_refreshButton->setToolTip(tr("Get the supported device list from J-Link"));
@@ -52,6 +61,8 @@ RttSettingsDialog::RttSettingsDialog(const RttSettings &settings, QWidget *paren
     deviceRow->setContentsMargins(0, 0, 0, 0);
     deviceRow->addWidget(m_deviceEdit, 1);
     deviceRow->addWidget(m_refreshButton);
+    form->addRow(tr("Debug probe"), m_probeCombo);
+    form->addRow(tr("SWD speed"), m_speedCombo);
     form->addRow(tr("MCU model"), deviceRow);
     form->addRow(tr("Control block"), m_searchCombo);
     form->addRow(tr("Address (hex)"), m_addressEdit);
@@ -67,6 +78,8 @@ RttSettingsDialog::RttSettingsDialog(const RttSettings &settings, QWidget *paren
 
     connect(m_searchCombo, &QComboBox::currentIndexChanged, this,
             [this] { updateEnabled(); });
+    connect(m_probeCombo, &QComboBox::currentIndexChanged, this,
+            [this] { updateEnabled(); });
     updateEnabled();
     setMinimumWidth(420);
 
@@ -79,7 +92,7 @@ RttSettingsDialog::RttSettingsDialog(const RttSettings &settings, QWidget *paren
     m_deviceEdit->setCompleter(completer);
     connect(m_refreshButton, &QPushButton::clicked, m_deviceList, &JLinkDeviceList::refresh);
     connect(m_deviceList, &JLinkDeviceList::refreshingChanged, this, [this](bool refreshing) {
-        m_refreshButton->setEnabled(!refreshing);
+        updateEnabled();
         m_refreshButton->setText(refreshing ? tr("Updating...") : tr("Update list"));
     });
     m_deviceList->load();
@@ -87,6 +100,10 @@ RttSettingsDialog::RttSettingsDialog(const RttSettings &settings, QWidget *paren
 
 void RttSettingsDialog::updateEnabled()
 {
+    // 芯片型号只有 J-Link 需要；DAPLink 的 OpenOCD 用通用 Cortex-M 目标
+    const bool jlink = m_probeCombo->currentIndex() == static_cast<int>(RttSettings::Probe::JLink);
+    m_deviceEdit->setEnabled(jlink);
+    m_refreshButton->setEnabled(jlink && !(m_deviceList && m_deviceList->isRefreshing()));
     const int mode = m_searchCombo->currentIndex();
     m_addressEdit->setEnabled(mode != static_cast<int>(RttSettings::Search::Auto));
     m_sizeEdit->setEnabled(mode == static_cast<int>(RttSettings::Search::Range));
@@ -95,6 +112,8 @@ void RttSettingsDialog::updateEnabled()
 RttSettings RttSettingsDialog::settings() const
 {
     RttSettings result;
+    result.probe = static_cast<RttSettings::Probe>(m_probeCombo->currentIndex());
+    result.speedKHz = m_speedCombo->currentData().toInt();
     result.device = m_deviceEdit->text().trimmed();
     result.search = static_cast<RttSettings::Search>(m_searchCombo->currentIndex());
     parseHex(m_addressEdit->text(), &result.address);
@@ -105,6 +124,12 @@ RttSettings RttSettingsDialog::settings() const
 void RttSettingsDialog::accept()
 {
     quint32 value = 0;
+    const bool jlink = m_probeCombo->currentIndex() == static_cast<int>(RttSettings::Probe::JLink);
+    if (jlink && m_deviceEdit->text().trimmed().isEmpty()) {
+        QMessageBox::warning(this, windowTitle(), tr("Enter the target device name first, e.g. STM32F407VG."));
+        m_deviceEdit->setFocus();
+        return;
+    }
     const auto mode = static_cast<RttSettings::Search>(m_searchCombo->currentIndex());
     if (mode != RttSettings::Search::Auto && !parseHex(m_addressEdit->text(), &value)) {
         QMessageBox::warning(this, windowTitle(), tr("Invalid address. Enter a hex value."));

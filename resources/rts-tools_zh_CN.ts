@@ -298,12 +298,8 @@
         <translation>当前已是最新版本（%1）。</translation>
     </message>
     <message>
-        <source>RTT (J-Link)</source>
-        <translation>RTT（J-Link）</translation>
-    </message>
-    <message>
-        <source>J-Link RTT</source>
-        <translation>J-Link RTT</translation>
+        <source>RTT</source>
+        <translation>RTT</translation>
     </message>
     <message>
         <source>Enter the target device name first, e.g. STM32F407VG.</source>
@@ -378,8 +374,8 @@
         <translation>关于 rts-tools</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;Serial / J-Link RTT debugging tool with CSV parsing and live plots.&lt;/p&gt;&lt;p&gt;Built with Qt %2.&lt;/p&gt;&lt;p&gt;Released under the MIT License. Qt is used under the LGPLv3; see THIRD-PARTY-NOTICES.md.&lt;/p&gt;&lt;p&gt;&lt;a href="https://github.com/rts-component/rts-tools"&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;串口 / J-Link RTT 调试工具，支持 CSV 解析与实时曲线。&lt;/p&gt;&lt;p&gt;基于 Qt %2 构建。&lt;/p&gt;&lt;p&gt;以 MIT 许可证发布；Qt 按 LGPLv3 使用，详见 THIRD-PARTY-NOTICES.md。&lt;/p&gt;&lt;p&gt;&lt;a href="https://github.com/rts-component/rts-tools"&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</translation>
+        <source>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;Serial / RTT debugging tool with CSV parsing and live plots.&lt;/p&gt;&lt;p&gt;Built with Qt %2.&lt;/p&gt;&lt;p&gt;Released under the MIT License. Qt is used under the LGPLv3; see THIRD-PARTY-NOTICES.md.&lt;/p&gt;&lt;p&gt;&lt;a href="https://github.com/rts-component/rts-tools"&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</source>
+        <translation>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;串口 / RTT 调试工具，支持 CSV 解析与实时曲线。&lt;/p&gt;&lt;p&gt;基于 Qt %2 构建。&lt;/p&gt;&lt;p&gt;以 MIT 许可证发布；Qt 按 LGPLv3 使用，详见 THIRD-PARTY-NOTICES.md。&lt;/p&gt;&lt;p&gt;&lt;a href="https://github.com/rts-component/rts-tools"&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>rts-tools</source>

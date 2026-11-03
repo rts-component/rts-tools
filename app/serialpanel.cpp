@@ -170,7 +170,7 @@ SerialPanel::SerialPanel(QWidget *parent)
     });
     connect(m_rtt, &RttSession::failed, this, [this](const QString &message) {
         closePort();
-        QMessageBox::warning(this, tr("J-Link RTT"), message);
+        QMessageBox::warning(this, tr("RTT"), message);
     });
 
     // RTT 没有波特率，选中它时波特率框换成“设置”按钮，用来填目标芯片型号
@@ -339,7 +339,7 @@ void SerialPanel::showAbout()
     const QString commit = QStringLiteral(RTS_TOOLS_GIT_SHA);
     const QString text =
             tr("<h3>rts-tools %1</h3>"
-               "<p>Serial / J-Link RTT debugging tool with CSV parsing and live plots.</p>"
+               "<p>Serial / RTT debugging tool with CSV parsing and live plots.</p>"
                "<p>Built with Qt %2.</p>"
                "<p>Released under the MIT License. Qt is used under the LGPLv3; "
                "see THIRD-PARTY-NOTICES.md.</p>"
@@ -504,7 +504,7 @@ void SerialPanel::refreshPorts()
     }
     if (ports.isEmpty())
         ui->portComboBox->addItem(tr("No serial port"), QString());
-    ui->portComboBox->addItem(tr("RTT (J-Link)"), QString::fromLatin1(kRttSource));
+    ui->portComboBox->addItem(tr("RTT"), QString::fromLatin1(kRttSource));
 
     const int index = ui->portComboBox->findData(previous);
     if (index >= 0)
@@ -544,6 +544,11 @@ void SerialPanel::loadRttDevice()
 {
     const QJsonObject object = JsonStore::read(rttFilePath()).object();
     m_rttSettings.device = object.value(QLatin1String("device")).toString();
+    if (object.value(QLatin1String("probe")).toInt() == static_cast<int>(RttSettings::Probe::DapLink))
+        m_rttSettings.probe = RttSettings::Probe::DapLink;
+    const int speed = object.value(QLatin1String("speedKHz")).toInt();
+    if (speed > 0)
+        m_rttSettings.speedKHz = speed;
     const int search = object.value(QLatin1String("search")).toInt();
     if (search >= 0 && search <= static_cast<int>(RttSettings::Search::Range))
         m_rttSettings.search = static_cast<RttSettings::Search>(search);
@@ -559,6 +564,8 @@ void SerialPanel::saveRttDevice() const
 {
     QJsonObject object;
     object.insert(QLatin1String("device"), m_rttSettings.device);
+    object.insert(QLatin1String("probe"), static_cast<int>(m_rttSettings.probe));
+    object.insert(QLatin1String("speedKHz"), m_rttSettings.speedKHz);
     object.insert(QLatin1String("search"), static_cast<int>(m_rttSettings.search));
     object.insert(QLatin1String("address"), QString::number(m_rttSettings.address, 16));
     object.insert(QLatin1String("size"), QString::number(m_rttSettings.size, 16));
@@ -624,8 +631,8 @@ void SerialPanel::togglePort()
 
 void SerialPanel::openRtt()
 {
-    if (m_rttSettings.device.isEmpty()) {
-        QMessageBox::warning(this, tr("J-Link RTT"),
+    if (m_rttSettings.probe == RttSettings::Probe::JLink && m_rttSettings.device.isEmpty()) {
+        QMessageBox::warning(this, tr("RTT"),
                              tr("Enter the target device name first, e.g. STM32F407VG."));
         editRttSettings();
         return;

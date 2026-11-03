@@ -18,13 +18,21 @@ struct RttSettings
         Range,   // 在指定地址开始的一段范围内搜索
     };
 
+    enum class Probe {
+        JLink,
+        DapLink, // CMSIS-DAP，经 OpenOCD 的 RTT 服务
+    };
+
+    Probe probe = Probe::JLink;
     QString device;
     Search search = Search::Auto;
     quint32 address = 0x20000000;
     quint32 size = 0x10000;
+    int speedKHz = 4000;
 };
 
-// J-Link RTT 数据源：启动 JLinkExe 连上目标，再连它在本机开的 RTT 端口（默认 19021）。
+// RTT 数据源：J-Link 启动 JLinkExe 连上目标，再连它在本机开的 RTT 端口（默认 19021）；
+// DAPLink 启动 OpenOCD，连它开的 RTT 端口。
 // 连上后 socket() 就是一个普通的 QIODevice，收发方式和串口一致。
 class RttSession : public QObject
 {
@@ -53,12 +61,15 @@ signals:
 
 private:
     void tryConnect();
+    bool startJLink(const RttSettings &settings);
+    bool startOpenOcd(const RttSettings &settings);
     void fail(const QString &message);
 
     QProcess *m_process = nullptr;
     QTcpSocket *m_socket = nullptr;
     QTimer *m_retryTimer = nullptr;
     QByteArray m_processOutput; // JLinkExe 的输出，失败时用来给出原因
+    quint16 m_port = 0;
     int m_attempts = 0;
     bool m_active = false;
 };

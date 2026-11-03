@@ -36,17 +36,29 @@ QStringList jlinkArgs(const ProbeServer::Config &config, quint16 port)
     };
 }
 
-// DAPLink（CMSIS-DAP）：不带芯片专用脚本，直接建一个通用的 Cortex-M 目标，
-// 擦写交给我们自己下载的 FLM 算法，所以关掉 OpenOCD 自己的 flash 处理；detach 后退出（相当于 -singlerun）
-QStringList openOcdArgs(const ProbeServer::Config &config, quint16 port)
+QStringList gdbServerCommands(const ProbeServer::Config &config, quint16 port)
 {
-    const QStringList commands = {
+    Q_UNUSED(config)
+    return {
         QStringLiteral("gdb_port %1").arg(port),
+        QStringLiteral("gdb_memory_map disable"),
+        QStringLiteral("gdb_flash_program disable"),
+        QStringLiteral("chip.cpu configure -event gdb-detach { shutdown }"),
+    };
+}
+
+} // namespace
+
+// DAPLink（CMSIS-DAP）：不带芯片专用脚本，直接建一个通用的 Cortex-M 目标。
+// preInit 在 init 之前执行，postInit 在 init 之后执行
+QStringList ProbeServer::openOcdArguments(int speedKHz, const QStringList &preInit, const QStringList &postInit)
+{
+    QStringList commands = {
         QStringLiteral("bindto 127.0.0.1"), // 只接受本机连接
         QStringLiteral("telnet_port disabled"),
         QStringLiteral("tcl_port disabled"),
         QStringLiteral("transport select swd"),
-        QStringLiteral("adapter speed %1").arg(config.speedKHz),
+        QStringLiteral("adapter speed %1").arg(speedKHz),
         // 没有 srst 线，靠 SYSRESETREQ 做真正的系统复位；少了这两行，OpenOCD 只复位内核，
         // 外设（时钟树、Flash 控制器）还留着应用程序配好的状态，算法写 Flash 会悄悄失败
         QStringLiteral("reset_config srst_nogate"),
@@ -54,19 +66,15 @@ QStringList openOcdArgs(const ProbeServer::Config &config, quint16 port)
         QStringLiteral("dap create chip.dap -chain-position chip.cpu"),
         QStringLiteral("target create chip.cpu cortex_m -dap chip.dap"),
         QStringLiteral("chip.cpu cortex_m reset_config sysresetreq"),
-        QStringLiteral("gdb_memory_map disable"),
-        QStringLiteral("gdb_flash_program disable"),
-        QStringLiteral("chip.cpu configure -event gdb-detach { shutdown }"),
-        QStringLiteral("chip.cpu configure -event examine-end { catch {mmw 0xE0042004 0x00000307 0} }"),
-        QStringLiteral("init"),
     };
+    commands << preInit << QStringLiteral("init") << postInit;
     QStringList args = {QStringLiteral("-f"), QStringLiteral("interface/cmsis-dap.cfg")};
     for (const QString &command : commands)
         args << QStringLiteral("-c") << command;
     return args;
 }
 
-QString findOpenOcd()
+QString ProbeServer::findOpenOcd()
 {
 #ifdef Q_OS_WIN
     const QString name = QStringLiteral("openocd.exe");
@@ -78,8 +86,6 @@ QString findOpenOcd()
     const QString path = QStandardPaths::findExecutable(name, {bundled});
     return path.isEmpty() ? QStandardPaths::findExecutable(name) : path;
 }
-
-} // namespace
 
 ProbeServer::~ProbeServer()
 {
@@ -93,7 +99,7 @@ bool ProbeServer::start(const Config &config, QString *error)
     const bool openOcd = config.kind == Kind::OpenOcdCmsisDap;
     QString program;
     if (openOcd) {
-        program = findOpenOcd();
+        program = ProbeServer::findOpenOcd();
         if (program.isEmpty()) {
             if (error)
                 *error = QObject::tr("OpenOCD not found. Install OpenOCD and make sure it is in PATH.");
@@ -120,7 +126,7 @@ bool ProbeServer::start(const Config &config, QString *error)
         return false;
     }
 
-    const QStringList args = openOcd ? openOcdArgs(config, m_port) : jlinkArgs(config, m_port);
+    const QStringList args = openOcd ? openOcdArguments(config.speedKHz, gdbServerCommands(config, m_port)) : jlinkArgs(config, m_port);
 
     m_logFile = std::make_unique<QTemporaryFile>();
     if (!m_logFile->open()) {

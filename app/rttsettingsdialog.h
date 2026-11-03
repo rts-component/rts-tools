@@ -10,7 +10,7 @@ class QLineEdit;
 class JLinkDeviceList;
 class QPushButton;
 
-// J-Link RTT 设置：目标芯片型号，以及 RTT 控制块的查找方式
+// RTT 设置：目标芯片型号，以及 RTT 控制块的查找方式
 class RttSettingsDialog : public QDialog
 {
     Q_OBJECT
@@ -24,6 +24,8 @@ private:
     void updateEnabled();
     void accept() override;
 
+    QComboBox *m_probeCombo = nullptr;
+    QComboBox *m_speedCombo = nullptr;
     QLineEdit *m_deviceEdit = nullptr;
     QComboBox *m_searchCombo = nullptr;
     QLineEdit *m_addressEdit = nullptr;
