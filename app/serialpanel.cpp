@@ -689,7 +689,11 @@ void SerialPanel::closePort()
 
 void SerialPanel::handleReadyRead()
 {
-    const QByteArray bytes = m_device->readAll();
+    processReceived(m_device->readAll());
+}
+
+void SerialPanel::processReceived(const QByteArray &bytes)
+{
     if (bytes.isEmpty())
         return;
 
@@ -840,6 +844,8 @@ void SerialPanel::sendData()
     if (written > 0) {
         m_txBytes += quint64(written);
         updateCounters();
+        if (ui->loopbackCheckBox->isChecked())
+            processReceived(payload.left(int(written)));
     }
 }
 

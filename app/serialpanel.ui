@@ -741,6 +741,26 @@ QGroupBox#statusBar QLabel {
          <string>Hex Send </string>
         </property>
        </widget>
+       <widget class="QCheckBox" name="loopbackCheckBox">
+        <property name="toolTip">
+         <string>Feed everything you send straight into the receive side (for loopback tests)</string>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Loopback</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QSplitter" name="sendOptionsSplitter">
        <property name="orientation">

@@ -65,6 +65,8 @@ private:
     bool editRttSettings();
 
     void handleReadyRead();
+    // 收到的字节（串口 / RTT / 发送回环）统一从这里进入显示和 CSV 解析
+    void processReceived(const QByteArray &bytes);
     void flushReceiveQueue();
     QString buildLogText(const QByteArray &chunk);
 

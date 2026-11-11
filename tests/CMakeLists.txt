@@ -10,7 +10,9 @@ function(rts_add_test name)
 endfunction()
 
 rts_add_test(test_plotprotocol test_plotprotocol.cpp)
-rts_add_test(test_csvparser test_csvparser.cpp ${PROJECT_SOURCE_DIR}/csv/csvparser.cpp)
+rts_add_test(test_csvparser test_csvparser.cpp ${PROJECT_SOURCE_DIR}/csv/csvparser.cpp
+    ${PROJECT_SOURCE_DIR}/csv/protocolparser.cpp)
+rts_add_test(test_protocolparser test_protocolparser.cpp ${PROJECT_SOURCE_DIR}/csv/protocolparser.cpp)
 
 # 集成测试：PlotServer 与 PlotClient 在同一进程里通过真实的本地管道通信
 qt_add_executable(test_plotroundtrip
@@ -47,6 +49,7 @@ qt_add_executable(test_csvrowlist
     ${PROJECT_SOURCE_DIR}/csv/csvrowlist.cpp
     ${PROJECT_SOURCE_DIR}/csv/csvrowlist.h
     ${PROJECT_SOURCE_DIR}/csv/csvparser.cpp
+    ${PROJECT_SOURCE_DIR}/csv/protocolparser.cpp
 )
 target_link_libraries(test_csvrowlist PRIVATE Qt::Core Qt::Gui Qt::Widgets Qt::Test rts-common)
 target_include_directories(test_csvrowlist PRIVATE ${PROJECT_SOURCE_DIR})

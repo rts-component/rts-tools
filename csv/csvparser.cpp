@@ -9,6 +9,84 @@
 
 namespace {
 
+// 协议字段类型 / 转换 / 校验算法落盘用稳定的字符串，不依赖枚举数值
+struct NamedType { const char *name; int value; };
+
+const NamedType kFieldTypes[] = {
+    {"header", int(ProtoFieldType::Header)}, {"seq", int(ProtoFieldType::Seq)},
+    {"id", int(ProtoFieldType::Id)},         {"length", int(ProtoFieldType::Length)},
+    {"byte1", int(ProtoFieldType::Byte1)},   {"byte2", int(ProtoFieldType::Byte2)},
+    {"byte3", int(ProtoFieldType::Byte3)},   {"byte4", int(ProtoFieldType::Byte4)},
+    {"byte8", int(ProtoFieldType::Byte8)},   {"checksum", int(ProtoFieldType::Checksum)},
+    {"tail", int(ProtoFieldType::Tail)},
+};
+const NamedType kConversions[] = {
+    {"uint", int(ProtoConversion::UInt)}, {"int", int(ProtoConversion::Int)},
+    {"float", int(ProtoConversion::Float)}, {"hex", int(ProtoConversion::Hex)},
+};
+const NamedType kChecksums[] = {
+    {"sum8", int(ProtoChecksum::Sum8)},         {"xor8", int(ProtoChecksum::Xor8)},
+    {"crc8", int(ProtoChecksum::Crc8)},         {"sum16", int(ProtoChecksum::Sum16)},
+    {"crc16modbus", int(ProtoChecksum::Crc16Modbus)},
+    {"crc16ccitt", int(ProtoChecksum::Crc16Ccitt)},
+};
+
+template <size_t N>
+QString nameOf(const NamedType (&table)[N], int value)
+{
+    for (const NamedType &entry : table) {
+        if (entry.value == value)
+            return QLatin1String(entry.name);
+    }
+    return QString();
+}
+
+template <size_t N>
+bool valueOf(const NamedType (&table)[N], const QString &name, int *value)
+{
+    for (const NamedType &entry : table) {
+        if (name == QLatin1String(entry.name)) {
+            *value = entry.value;
+            return true;
+        }
+    }
+    return false;
+}
+
+QJsonObject protoFieldToJson(const ProtoField &field)
+{
+    QJsonObject object;
+    object.insert(QLatin1String("type"), nameOf(kFieldTypes, int(field.type)));
+    object.insert(QLatin1String("name"), field.name);
+    object.insert(QLatin1String("value"), formatHexBytes(field.value));
+    object.insert(QLatin1String("conversion"), nameOf(kConversions, int(field.conversion)));
+    object.insert(QLatin1String("bigEndian"), field.bigEndian);
+    object.insert(QLatin1String("show"), field.show);
+    object.insert(QLatin1String("lengthOffset"), field.lengthOffset);
+    object.insert(QLatin1String("checksum"), nameOf(kChecksums, int(field.checksum)));
+    object.insert(QLatin1String("checksumFromHeader"), field.checksumFromHeader);
+    return object;
+}
+
+bool protoFieldFromJson(const QJsonObject &object, ProtoField *field)
+{
+    int value = 0;
+    if (!valueOf(kFieldTypes, object.value(QLatin1String("type")).toString(), &value))
+        return false;
+    field->type = ProtoFieldType(value);
+    field->name = object.value(QLatin1String("name")).toString();
+    parseHexBytes(object.value(QLatin1String("value")).toString(), &field->value);
+    if (valueOf(kConversions, object.value(QLatin1String("conversion")).toString(), &value))
+        field->conversion = ProtoConversion(value);
+    field->bigEndian = object.value(QLatin1String("bigEndian")).toBool(false);
+    field->show = object.value(QLatin1String("show")).toBool(true);
+    field->lengthOffset = object.value(QLatin1String("lengthOffset")).toInt(0);
+    if (valueOf(kChecksums, object.value(QLatin1String("checksum")).toString(), &value))
+        field->checksum = ProtoChecksum(value);
+    field->checksumFromHeader = object.value(QLatin1String("checksumFromHeader")).toBool(true);
+    return true;
+}
+
 QString configFilePath()
 {
     return JsonStore::settingsPath(QStringLiteral("csv_parse.json"));
@@ -122,6 +200,14 @@ CsvParseConfig loadCsvParseConfig()
         if (!separator.isEmpty())
             group.separator = separator;
 
+        group.protocol = groupObject.value(QLatin1String("protocol")).toBool(false);
+        const QJsonArray layout = groupObject.value(QLatin1String("layout")).toArray();
+        for (const QJsonValue &layoutValue : layout) {
+            ProtoField protoField;
+            if (protoFieldFromJson(layoutValue.toObject(), &protoField))
+                group.layout.append(protoField);
+        }
+
         const QJsonArray fields = groupObject.value(QLatin1String("fields")).toArray();
         for (const QJsonValue &fieldValue : fields) {
             const QJsonObject fieldObject = fieldValue.toObject();
@@ -162,6 +248,11 @@ void saveCsvParseConfig(const CsvParseConfig &config)
         groupObject.insert(QLatin1String("enabled"), group.enabled);
         groupObject.insert(QLatin1String("name"), group.name);
         groupObject.insert(QLatin1String("separator"), group.separator);
+        groupObject.insert(QLatin1String("protocol"), group.protocol);
+        QJsonArray layout;
+        for (const ProtoField &protoField : group.layout)
+            layout.append(protoFieldToJson(protoField));
+        groupObject.insert(QLatin1String("layout"), layout);
         // 行级 Curve 勾选是运行期状态，不落盘（重启后不会自己弹图表窗口）
         groupObject.insert(QLatin1String("fields"), fields);
         groups.append(groupObject);
@@ -172,4 +263,25 @@ void saveCsvParseConfig(const CsvParseConfig &config)
     object.insert(QLatin1String("groups"), groups);
 
     JsonStore::write(configFilePath(), QJsonDocument(object), "CSV parse settings");
+}
+
+QVector<CsvField> protocolFields(const QVector<ProtoField> &layout, const QVector<CsvField> &oldFields)
+{
+    QVector<CsvField> fields;
+    const QVector<int> indexes = protocolDisplayIndexes(layout);
+    const QStringList names = protocolDisplayNames(layout);
+    for (int i = 0; i < indexes.size(); ++i) {
+        CsvField field;
+        if (i < oldFields.size()) {
+            field.color = oldFields.at(i).color;
+            field.formula = oldFields.at(i).formula;
+            field.curve = oldFields.at(i).curve;
+        }
+        field.name = names.at(i);
+        field.numeric = protoFieldNumeric(layout.at(indexes.at(i)));
+        if (!field.numeric)
+            field.curve = false;
+        fields.append(field);
+    }
+    return fields;
 }

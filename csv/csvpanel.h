@@ -52,6 +52,9 @@ private:
     void applyPendingValues();
     void updateStatus();
     void processLine(const QString &line);
+    // 一条已解析好的记录（CSV 行或协议帧）进入显示 / 曲线
+    void applyRecord(int index, const QStringList &fields);
+    void rebuildProtocolParsers();
     void saveConfig();
     void showGroupMenu(int index, const QPoint &globalPos);
 
@@ -74,6 +77,8 @@ private:
     PlotServer *m_plotServer = nullptr;
     PlotLauncher *m_plotLauncher = nullptr;
 
+    QVector<ProtocolParser> m_protocolParsers; // 与 m_config.groups 逐行对应，非协议行为空
+    quint64 m_protocolBadSeen = 0;
     QByteArray m_buffer;
     int m_selectedIndex = -1;
     quint64 m_parsedLines = 0;

@@ -6,6 +6,8 @@
 #include <QDialog>
 
 class QComboBox;
+class QLabel;
+class QPushButton;
 class QLineEdit;
 class QTableWidget;
 
@@ -23,10 +25,17 @@ private:
     void addRow(const CsvField &field);
     void removeCurrentRow();
     void resequence();
+    void updateMode();
+    void editProtocol();
 
     CsvGroup m_group;
     QLineEdit *m_nameEdit = nullptr;
     QComboBox *m_separatorCombo = nullptr;
+    QComboBox *m_modeCombo = nullptr;
+    QWidget *m_csvPage = nullptr;
+    QWidget *m_protocolPage = nullptr;
+    QLabel *m_protocolSummary = nullptr;
+    QVector<ProtoField> m_layout;
     QTableWidget *m_table = nullptr;
     bool m_updating = false;
 };

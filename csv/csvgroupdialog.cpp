@@ -1,5 +1,7 @@
 #include "csv/csvgroupdialog.h"
 
+#include "csv/protocoldialog.h"
+
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -27,10 +29,12 @@ CsvGroupDialog::CsvGroupDialog(const CsvGroup &group, QWidget *parent)
     , m_group(group)
     , m_nameEdit(new QLineEdit(group.name, this))
     , m_separatorCombo(new QComboBox(this))
+    , m_modeCombo(new QComboBox(this))
+    , m_layout(group.layout)
     , m_table(new QTableWidget(this))
 {
     setWindowTitle(tr("Edit data row"));
-    resize(380, 420);
+    resize(400, 440);
 
     m_separatorCombo->setEditable(true);
     m_separatorCombo->setInsertPolicy(QComboBox::NoInsert);
@@ -43,9 +47,19 @@ CsvGroupDialog::CsvGroupDialog(const CsvGroup &group, QWidget *parent)
     else
         m_separatorCombo->setEditText(group.separator);
 
+    m_modeCombo->addItem(tr("Text (CSV)"), false);
+    m_modeCombo->addItem(tr("Binary protocol frame"), true);
+    m_modeCombo->setCurrentIndex(group.protocol ? 1 : 0);
+
     auto *form = new QFormLayout;
     form->addRow(tr("Name"), m_nameEdit);
-    form->addRow(tr("Separator"), m_separatorCombo);
+    form->addRow(tr("Format"), m_modeCombo);
+
+    // ---- CSV 页 ----
+    m_csvPage = new QWidget(this);
+    auto *csvForm = new QFormLayout;
+    csvForm->setContentsMargins(0, 0, 0, 0);
+    csvForm->addRow(tr("Separator"), m_separatorCombo);
 
     m_table->setColumnCount(ColumnCount);
     m_table->setHorizontalHeaderLabels({tr("No."), tr("Field name"), tr("Numeric")});
@@ -63,22 +77,47 @@ CsvGroupDialog::CsvGroupDialog(const CsvGroup &group, QWidget *parent)
 
     auto *addButton = new QPushButton(tr("Add"), this);
     auto *removeButton = new QPushButton(tr("Remove"), this);
-    auto *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+    auto *tableButtons = new QHBoxLayout;
+    tableButtons->addWidget(addButton);
+    tableButtons->addWidget(removeButton);
+    tableButtons->addStretch();
 
-    auto *buttonLayout = new QHBoxLayout;
-    buttonLayout->addWidget(addButton);
-    buttonLayout->addWidget(removeButton);
-    buttonLayout->addStretch();
-    buttonLayout->addWidget(buttonBox);
+    auto *csvLayout = new QVBoxLayout(m_csvPage);
+    csvLayout->setContentsMargins(0, 0, 0, 0);
+    csvLayout->addLayout(csvForm);
+    csvLayout->addWidget(hint);
+    csvLayout->addWidget(m_table, 1);
+    csvLayout->addLayout(tableButtons);
+
+    // ---- 协议页 ----
+    m_protocolPage = new QWidget(this);
+    m_protocolSummary = new QLabel(this);
+    m_protocolSummary->setWordWrap(true);
+    m_protocolSummary->setTextFormat(Qt::PlainText);
+    auto *protocolHint = new QLabel(tr("Parses raw bytes: header + ID + length + data + checksum. "
+                                       "Frames that fail the checksum are dropped."),
+                                    this);
+    protocolHint->setWordWrap(true);
+    auto *editProtocolButton = new QPushButton(tr("Edit frame format..."), this);
+    auto *protocolLayout = new QVBoxLayout(m_protocolPage);
+    protocolLayout->setContentsMargins(0, 0, 0, 0);
+    protocolLayout->addWidget(protocolHint);
+    protocolLayout->addWidget(m_protocolSummary);
+    protocolLayout->addWidget(editProtocolButton, 0, Qt::AlignLeft);
+    protocolLayout->addStretch();
+
+    auto *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
 
     auto *layout = new QVBoxLayout(this);
     layout->addLayout(form);
-    layout->addWidget(hint);
-    layout->addWidget(m_table, 1);
-    layout->addLayout(buttonLayout);
+    layout->addWidget(m_csvPage, 1);
+    layout->addWidget(m_protocolPage, 1);
+    layout->addWidget(buttonBox);
 
-    for (const CsvField &field : group.fields)
-        addRow(field);
+    if (!group.protocol) {
+        for (const CsvField &field : group.fields)
+            addRow(field);
+    }
 
     connect(addButton, &QPushButton::clicked, this, [this] {
         CsvField field;
@@ -90,6 +129,9 @@ CsvGroupDialog::CsvGroupDialog(const CsvGroup &group, QWidget *parent)
         m_table->editItem(m_table->item(row, NameColumn));
     });
     connect(removeButton, &QPushButton::clicked, this, &CsvGroupDialog::removeCurrentRow);
+    connect(editProtocolButton, &QPushButton::clicked, this, &CsvGroupDialog::editProtocol);
+    connect(m_modeCombo, &QComboBox::currentIndexChanged, this, &CsvGroupDialog::updateMode);
+    updateMode();
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
@@ -102,6 +144,14 @@ CsvGroup CsvGroupDialog::group() const
             ? QStringLiteral(",")
             : m_separatorCombo->currentText();
 
+    result.protocol = m_modeCombo->currentData().toBool();
+    result.layout = m_layout;
+    if (result.protocol) {
+        // 面板字段由协议定义派生，沿用同位置的颜色 / 曲线设置
+        result.fields = protocolFields(m_layout, m_group.protocol ? m_group.fields : QVector<CsvField>());
+        return result;
+    }
+
     result.fields.clear();
     for (int row = 0; row < m_table->rowCount(); ++row) {
         const QTableWidgetItem *nameItem = m_table->item(row, NameColumn);
@@ -110,7 +160,7 @@ CsvGroup CsvGroupDialog::group() const
         CsvField field;
         field.name = nameItem ? nameItem->text().trimmed() : QString();
         field.numeric = !numericItem || numericItem->checkState() == Qt::Checked;
-        if (row < m_group.fields.size()) {
+        if (!m_group.protocol && row < m_group.fields.size()) {
             field.formula = m_group.fields.at(row).formula;
             // 非数字字段不能有曲线
             field.curve = field.numeric && m_group.fields.at(row).curve;
@@ -163,4 +213,32 @@ void CsvGroupDialog::resequence()
             item->setText(QString::number(row + 1));
     }
     m_updating = wasUpdating;
+}
+
+void CsvGroupDialog::updateMode()
+{
+    const bool protocol = m_modeCombo->currentData().toBool();
+    m_csvPage->setVisible(!protocol);
+    m_protocolPage->setVisible(protocol);
+
+    if (m_layout.isEmpty()) {
+        m_protocolSummary->setText(tr("No frame format defined yet."));
+        return;
+    }
+    QStringList parts;
+    for (const ProtoField &field : std::as_const(m_layout))
+        parts.append(protoFieldPreview(field).isEmpty() ? QStringLiteral("?") : protoFieldPreview(field));
+    m_protocolSummary->setText(tr("%1 fields, %2 shown on the panel\n%3")
+                                       .arg(m_layout.size())
+                                       .arg(protocolDisplayIndexes(m_layout).size())
+                                       .arg(parts.join(QStringLiteral(" | "))));
+}
+
+void CsvGroupDialog::editProtocol()
+{
+    ProtocolDialog dialog(m_layout, this);
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+    m_layout = dialog.layout();
+    updateMode();
 }

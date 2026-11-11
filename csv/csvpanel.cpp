@@ -173,6 +173,7 @@ CsvPanel::CsvPanel(QWidget *parent)
 
     connect(m_parseCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
         m_buffer.clear();
+        rebuildProtocolParsers(); // 半截帧不能带到下一次开始解析
         m_config.enabled = checked;
         updateStatus();
         saveConfig();
@@ -278,6 +279,40 @@ void CsvPanel::feed(const QByteArray &bytes)
     if (bytes.isEmpty() || !m_parseCheckBox->isChecked())
         return;
 
+    // 协议行：直接按字节流切帧
+    bool protocolMatched = false;
+    bool hasTextGroup = false;
+    for (int index = 0; index < m_config.groups.size() && index < m_protocolParsers.size(); ++index) {
+        const CsvGroup &group = m_config.groups.at(index);
+        if (!group.enabled || group.fields.isEmpty())
+            continue;
+        if (!group.protocol) {
+            hasTextGroup = true;
+            continue;
+        }
+        const QVector<QStringList> frames = m_protocolParsers[index].feed(bytes);
+        for (const QStringList &frame : frames) {
+            applyRecord(index, frame);
+            protocolMatched = true;
+        }
+    }
+    // 校验 / 帧尾不符的帧计入"跳过"
+    quint64 badTotal = 0;
+    for (const ProtocolParser &parser : std::as_const(m_protocolParsers))
+        badTotal += parser.badFrames();
+    if (badTotal > m_protocolBadSeen)
+        m_skippedLines += badTotal - m_protocolBadSeen;
+    m_protocolBadSeen = badTotal;
+    if (protocolMatched && !m_updateTimer->isActive())
+        m_updateTimer->start();
+
+    // 文本行：没有 CSV 行时不攒缓冲，二进制数据里的 '\n' 不会被当成行
+    if (!hasTextGroup) {
+        m_buffer.clear();
+        updateStatus();
+        return;
+    }
+
     m_buffer.append(bytes);
     if (m_buffer.size() > kMaxBufferBytes)
         m_buffer.remove(0, m_buffer.size() - kMaxBufferBytes);
@@ -309,6 +344,7 @@ void CsvPanel::resetCounters()
 void CsvPanel::clearData()
 {
     m_buffer.clear();
+    rebuildProtocolParsers();
     for (int index = 0; index < m_pendingDirty.size(); ++index)
         m_pendingDirty[index] = false;
     m_parsedLines = 0;
@@ -329,8 +365,8 @@ void CsvPanel::processLine(const QString &line)
     bool matched = false;
     for (int index = 0; index < m_config.groups.size(); ++index) {
         CsvGroup &group = m_config.groups[index];
-        if (!group.enabled || group.fields.isEmpty())
-            continue; // 没配置列名的行不参与解析
+        if (group.protocol || !group.enabled || group.fields.isEmpty())
+            continue; // 协议行走字节流；没配置列名的行不参与解析
 
         const QStringList fields = splitCsvLine(line, decodeSeparator(group.separator));
         if (!looksLikeCsvRecord(fields))
@@ -352,22 +388,7 @@ void CsvPanel::processLine(const QString &line)
             continue;
 
         matched = true;
-        m_values[index] = fields;
-        m_pendingValues[index] = fields;
-        m_pendingDirty[index] = true;
-
-        // 曲线：同一条记录共用一个时间戳，各字段按自增 index 进入对应系列的缓冲
-        if (index < m_curveKeys.size()) {
-            const QStringList &keys = m_curveKeys.at(index);
-            const qint64 now = QDateTime::currentMSecsSinceEpoch();
-            for (int field = 0; field < keys.size() && field < fields.size(); ++field) {
-                if (keys.at(field).isEmpty())
-                    continue;
-                m_plotServer->append(keys.at(field), fields.at(field).toDouble(), now);
-            }
-        }
-
-        ++m_parsedLines;
+        applyRecord(index, fields);
     }
 
     if (!matched)
@@ -376,6 +397,39 @@ void CsvPanel::processLine(const QString &line)
     if (matched && !m_updateTimer->isActive())
         m_updateTimer->start();
     updateStatus();
+}
+
+void CsvPanel::applyRecord(int index, const QStringList &fields)
+{
+    if (index < 0 || index >= m_values.size())
+        return;
+    m_values[index] = fields;
+    m_pendingValues[index] = fields;
+    m_pendingDirty[index] = true;
+
+    // 曲线：同一条记录共用一个时间戳，各字段按自增 index 进入对应系列的缓冲
+    if (index < m_curveKeys.size()) {
+        const QStringList &keys = m_curveKeys.at(index);
+        const qint64 now = QDateTime::currentMSecsSinceEpoch();
+        for (int field = 0; field < keys.size() && field < fields.size(); ++field) {
+            if (keys.at(field).isEmpty() || !isNumericValue(fields.at(field)))
+                continue; // 协议帧里放不下的字段是空串，不画
+            m_plotServer->append(keys.at(field), fields.at(field).toDouble(), now);
+        }
+    }
+
+    ++m_parsedLines;
+}
+
+void CsvPanel::rebuildProtocolParsers()
+{
+    m_protocolParsers.clear();
+    m_protocolParsers.resize(m_config.groups.size());
+    for (int index = 0; index < m_config.groups.size(); ++index) {
+        if (m_config.groups.at(index).protocol)
+            m_protocolParsers[index].setLayout(m_config.groups.at(index).layout);
+    }
+    m_protocolBadSeen = 0;
 }
 
 void CsvPanel::applyPendingValues()
@@ -409,6 +463,7 @@ void CsvPanel::rebuildGroups()
         m_pendingDirty.append(item.dirty);
     }
 
+    rebuildProtocolParsers();
     m_list->setGroups(m_config.groups);
     m_placeholder->setVisible(m_list->count() == 0);
     syncCurveSeries();
@@ -418,6 +473,7 @@ void CsvPanel::refreshGroup(int index)
 {
     if (index < 0 || index >= m_list->count())
         return;
+    rebuildProtocolParsers();
     m_list->setGroup(index, m_config.groups.at(index));
     syncCurveSeries();
 }

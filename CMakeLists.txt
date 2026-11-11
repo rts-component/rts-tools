@@ -89,6 +89,10 @@ qt_add_executable(rts-tools
     highlight/highlightdialog.h
     csv/csvparser.cpp
     csv/csvparser.h
+    csv/protocolparser.cpp
+    csv/protocolparser.h
+    csv/protocoldialog.cpp
+    csv/protocoldialog.h
     csv/csvpanel.cpp
     csv/csvpanel.h
     csv/csvrowlist.cpp

@@ -1,6 +1,8 @@
 #ifndef CSVPARSER_H
 #define CSVPARSER_H
 
+#include "csv/protocolparser.h"
+
 #include <QString>
 #include <QStringList>
 #include <QVector>
@@ -38,6 +40,10 @@ struct CsvGroup
     QString name;
     QString separator = QStringLiteral(",");
     bool curve = false; // 该分组是否打开曲线
+    // 协议帧模式：按二进制帧（帧头/长度/数据/校验…）解析；此时 fields 由 layout 派生，
+    // 只包含"显示到面板"的字段，仍然沿用行列表 / 曲线的那一套
+    bool protocol = false;
+    QVector<ProtoField> layout;
     QVector<CsvField> fields;
 };
 
@@ -49,5 +55,9 @@ struct CsvParseConfig
 
 CsvParseConfig loadCsvParseConfig();
 void saveCsvParseConfig(const CsvParseConfig &config);
+
+// 由协议定义生成面板字段；oldFields 里同位置的颜色 / 曲线勾选保留下来
+QVector<CsvField> protocolFields(const QVector<ProtoField> &layout,
+                                 const QVector<CsvField> &oldFields = {});
 
 #endif // CSVPARSER_H
