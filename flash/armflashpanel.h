@@ -8,6 +8,7 @@
 #include <QWidget>
 
 class QCheckBox;
+class QColor;
 class QComboBox;
 class QLabel;
 class QLineEdit;
@@ -47,6 +48,7 @@ private:
     bool buildRequest(FlashRequest::Operation operation, FlashRequest *request, QString *error) const;
     void onFinished(bool success, const QString &message);
     void setBusy(bool busy);
+    void setProgressColor(const QColor &color);
     void appendLog(const QString &text);
     void loadConfig();
     void saveConfig() const;

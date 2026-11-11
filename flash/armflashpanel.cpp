@@ -50,7 +50,18 @@ bool parseNumber(const QString &text, quint32 *value)
     return ok;
 }
 
+const QColor kProgressOk(0x2e, 0x9e, 0x4f);
+const QColor kProgressFailed(0xd3, 0x2f, 0x2f);
+
 } // namespace
+
+// 用调色板改填充色而不是样式表：样式表会让进度条丢掉原生的立体效果和居中文字
+void ArmFlashPanel::setProgressColor(const QColor &color)
+{
+    QPalette palette = m_progress->palette();
+    palette.setColor(QPalette::Highlight, color);
+    m_progress->setPalette(palette);
+}
 
 ArmFlashPanel::ArmFlashPanel(QWidget *parent)
     : QWidget(parent)
@@ -99,10 +110,7 @@ ArmFlashPanel::ArmFlashPanel(QWidget *parent)
     m_progress = new QProgressBar(this);
     m_progress->setRange(0, 100);
     m_progress->setValue(0);
-    // 用调色板改填充色而不是样式表：样式表会让进度条丢掉原生的立体效果和居中文字
-    QPalette progressPalette = m_progress->palette();
-    progressPalette.setColor(QPalette::Highlight, QColor(0x2e, 0x9e, 0x4f));
-    m_progress->setPalette(progressPalette);
+    setProgressColor(kProgressOk);
 
     m_log = new QPlainTextEdit(this);
     m_log->setReadOnly(true);
@@ -381,6 +389,7 @@ void ArmFlashPanel::startOperation(FlashRequest::Operation operation)
     saveConfig();
     m_log->clear();
     m_progress->setValue(0);
+    setProgressColor(kProgressOk);
     m_worker->resetCancel(); // 必须在入队之前，这样排队期间点的取消不会被 run() 清掉
     m_elapsed.start();
     setBusy(true);
@@ -390,7 +399,14 @@ void ArmFlashPanel::startOperation(FlashRequest::Operation operation)
 void ArmFlashPanel::onFinished(bool success, const QString &message)
 {
     setBusy(false);
-    appendLog((success ? tr("Done: ") : tr("Failed: ")) + message);
+    if (success) {
+        appendLog(tr("Done: ") + message);
+    } else {
+        // 失败要显眼：进度条变红，日志里用红色粗体写出原因
+        setProgressColor(kProgressFailed);
+        m_log->appendHtml(QStringLiteral("<b><span style=\"color:#d32f2f\">%1</span></b>")
+                                  .arg((tr("Failed: ") + message).toHtmlEscaped().replace(QLatin1Char('\n'), QStringLiteral("<br>"))));
+    }
     appendLog(tr("Elapsed time: %1 s").arg(m_elapsed.elapsed() / 1000.0, 0, 'f', 2));
 }
 
