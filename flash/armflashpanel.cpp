@@ -106,15 +106,15 @@ ArmFlashPanel::ArmFlashPanel(QWidget *parent)
     form->addWidget(m_firmwareLabel, 0, 0);
     form->addWidget(m_firmwareEdit, 0, 1, 1, 2);
     form->addWidget(m_browseButton, 0, 3);
-    form->addWidget(m_flmLabel, 1, 0);
-    form->addWidget(m_flmEdit, 1, 1, 1, 2);
-    form->addWidget(m_flmBrowseButton, 1, 3);
-    form->addWidget(m_probeLabel, 2, 0);
-    form->addWidget(m_probeCombo, 2, 1, 1, 2);
-    form->addWidget(m_speedCombo, 2, 3);
-    form->addWidget(m_chipLabel, 3, 0);
-    form->addWidget(m_chipEdit, 3, 1, 1, 2);
-    form->addWidget(m_chipRefreshButton, 3, 3);
+    form->addWidget(m_probeLabel, 1, 0);
+    form->addWidget(m_probeCombo, 1, 1, 1, 2);
+    form->addWidget(m_speedCombo, 1, 3);
+    form->addWidget(m_chipLabel, 2, 0);
+    form->addWidget(m_chipEdit, 2, 1, 1, 2);
+    form->addWidget(m_chipRefreshButton, 2, 3);
+    form->addWidget(m_flmLabel, 3, 0);
+    form->addWidget(m_flmEdit, 3, 1, 1, 2);
+    form->addWidget(m_flmBrowseButton, 3, 3);
     form->addWidget(m_addressLabel, 4, 0);
     form->addWidget(m_addressEdit, 4, 1, 1, 3);
     form->addWidget(m_ramAddressLabel, 5, 0);
@@ -252,7 +252,9 @@ bool ArmFlashPanel::buildRequest(FlashRequest::Operation operation, FlashRequest
         *error = tr("Select an existing firmware file");
         return false;
     }
-    if (operation != Operation::Verify && !QFile::exists(r.flmPath)) {
+    // J-Link 且芯片在它的支持列表里：直接用 J-Link 自带的下载，不需要 FLM
+    r.useJLinkCommander = operation != Operation::Verify && usesJLinkBuiltin(r.device);
+    if (operation != Operation::Verify && !r.useJLinkCommander && !QFile::exists(r.flmPath)) {
         *error = tr("Select an existing FLM file");
         return false;
     }
@@ -299,6 +301,11 @@ bool ArmFlashPanel::isDapLink() const
     return m_probeCombo->currentText() == QLatin1String("DAPLink");
 }
 
+bool ArmFlashPanel::usesJLinkBuiltin(const QString &device) const
+{
+    return !isDapLink() && ramAreaFromList(device).isValid();
+}
+
 // 芯片列表来自 J-Link，DAPLink 不用它
 JLinkDeviceList::RamArea ArmFlashPanel::ramAreaFromList(const QString &device) const
 {
@@ -308,10 +315,26 @@ JLinkDeviceList::RamArea ArmFlashPanel::ramAreaFromList(const QString &device) c
 void ArmFlashPanel::updateProbeFields()
 {
     const bool dapLink = isDapLink();
-    m_chipLabel->setEnabled(!dapLink);
+    // DAPLink 不需要芯片名，整行隐藏
+    m_chipLabel->setVisible(!dapLink);
+    m_chipEdit->setVisible(!dapLink);
+    m_chipRefreshButton->setVisible(!dapLink);
     m_chipEdit->setEnabled(!dapLink && !m_busy);
     m_chipRefreshButton->setEnabled(!dapLink && !m_busy && !m_deviceList->isRefreshing());
     updateRamFields();
+    updateFlmFields();
+}
+
+// 芯片在 J-Link 列表里时用 J-Link 自带的下载，FLM 用不到
+void ArmFlashPanel::updateFlmFields()
+{
+    const bool builtin = usesJLinkBuiltin(m_chipEdit->text().trimmed());
+    const bool enabled = !m_busy && !builtin;
+    m_flmLabel->setVisible(!builtin);
+    m_flmEdit->setVisible(!builtin);
+    m_flmBrowseButton->setVisible(!builtin);
+    m_flmEdit->setEnabled(enabled);
+    m_flmBrowseButton->setEnabled(enabled);
 }
 
 void ArmFlashPanel::updateRamFields()
@@ -326,6 +349,12 @@ void ArmFlashPanel::updateRamFields()
     }
     m_ramAddressEdit->setPlaceholderText(tr("Default: %1").arg(hexText(0x20000000)));
     m_ramSizeEdit->setPlaceholderText(tr("Default: as needed"));
+    updateFlmFields();
+    // 用 J-Link 自带下载时不需要 RAM 设置，整行隐藏
+    const bool builtin = usesJLinkBuiltin(m_chipEdit->text().trimmed());
+    for (QWidget *w : {static_cast<QWidget *>(m_ramAddressLabel), static_cast<QWidget *>(m_ramSizeLabel),
+                       static_cast<QWidget *>(m_ramAddressEdit), static_cast<QWidget *>(m_ramSizeEdit)})
+        w->setVisible(!builtin);
     const bool editable = !m_busy && !listed.isValid();
     m_ramAddressEdit->setEnabled(editable);
     m_ramSizeEdit->setEnabled(editable);
@@ -420,6 +449,10 @@ void ArmFlashPanel::retranslateUi()
     m_browseButton->setText(tr("Browse..."));
     m_flmLabel->setText(tr("FLM file"));
     m_flmEdit->setPlaceholderText(tr("Path to flash algorithm (.FLM)"));
+    const QString flmTip = tr("Not needed when J-Link is used and the chip is in its supported device list: "
+                              "J-Link's own flash download is used instead");
+    m_flmEdit->setToolTip(flmTip);
+    m_flmLabel->setToolTip(flmTip);
     m_flmBrowseButton->setText(tr("Browse..."));
     m_probeLabel->setText(tr("Debug probe"));
     m_speedCombo->setToolTip(tr("SWD clock speed. Lower it if connecting or programming is unreliable"));

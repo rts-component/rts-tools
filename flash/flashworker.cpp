@@ -6,15 +6,95 @@
 #include "flash/gdbremoteprobe.h"
 #include "flash/probeserver.h"
 
+#include "common/jlinkpaths.h"
+
+#include <QDir>
+#include <QElapsedTimer>
+#include <QProcess>
+#include <QTemporaryFile>
+
 namespace {
 
 constexpr int kConnectTimeoutMs = 20000;
+constexpr int kCommanderTimeoutMs = 10 * 60 * 1000;
 
 } // namespace
 
 FlashWorker::FlashWorker(QObject *parent)
     : QObject(parent)
 {
+}
+
+// 调 JLinkExe 跑一段命令脚本；输出里要出现 okMarker 才算成功
+bool FlashWorker::runJLinkCommander(const FlashRequest &request, const QString &script,
+                                    const QString &okMarker, QString *error)
+{
+#ifdef Q_OS_WIN
+    const QString name = QStringLiteral("JLink.exe");
+#else
+    const QString name = QStringLiteral("JLinkExe");
+#endif
+    const QString program = JLinkPaths::findJLinkTool(name);
+    if (program.isEmpty()) {
+        *error = tr("J-Link software not found (%1). Install the SEGGER J-Link package.").arg(name);
+        return false;
+    }
+    QTemporaryFile commandFile;
+    if (!commandFile.open()) {
+        *error = tr("Cannot create a temporary file: %1").arg(commandFile.errorString());
+        return false;
+    }
+    commandFile.write((script + QStringLiteral("exit\n")).toLocal8Bit());
+    commandFile.close();
+
+    QProcess process;
+    process.setProcessChannelMode(QProcess::MergedChannels);
+    JLinkPaths::hideConsoleWindow(&process);
+    process.start(program, {QStringLiteral("-device"), request.device,
+                            QStringLiteral("-if"), QStringLiteral("SWD"),
+                            QStringLiteral("-speed"), QString::number(request.speedKHz),
+                            QStringLiteral("-autoconnect"), QStringLiteral("1"),
+                            QStringLiteral("-NoGui"), QStringLiteral("1"),
+                            QStringLiteral("-ExitOnError"), QStringLiteral("1"),
+                            QStringLiteral("-CommandFile"), commandFile.fileName()});
+    if (!process.waitForStarted(5000)) {
+        *error = tr("Cannot start %1: %2").arg(program, process.errorString());
+        return false;
+    }
+    QElapsedTimer timer;
+    timer.start();
+    while (!process.waitForFinished(100)) {
+        if (m_cancel) {
+            process.kill();
+            process.waitForFinished(2000);
+            *error = tr("Cancelled");
+            return false;
+        }
+        if (timer.elapsed() > kCommanderTimeoutMs) {
+            process.kill();
+            process.waitForFinished(2000);
+            *error = tr("J-Link timed out");
+            return false;
+        }
+    }
+    const QString output = QString::fromLocal8Bit(process.readAll()).trimmed();
+    emit log(output);
+    // 标志要独占一行（连接时的 "Connecting to J-Link ...O.K." 不算）
+    bool marked = false;
+    QString errorLine;
+    for (const QString &line : output.split(QLatin1Char('\n'))) {
+        const QString text = line.trimmed();
+        if (text == okMarker || text.startsWith(okMarker + QLatin1Char(' ')))
+            marked = true;
+        if (text.contains(QLatin1String("Error")) || text.startsWith(QLatin1String("Could not")))
+            errorLine = text;
+    }
+    if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0 || !marked) {
+        *error = errorLine.isEmpty() ? tr("J-Link operation failed")
+                                     : tr("J-Link operation failed: %1").arg(errorLine);
+        return false;
+    }
+    return true;
 }
 
 void FlashWorker::run(const FlashRequest &request)
@@ -40,7 +120,7 @@ void FlashWorker::run(const FlashRequest &request)
 
     FlmFile flm;
     QString error;
-    const bool needFlm = request.operation != Operation::Verify;
+    const bool needFlm = request.operation != Operation::Verify && !request.useJLinkCommander;
     const bool needFirmware = request.operation != Operation::Erase;
 
     if (needFlm) {
@@ -64,6 +144,28 @@ void FlashWorker::run(const FlashRequest &request)
 
     if (m_cancel)
         return done(false, cancelledMessage);
+
+    // 不用 FLM：先由 J-Link Commander 完成擦除/下载，之后下面的流程只做校验和复位
+    if (request.useJLinkCommander) {
+        QString commanderError;
+        if (request.operation == Operation::Erase) {
+            emit log(tr("Erasing with J-Link"));
+            if (!runJLinkCommander(request, QStringLiteral("erase\n"), QStringLiteral("Erasing done"), &commanderError))
+                return done(false, m_cancel ? cancelledMessage : commanderError);
+            emit progress(100);
+            return done(true, tr("Erase completed"));
+        }
+        emit log(tr("Programming with J-Link"));
+        QString script;
+        if (firmware.size() == 1 && request.firmwarePath.endsWith(QLatin1String(".bin"), Qt::CaseInsensitive))
+            script = QStringLiteral("loadbin \"%1\", 0x%2\n")
+                             .arg(QDir::toNativeSeparators(request.firmwarePath)).arg(request.binAddress, 0, 16);
+        else
+            script = QStringLiteral("loadfile \"%1\"\n").arg(QDir::toNativeSeparators(request.firmwarePath));
+        if (!runJLinkCommander(request, script, QStringLiteral("O.K."), &commanderError))
+            return done(false, m_cancel ? cancelledMessage : commanderError);
+        emit progress(50);
+    }
 
     ProbeServer server;
     ProbeServer::Config config;
@@ -122,10 +224,12 @@ void FlashWorker::run(const FlashRequest &request)
         break;
     }
     case Operation::Program: {
-        FlashAlgo algo(probe, flm, request.ramAddress, request.ramSize, phase(0, 50));
-        if (!algo.load() || !algo.program(firmware)) {
-            message = algo.error();
-            break;
+        if (!request.useJLinkCommander) {
+            FlashAlgo algo(probe, flm, request.ramAddress, request.ramSize, phase(0, 50));
+            if (!algo.load() || !algo.program(firmware)) {
+                message = algo.error();
+                break;
+            }
         }
         emit log(tr("Verifying"));
         if (!FlashAlgo::verify(probe, firmware, phase(50, 100), &message))

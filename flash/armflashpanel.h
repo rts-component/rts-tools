@@ -41,6 +41,8 @@ private:
     JLinkDeviceList::RamArea ramAreaFromList(const QString &device) const;
     void updateProbeFields();
     void updateRamFields();
+    void updateFlmFields();
+    bool usesJLinkBuiltin(const QString &device) const;
     void startOperation(FlashRequest::Operation operation);
     bool buildRequest(FlashRequest::Operation operation, FlashRequest *request, QString *error) const;
     void onFinished(bool success, const QString &message);

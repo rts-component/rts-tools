@@ -22,6 +22,7 @@ struct FlashRequest
     quint32 ramAddress = 0x20000000;  // 下载算法用的 RAM 起点
     quint32 ramSize = 0;              // 0 = 按算法需要的大小，不检查总容量
     int speedKHz = 4000;
+    bool useJLinkCommander = false;   // 用 JLinkExe 自带的下载/擦除，不需要 FLM（仅 J-Link 且芯片在其列表里）
     bool runAfter = true;             // 烧录/校验完成后复位让程序跑起来
 };
 
@@ -47,6 +48,9 @@ signals:
     void finished(bool success, const QString &message);
 
 private:
+    bool runJLinkCommander(const FlashRequest &request, const QString &script, const QString &okMarker,
+                           QString *error);
+
     std::atomic_bool m_cancel{false};
 };
 
