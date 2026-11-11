@@ -84,9 +84,10 @@ bool FlashWorker::runJLinkCommander(const FlashRequest &request, const QString &
     QString errorLine;
     for (const QString &line : output.split(QLatin1Char('\n'))) {
         const QString text = line.trimmed();
-        if (text == okMarker || text.startsWith(okMarker + QLatin1Char(' ')))
+        if (text.startsWith(okMarker))
             marked = true;
-        if (text.contains(QLatin1String("Error")) || text.startsWith(QLatin1String("Could not")))
+        if (text.startsWith(QLatin1String("Error")) || text.startsWith(QLatin1String("****** Error"))
+            || text.startsWith(QLatin1String("Could not")))
             errorLine = text;
     }
     if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0 || !marked) {
