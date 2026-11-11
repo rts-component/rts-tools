@@ -4,6 +4,8 @@
 #include "common/jsonstore.h"
 
 #include <QCheckBox>
+#include <QColor>
+#include <QPalette>
 #include <QCompleter>
 #include <QStringListModel>
 #include <QComboBox>
@@ -97,6 +99,10 @@ ArmFlashPanel::ArmFlashPanel(QWidget *parent)
     m_progress = new QProgressBar(this);
     m_progress->setRange(0, 100);
     m_progress->setValue(0);
+    // 用调色板改填充色而不是样式表：样式表会让进度条丢掉原生的立体效果和居中文字
+    QPalette progressPalette = m_progress->palette();
+    progressPalette.setColor(QPalette::Highlight, QColor(0x2e, 0x9e, 0x4f));
+    m_progress->setPalette(progressPalette);
 
     m_log = new QPlainTextEdit(this);
     m_log->setReadOnly(true);
