@@ -9,7 +9,7 @@
 
 class QProcess;
 
-// 勾选曲线时自动为每个“组”（CSV 的一行）拉起一个 rts-plot：
+// 勾选曲线时自动为每个“组”（解包面板的一行）拉起一个 rts-plot：
 // 该行勾选曲线的数字列都画在同一个图表窗口里。
 // 只管理自己启动的进程：手动启动并已连接的图表不会被重复拉起，也不会被关掉。
 class PlotLauncher : public QObject

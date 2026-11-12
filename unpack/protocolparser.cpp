@@ -1,4 +1,4 @@
-#include "csv/protocolparser.h"
+#include "unpack/protocolparser.h"
 
 #include <QRegularExpression>
 #include <QtGlobal>
@@ -101,7 +101,7 @@ bool protoFieldShowable(const ProtoField &field)
 
 bool protoFieldNumeric(const ProtoField &field)
 {
-    return field.conversion != ProtoConversion::Hex;
+    return field.conversion != ProtoConversion::Hex && field.conversion != ProtoConversion::Binary;
 }
 
 int checksumSize(ProtoChecksum algorithm)
@@ -288,6 +288,12 @@ QString ProtocolParser::decode(const ProtoField &field, const QByteArray &bytes)
         return QString::number(raw);
     case ProtoConversion::Hex:
         return QStringLiteral("0x") + QString::number(raw, 16).toUpper().rightJustified(size * 2, QLatin1Char('0'));
+    case ProtoConversion::Binary: {
+        QStringList groups;
+        for (int i = size - 1; i >= 0; --i) // 从最高字节开始，每字节 8 位
+            groups.append(QString::number((raw >> (i * 8)) & 0xFF, 2).rightJustified(8, QLatin1Char('0')));
+        return groups.join(QLatin1Char(' '));
+    }
     }
     return QString();
 }

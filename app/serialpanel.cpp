@@ -197,11 +197,11 @@ SerialPanel::SerialPanel(QWidget *parent)
         m_atLineStart = true;
         m_hexColumn = 0;
         m_droppedBytes = 0;
-        // 计数（R:/T: 与 CSV 的已解析行数）跟着一起清零
+        // 计数（R:/T: 与解包的已解析行数）跟着一起清零
         m_rxBytes = 0;
         m_txBytes = 0;
         updateCounters();
-        ui->csvPanel->resetCounters();
+        ui->unpackPanel->resetCounters();
         // Clear 同时清空自动保存的日志文件
         m_logFile.truncate();
     });
@@ -274,8 +274,8 @@ void SerialPanel::changeEvent(QEvent *event)
 {
     if (event->type() == QEvent::LanguageChange) {
         retranslateUi();
-        // LanguageChange 只发给顶层窗口，CSV 面板要自己再刷一遍
-        ui->csvPanel->retranslateUi();
+        // LanguageChange 只发给顶层窗口，解包面板要自己再刷一遍
+        ui->unpackPanel->retranslateUi();
         ui->armFlashPanel->retranslateUi();
     }
     QWidget::changeEvent(event);
@@ -339,7 +339,7 @@ void SerialPanel::showAbout()
     const QString commit = QStringLiteral(RTS_TOOLS_GIT_SHA);
     const QString text =
             tr("<h3>rts-tools %1</h3>"
-               "<p>Serial / RTT debugging tool with CSV parsing and live plots.</p>"
+               "<p>Serial / RTT debugging tool with CSV / protocol unpacking and live plots.</p>"
                "<p>Built with Qt %2.</p>"
                "<p>Released under the MIT License. Qt is used under the LGPLv3; "
                "see THIRD-PARTY-NOTICES.md.</p>"
@@ -700,8 +700,8 @@ void SerialPanel::processReceived(const QByteArray &bytes)
     m_rxBytes += quint64(bytes.size());
     m_pending.append(bytes);
 
-    // CSV 解析独立于显示模式，直接吃原始字节（内部按换行拼行）
-    ui->csvPanel->feed(bytes);
+    // 解包独立于显示模式，直接吃原始字节（CSV 行内部按换行拼，协议帧按帧头切）
+    ui->unpackPanel->feed(bytes);
 
     if (m_pending.size() > kMaxPendingBytes) {
         const int excess = m_pending.size() - kMaxPendingBytes;

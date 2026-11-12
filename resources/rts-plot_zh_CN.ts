@@ -33,15 +33,15 @@
     </message>
     <message>
         <source>Cannot read %1 (%2).
-Start %3 and enable Curve in the CSV panel first.</source>
+Start %3 and enable Curve in the Unpack panel first.</source>
         <translation>无法读取 %1（%2）。
-请先启动 %3，并在 CSV 面板中勾选曲线。</translation>
+请先启动 %3，并在“解包”面板中勾选曲线。</translation>
     </message>
     <message>
         <source>%1 is running but exposes no curve group.
-Tick Curve on a CSV row and enable the curve icon of a numeric column.</source>
+Tick Curve on an Unpack row and enable the curve icon of a numeric column.</source>
         <translation>%1 正在运行，但没有可用的曲线组。
-请在 CSV 行上勾选“曲线”，并点亮某个数值列的曲线图标。</translation>
+请在“解包”面板的行上勾选“曲线”，并点亮某个数值列的曲线图标。</translation>
     </message>
     <message>
         <source>Session %1 (%2 group(s)) - updated %3</source>

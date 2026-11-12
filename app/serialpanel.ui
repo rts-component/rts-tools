@@ -620,9 +620,9 @@ QGroupBox#statusBar QLabel {
           <property name="currentIndex">
            <number>0</number>
           </property>
-          <widget class="CsvPanel" name="csvPanel">
+          <widget class="UnpackPanel" name="unpackPanel">
            <attribute name="title">
-            <string>CSV</string>
+            <string>Unpack</string>
            </attribute>
           </widget>
           <widget class="ArmFlashPanel" name="armFlashPanel">
@@ -1028,9 +1028,9 @@ QGroupBox#statusBar QLabel {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CsvPanel</class>
+   <class>UnpackPanel</class>
    <extends>QWidget</extends>
-   <header>csv/csvpanel.h</header>
+   <header>unpack/unpackpanel.h</header>
   </customwidget>
   <customwidget>
    <class>ArmFlashPanel</class>

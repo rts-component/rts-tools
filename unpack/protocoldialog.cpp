@@ -1,4 +1,4 @@
-#include "csv/protocoldialog.h"
+#include "unpack/protocoldialog.h"
 
 #include <QCheckBox>
 #include <QCoreApplication>
@@ -341,6 +341,7 @@ void ProtocolDialog::populateConversions(const ProtoField &field)
     else if (size == 8)
         m_conversionCombo->addItem(tr("Double (64-bit)"), int(ProtoConversion::Float));
     m_conversionCombo->addItem(tr("Hex"), int(ProtoConversion::Hex));
+    m_conversionCombo->addItem(tr("Binary"), int(ProtoConversion::Binary));
 }
 
 void ProtocolDialog::loadProperties()

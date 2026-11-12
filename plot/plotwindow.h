@@ -13,7 +13,7 @@ class QTimer;
 class QToolButton;
 class QVBoxLayout;
 
-// 一个组的实时曲线窗口（该 CSV 行的所有曲线画在一起）。
+// 一个组的实时曲线窗口（该解包行的所有曲线画在一起）。
 // 布局参照常用实时曲线工具：左侧系列列表 + 深色绘图区 + 游标读数。
 class PlotWindow : public QMainWindow
 {

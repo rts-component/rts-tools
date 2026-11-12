@@ -1,6 +1,6 @@
-#include "csv/csvgroupdialog.h"
+#include "unpack/unpackgroupdialog.h"
 
-#include "csv/protocoldialog.h"
+#include "unpack/protocoldialog.h"
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -24,7 +24,7 @@ enum Column {
 
 } // namespace
 
-CsvGroupDialog::CsvGroupDialog(const CsvGroup &group, QWidget *parent)
+UnpackGroupDialog::UnpackGroupDialog(const UnpackGroup &group, QWidget *parent)
     : QDialog(parent)
     , m_group(group)
     , m_nameEdit(new QLineEdit(group.name, this))
@@ -49,14 +49,14 @@ CsvGroupDialog::CsvGroupDialog(const CsvGroup &group, QWidget *parent)
 
     m_modeCombo->addItem(tr("Text (CSV)"), false);
     m_modeCombo->addItem(tr("Binary protocol frame"), true);
-    m_modeCombo->setCurrentIndex(group.protocol ? 1 : 0);
+    m_modeCombo->setCurrentIndex(group.isProtocol() ? 1 : 0);
 
     auto *form = new QFormLayout;
     form->addRow(tr("Name"), m_nameEdit);
     form->addRow(tr("Format"), m_modeCombo);
 
     // ---- CSV 页 ----
-    m_csvPage = new QWidget(this);
+    m_textPage = new QWidget(this);
     auto *csvForm = new QFormLayout;
     csvForm->setContentsMargins(0, 0, 0, 0);
     csvForm->addRow(tr("Separator"), m_separatorCombo);
@@ -82,7 +82,7 @@ CsvGroupDialog::CsvGroupDialog(const CsvGroup &group, QWidget *parent)
     tableButtons->addWidget(removeButton);
     tableButtons->addStretch();
 
-    auto *csvLayout = new QVBoxLayout(m_csvPage);
+    auto *csvLayout = new QVBoxLayout(m_textPage);
     csvLayout->setContentsMargins(0, 0, 0, 0);
     csvLayout->addLayout(csvForm);
     csvLayout->addWidget(hint);
@@ -110,17 +110,17 @@ CsvGroupDialog::CsvGroupDialog(const CsvGroup &group, QWidget *parent)
 
     auto *layout = new QVBoxLayout(this);
     layout->addLayout(form);
-    layout->addWidget(m_csvPage, 1);
+    layout->addWidget(m_textPage, 1);
     layout->addWidget(m_protocolPage, 1);
     layout->addWidget(buttonBox);
 
-    if (!group.protocol) {
-        for (const CsvField &field : group.fields)
+    if (!group.isProtocol()) {
+        for (const UnpackField &field : group.fields)
             addRow(field);
     }
 
     connect(addButton, &QPushButton::clicked, this, [this] {
-        CsvField field;
+        UnpackField field;
         field.name = tr("Column %1").arg(m_table->rowCount() + 1);
         field.numeric = true;
         addRow(field);
@@ -128,27 +128,27 @@ CsvGroupDialog::CsvGroupDialog(const CsvGroup &group, QWidget *parent)
         m_table->setCurrentCell(row, NameColumn);
         m_table->editItem(m_table->item(row, NameColumn));
     });
-    connect(removeButton, &QPushButton::clicked, this, &CsvGroupDialog::removeCurrentRow);
-    connect(editProtocolButton, &QPushButton::clicked, this, &CsvGroupDialog::editProtocol);
-    connect(m_modeCombo, &QComboBox::currentIndexChanged, this, &CsvGroupDialog::updateMode);
+    connect(removeButton, &QPushButton::clicked, this, &UnpackGroupDialog::removeCurrentRow);
+    connect(editProtocolButton, &QPushButton::clicked, this, &UnpackGroupDialog::editProtocol);
+    connect(m_modeCombo, &QComboBox::currentIndexChanged, this, &UnpackGroupDialog::updateMode);
     updateMode();
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-CsvGroup CsvGroupDialog::group() const
+UnpackGroup UnpackGroupDialog::group() const
 {
-    CsvGroup result = m_group;
+    UnpackGroup result = m_group;
     result.name = m_nameEdit->text().trimmed();
     result.separator = m_separatorCombo->currentText().isEmpty()
             ? QStringLiteral(",")
             : m_separatorCombo->currentText();
 
-    result.protocol = m_modeCombo->currentData().toBool();
+    result.mode = m_modeCombo->currentData().toBool() ? UnpackMode::Protocol : UnpackMode::Csv;
     result.layout = m_layout;
-    if (result.protocol) {
+    if (result.isProtocol()) {
         // 面板字段由协议定义派生，沿用同位置的颜色 / 曲线设置
-        result.fields = protocolFields(m_layout, m_group.protocol ? m_group.fields : QVector<CsvField>());
+        result.fields = protocolFields(m_layout, m_group.isProtocol() ? m_group.fields : QVector<UnpackField>());
         return result;
     }
 
@@ -157,10 +157,10 @@ CsvGroup CsvGroupDialog::group() const
         const QTableWidgetItem *nameItem = m_table->item(row, NameColumn);
         const QTableWidgetItem *numericItem = m_table->item(row, NumericColumn);
 
-        CsvField field;
+        UnpackField field;
         field.name = nameItem ? nameItem->text().trimmed() : QString();
         field.numeric = !numericItem || numericItem->checkState() == Qt::Checked;
-        if (!m_group.protocol && row < m_group.fields.size()) {
+        if (!m_group.isProtocol() && row < m_group.fields.size()) {
             field.formula = m_group.fields.at(row).formula;
             // 非数字字段不能有曲线
             field.curve = field.numeric && m_group.fields.at(row).curve;
@@ -170,7 +170,7 @@ CsvGroup CsvGroupDialog::group() const
     return result;
 }
 
-void CsvGroupDialog::addRow(const CsvField &field)
+void UnpackGroupDialog::addRow(const UnpackField &field)
 {
     const bool wasUpdating = m_updating;
     m_updating = true;
@@ -195,7 +195,7 @@ void CsvGroupDialog::addRow(const CsvField &field)
     resequence();
 }
 
-void CsvGroupDialog::removeCurrentRow()
+void UnpackGroupDialog::removeCurrentRow()
 {
     const int row = m_table->currentRow();
     if (row < 0)
@@ -204,7 +204,7 @@ void CsvGroupDialog::removeCurrentRow()
     resequence();
 }
 
-void CsvGroupDialog::resequence()
+void UnpackGroupDialog::resequence()
 {
     const bool wasUpdating = m_updating;
     m_updating = true;
@@ -215,10 +215,10 @@ void CsvGroupDialog::resequence()
     m_updating = wasUpdating;
 }
 
-void CsvGroupDialog::updateMode()
+void UnpackGroupDialog::updateMode()
 {
     const bool protocol = m_modeCombo->currentData().toBool();
-    m_csvPage->setVisible(!protocol);
+    m_textPage->setVisible(!protocol);
     m_protocolPage->setVisible(protocol);
 
     if (m_layout.isEmpty()) {
@@ -234,7 +234,7 @@ void CsvGroupDialog::updateMode()
                                        .arg(parts.join(QStringLiteral(" | "))));
 }
 
-void CsvGroupDialog::editProtocol()
+void UnpackGroupDialog::editProtocol()
 {
     ProtocolDialog dialog(m_layout, this);
     if (dialog.exec() != QDialog::Accepted)

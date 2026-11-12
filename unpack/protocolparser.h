@@ -28,6 +28,7 @@ enum class ProtoConversion {
     Int,
     Float, // 仅 4 / 8 字节：IEEE754 单/双精度
     Hex,
+    Binary, // 每个字节 8 位，高位在前，字节之间空格分隔
 };
 
 enum class ProtoChecksum {

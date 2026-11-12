@@ -1,7 +1,7 @@
 #ifndef PROTOCOLDIALOG_H
 #define PROTOCOLDIALOG_H
 
-#include "csv/protocolparser.h"
+#include "unpack/protocolparser.h"
 
 #include <QDialog>
 

@@ -1,7 +1,7 @@
-#ifndef CSVROWLIST_H
-#define CSVROWLIST_H
+#ifndef UNPACKROWLIST_H
+#define UNPACKROWLIST_H
 
-#include "csv/csvparser.h"
+#include "unpack/unpackconfig.h"
 
 #include <QAbstractScrollArea>
 #include <QPoint>
@@ -9,24 +9,24 @@
 #include <QStringList>
 #include <QVector>
 
-// CSV 面板里的“行列表”：每行 = 启用勾选 / 序号 / 编辑 / 名称 / 曲线勾选 / 菜单 + 字段卡片。
+// 解包面板里的“行列表”：每行 = 启用勾选 / 序号 / 编辑 / 名称 / 曲线勾选 / 菜单 + 字段卡片。
 //
 // 整个列表只有 viewport 这一块绘制面：所有行都在 paintEvent 里画出来，鼠标命中由本类自己判断。
 // 这样增删行、滚动都不会创建/销毁/移动子控件，任何结构变化都是整块 viewport 重绘，
 // 不会留下被删除行的残影（此前用 QScrollArea + 每行一个 QWidget 时，分数缩放下会残留细横线）。
-class CsvRowList : public QAbstractScrollArea
+class UnpackRowList : public QAbstractScrollArea
 {
     Q_OBJECT
 
 public:
-    explicit CsvRowList(QWidget *parent = nullptr);
+    explicit UnpackRowList(QWidget *parent = nullptr);
 
     int count() const { return m_rows.size(); }
 
     // 整体换一套行（保持滚动位置在合法范围内），已显示的值清空
-    void setGroups(const QVector<CsvGroup> &groups);
+    void setGroups(const QVector<UnpackGroup> &groups);
     // 只更新一行的定义（卡片重建、值保留不了：与旧实现一致，值清空）
-    void setGroup(int index, const CsvGroup &group);
+    void setGroup(int index, const UnpackGroup &group);
 
     void setSelected(int index);
     int selected() const { return m_selected; }
@@ -56,13 +56,13 @@ protected:
     bool viewportEvent(QEvent *event) override;
 
 private:
-    friend class TstCsvRowList;
+    friend class TstUnpackRowList;
 
     enum class Part { None, Enabled, Edit, CurveCheck, Menu, Fx, CardCurve };
 
     struct Row
     {
-        CsvGroup group;
+        UnpackGroup group;
         QStringList values;
         int top = 0;    // 内容坐标
         int height = 0;
@@ -114,4 +114,4 @@ private:
     Hit m_pressed;
 };
 
-#endif // CSVROWLIST_H
+#endif // UNPACKROWLIST_H

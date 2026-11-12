@@ -1,4 +1,4 @@
-#include "csv/csvparser.h"
+#include "unpack/unpackconfig.h"
 
 #include "common/jsonstore.h"
 
@@ -22,7 +22,7 @@ const NamedType kFieldTypes[] = {
 };
 const NamedType kConversions[] = {
     {"uint", int(ProtoConversion::UInt)}, {"int", int(ProtoConversion::Int)},
-    {"float", int(ProtoConversion::Float)}, {"hex", int(ProtoConversion::Hex)},
+    {"float", int(ProtoConversion::Float)}, {"hex", int(ProtoConversion::Hex)}, {"bin", int(ProtoConversion::Binary)},
 };
 const NamedType kChecksums[] = {
     {"sum8", int(ProtoChecksum::Sum8)},         {"xor8", int(ProtoChecksum::Xor8)},
@@ -89,6 +89,12 @@ bool protoFieldFromJson(const QJsonObject &object, ProtoField *field)
 
 QString configFilePath()
 {
+    return JsonStore::settingsPath(QStringLiteral("unpack.json"));
+}
+
+// 旧版本（面板还叫 CSV 时）的配置文件名；新文件不存在时读它，下次保存即迁移
+QString legacyConfigFilePath()
+{
     return JsonStore::settingsPath(QStringLiteral("csv_parse.json"));
 }
 
@@ -99,92 +105,17 @@ QString newGroupId()
     return QUuid::createUuid().toString(QUuid::WithoutBraces);
 }
 
-QString decodeSeparator(const QString &text)
+
+
+
+
+UnpackConfig loadUnpackConfig()
 {
-    if (text == QLatin1String("\\t"))
-        return QStringLiteral("\t");
-    if (text == QLatin1String("\\n"))
-        return QStringLiteral("\n");
-    return text;
-}
+    UnpackConfig config;
 
-QStringList splitCsvLine(const QString &line, const QString &separator)
-{
-    QStringList fields;
-    if (separator.isEmpty()) {
-        fields.append(line);
-        return fields;
-    }
-
-    QString field;
-    bool inQuotes = false;
-    int index = 0;
-    while (index < line.size()) {
-        const QChar ch = line.at(index);
-
-        if (inQuotes) {
-            if (ch == QLatin1Char('"')) {
-                if (index + 1 < line.size() && line.at(index + 1) == QLatin1Char('"')) {
-                    field.append(QLatin1Char('"')); // "" 转义成一个引号
-                    index += 2;
-                    continue;
-                }
-                inQuotes = false;
-                ++index;
-                continue;
-            }
-            field.append(ch);
-            ++index;
-            continue;
-        }
-
-        if (ch == QLatin1Char('"') && field.trimmed().isEmpty()) {
-            field.clear();
-            inQuotes = true;
-            ++index;
-            continue;
-        }
-
-        if (line.mid(index, separator.size()) == separator) {
-            fields.append(field.trimmed());
-            field.clear();
-            index += separator.size();
-            continue;
-        }
-
-        field.append(ch);
-        ++index;
-    }
-    fields.append(field.trimmed());
-    return fields;
-}
-
-bool looksLikeCsvRecord(const QStringList &fields)
-{
-    if (fields.size() < 2)
-        return false;
-    for (const QString &field : fields) {
-        if (!field.isEmpty())
-            return true;
-    }
-    return false;
-}
-
-bool isNumericValue(const QString &text)
-{
-    if (text.isEmpty())
-        return false;
-
-    bool ok = false;
-    const double value = text.toDouble(&ok);
-    return ok && qIsFinite(value); // 同时排除 "nan" / "inf"
-}
-
-CsvParseConfig loadCsvParseConfig()
-{
-    CsvParseConfig config;
-
-    const QJsonObject object = JsonStore::read(configFilePath()).object();
+    QJsonObject object = JsonStore::read(configFilePath()).object();
+    if (object.isEmpty())
+        object = JsonStore::read(legacyConfigFilePath()).object();
     // 顶层 enabled（Start parsing）与行级 curve（Curve 勾选）属于运行期状态，不恢复：
     // 重启后一律从不勾选开始，避免自动拉起图表窗口 / 自动开始解析。
 
@@ -192,7 +123,7 @@ CsvParseConfig loadCsvParseConfig()
     for (const QJsonValue &groupValue : groups) {
         const QJsonObject groupObject = groupValue.toObject();
 
-        CsvGroup group;
+        UnpackGroup group;
         group.id = groupObject.value(QLatin1String("id")).toString();
         group.enabled = groupObject.value(QLatin1String("enabled")).toBool(true);
         group.name = groupObject.value(QLatin1String("name")).toString();
@@ -200,7 +131,9 @@ CsvParseConfig loadCsvParseConfig()
         if (!separator.isEmpty())
             group.separator = separator;
 
-        group.protocol = groupObject.value(QLatin1String("protocol")).toBool(false);
+        group.mode = groupObject.value(QLatin1String("mode")).toString() == QLatin1String("protocol")
+                ? UnpackMode::Protocol
+                : UnpackMode::Csv;
         const QJsonArray layout = groupObject.value(QLatin1String("layout")).toArray();
         for (const QJsonValue &layoutValue : layout) {
             ProtoField protoField;
@@ -211,7 +144,7 @@ CsvParseConfig loadCsvParseConfig()
         const QJsonArray fields = groupObject.value(QLatin1String("fields")).toArray();
         for (const QJsonValue &fieldValue : fields) {
             const QJsonObject fieldObject = fieldValue.toObject();
-            CsvField field;
+            UnpackField field;
             field.name = fieldObject.value(QLatin1String("name")).toString();
             field.formula = fieldObject.value(QLatin1String("formula")).toString();
             field.color = fieldObject.value(QLatin1String("color")).toString();
@@ -228,12 +161,12 @@ CsvParseConfig loadCsvParseConfig()
     return config;
 }
 
-void saveCsvParseConfig(const CsvParseConfig &config)
+void saveUnpackConfig(const UnpackConfig &config)
 {
     QJsonArray groups;
-    for (const CsvGroup &group : config.groups) {
+    for (const UnpackGroup &group : config.groups) {
         QJsonArray fields;
-        for (const CsvField &field : group.fields) {
+        for (const UnpackField &field : group.fields) {
             QJsonObject fieldObject;
             fieldObject.insert(QLatin1String("name"), field.name);
             fieldObject.insert(QLatin1String("formula"), field.formula);
@@ -248,7 +181,8 @@ void saveCsvParseConfig(const CsvParseConfig &config)
         groupObject.insert(QLatin1String("enabled"), group.enabled);
         groupObject.insert(QLatin1String("name"), group.name);
         groupObject.insert(QLatin1String("separator"), group.separator);
-        groupObject.insert(QLatin1String("protocol"), group.protocol);
+        groupObject.insert(QLatin1String("mode"),
+                           group.isProtocol() ? QLatin1String("protocol") : QLatin1String("csv"));
         QJsonArray layout;
         for (const ProtoField &protoField : group.layout)
             layout.append(protoFieldToJson(protoField));
@@ -262,16 +196,16 @@ void saveCsvParseConfig(const CsvParseConfig &config)
     // 顶层 enabled（Start parsing）同样不落盘
     object.insert(QLatin1String("groups"), groups);
 
-    JsonStore::write(configFilePath(), QJsonDocument(object), "CSV parse settings");
+    JsonStore::write(configFilePath(), QJsonDocument(object), "Unpack settings");
 }
 
-QVector<CsvField> protocolFields(const QVector<ProtoField> &layout, const QVector<CsvField> &oldFields)
+QVector<UnpackField> protocolFields(const QVector<ProtoField> &layout, const QVector<UnpackField> &oldFields)
 {
-    QVector<CsvField> fields;
+    QVector<UnpackField> fields;
     const QVector<int> indexes = protocolDisplayIndexes(layout);
     const QStringList names = protocolDisplayNames(layout);
     for (int i = 0; i < indexes.size(); ++i) {
-        CsvField field;
+        UnpackField field;
         if (i < oldFields.size()) {
             field.color = oldFields.at(i).color;
             field.formula = oldFields.at(i).formula;

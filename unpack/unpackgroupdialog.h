@@ -1,7 +1,7 @@
-#ifndef CSVGROUPDIALOG_H
-#define CSVGROUPDIALOG_H
+#ifndef UNPACKGROUPDIALOG_H
+#define UNPACKGROUPDIALOG_H
 
-#include "csv/csvparser.h"
+#include "unpack/unpackconfig.h"
 
 #include <QDialog>
 
@@ -12,27 +12,27 @@ class QLineEdit;
 class QTableWidget;
 
 // 编辑一行（分组）：名称、分隔符、列名
-class CsvGroupDialog : public QDialog
+class UnpackGroupDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit CsvGroupDialog(const CsvGroup &group, QWidget *parent = nullptr);
+    explicit UnpackGroupDialog(const UnpackGroup &group, QWidget *parent = nullptr);
 
-    CsvGroup group() const;
+    UnpackGroup group() const;
 
 private:
-    void addRow(const CsvField &field);
+    void addRow(const UnpackField &field);
     void removeCurrentRow();
     void resequence();
     void updateMode();
     void editProtocol();
 
-    CsvGroup m_group;
+    UnpackGroup m_group;
     QLineEdit *m_nameEdit = nullptr;
     QComboBox *m_separatorCombo = nullptr;
     QComboBox *m_modeCombo = nullptr;
-    QWidget *m_csvPage = nullptr;
+    QWidget *m_textPage = nullptr;
     QWidget *m_protocolPage = nullptr;
     QLabel *m_protocolSummary = nullptr;
     QVector<ProtoField> m_layout;
@@ -40,4 +40,4 @@ private:
     bool m_updating = false;
 };
 
-#endif // CSVGROUPDIALOG_H
+#endif // UNPACKGROUPDIALOG_H

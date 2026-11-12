@@ -7,7 +7,7 @@
 #include <QVector>
 
 // rts-tools.exe 写出的端点清单（run/plot-endpoints.json），rts-plot.exe 读取后连接。
-// 一个 group（CSV 面板的一行）对应一条管道和一个图表窗口，组内可以有多个系列。
+// 一个 group（解包面板的一行）对应一条管道和一个图表窗口，组内可以有多个系列。
 struct PlotSeries
 {
     quint32 id = 0;

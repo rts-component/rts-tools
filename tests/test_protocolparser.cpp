@@ -1,4 +1,4 @@
-#include "csv/protocolparser.h"
+#include "unpack/protocolparser.h"
 
 #include <QtTest>
 
@@ -37,6 +37,7 @@ private slots:
     void fixedFrameDecodesLittleEndian();
     void bigEndianAndSigned();
     void floatConversion();
+    void binaryConversion();
     void badChecksumIsRejectedAndResyncs();
     void frameSplitAcrossReads();
     void leadingGarbageIsSkipped();
@@ -104,6 +105,22 @@ void TestProtocolParser::floatConversion()
     const auto frames = parser.feed(QByteArray::fromHex("A5 0000C03F"));
     QCOMPARE(frames.size(), 1);
     QCOMPARE(frames.first().first().toDouble(), 1.5);
+}
+
+void TestProtocolParser::binaryConversion()
+{
+    ProtoField value = field(ProtoFieldType::Byte2, "b");
+    value.conversion = ProtoConversion::Binary;
+    ProtocolParser parser;
+    parser.setLayout({headerField(QByteArray::fromHex("A5")), value});
+    // 小端 34 12 => 0x1234，高位在前
+    QCOMPARE(parser.feed(QByteArray::fromHex("A5 3412")).first(),
+             QStringList({"00010010 00110100"}));
+    QVERIFY(!protoFieldNumeric(value));
+    value.bigEndian = true;
+    parser.setLayout({headerField(QByteArray::fromHex("A5")), value});
+    QCOMPARE(parser.feed(QByteArray::fromHex("A5 3412")).first(),
+             QStringList({"00110100 00010010"}));
 }
 
 void TestProtocolParser::badChecksumIsRejectedAndResyncs()

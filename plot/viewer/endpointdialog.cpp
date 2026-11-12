@@ -85,7 +85,7 @@ void EndpointDialog::reload()
 
     if (file.groups.isEmpty()) {
         m_status->setText(tr("%1 is running but exposes no curve group.\n"
-                             "Tick Curve on a CSV row and enable the curve icon of a numeric "
+                             "Tick Curve on an Unpack row and enable the curve icon of a numeric "
                              "column.")
                                   .arg(toolsExecutableName()));
         return;

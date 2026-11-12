@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
     QCommandLineParser parser;
     parser.setApplicationDescription(
-            QStringLiteral("Curve viewer for rts-tools: one window per CSV row, all of the row's "
+            QStringLiteral("Curve viewer for rts-tools: one window per Unpack row, all of the row's "
                            "curves in one chart."));
     parser.addHelpOption();
     parser.addVersionOption();

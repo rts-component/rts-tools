@@ -1,4 +1,4 @@
-#include "csv/csvparser.h"
+#include "unpack/csvparser.h"
 
 #include <QtTest>
 
@@ -16,7 +16,6 @@ private slots:
     void decodeSeparatorEscapes();
     void looksLikeRecord();
     void numericValues();
-    void groupIdsAreUnique();
 };
 
 void TestCsvParser::splitPlain()
@@ -81,12 +80,6 @@ void TestCsvParser::numericValues()
     QVERIFY(!isNumericValue(QStringLiteral("nan")));
     QVERIFY(!isNumericValue(QStringLiteral("inf")));
     QVERIFY(!isNumericValue(QStringLiteral("12abc")));
-}
-
-void TestCsvParser::groupIdsAreUnique()
-{
-    QVERIFY(newGroupId() != newGroupId());
-    QVERIFY(!newGroupId().contains(QLatin1Char('{')));
 }
 
 QTEST_APPLESS_MAIN(TestCsvParser)

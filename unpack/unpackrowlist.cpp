@@ -1,6 +1,6 @@
-#include "csv/csvrowlist.h"
+#include "unpack/unpackrowlist.h"
 
-#include "csv/csvicons.h"
+#include "unpack/unpackicons.h"
 
 #include <QFontMetrics>
 #include <QHash>
@@ -41,20 +41,20 @@ const QString kNoValue = QStringLiteral("—");
 
 const QIcon &chartIcon(bool on)
 {
-    static const QIcon off = CsvIcons::chart(false);
-    static const QIcon onIcon = CsvIcons::chart(true);
+    static const QIcon off = UnpackIcons::chart(false);
+    static const QIcon onIcon = UnpackIcons::chart(true);
     return on ? onIcon : off;
 }
 
 const QIcon &pencilIcon()
 {
-    static const QIcon icon = CsvIcons::pencil();
+    static const QIcon icon = UnpackIcons::pencil();
     return icon;
 }
 
 const QIcon &menuIcon()
 {
-    static const QIcon icon = CsvIcons::menu();
+    static const QIcon icon = UnpackIcons::menu();
     return icon;
 }
 
@@ -67,7 +67,7 @@ void drawIcon(QPainter *painter, const QIcon &icon, const QRect &rect)
 
 } // namespace
 
-CsvRowList::CsvRowList(QWidget *parent)
+UnpackRowList::UnpackRowList(QWidget *parent)
     : QAbstractScrollArea(parent)
 {
     setFrameShape(QFrame::NoFrame);
@@ -77,7 +77,7 @@ CsvRowList::CsvRowList(QWidget *parent)
     verticalScrollBar()->setSingleStep(24);
 }
 
-void CsvRowList::setGroups(const QVector<CsvGroup> &groups)
+void UnpackRowList::setGroups(const QVector<UnpackGroup> &groups)
 {
     // Rows keep the values they were showing: adding, deleting or moving a row must not
     // blank the others. Rows are matched by id; a changed column count invalidates them.
@@ -89,7 +89,7 @@ void CsvRowList::setGroups(const QVector<CsvGroup> &groups)
 
     m_rows.clear();
     m_rows.reserve(groups.size());
-    for (const CsvGroup &group : groups) {
+    for (const UnpackGroup &group : groups) {
         Row row;
         row.group = group;
         const auto it = old.constFind(group.id);
@@ -106,7 +106,7 @@ void CsvRowList::setGroups(const QVector<CsvGroup> &groups)
     viewport()->update();
 }
 
-void CsvRowList::setGroup(int index, const CsvGroup &group)
+void UnpackRowList::setGroup(int index, const UnpackGroup &group)
 {
     if (index < 0 || index >= m_rows.size())
         return;
@@ -119,7 +119,7 @@ void CsvRowList::setGroup(int index, const CsvGroup &group)
     viewport()->update();
 }
 
-void CsvRowList::setSelected(int index)
+void UnpackRowList::setSelected(int index)
 {
     if (index == m_selected)
         return;
@@ -127,7 +127,7 @@ void CsvRowList::setSelected(int index)
     viewport()->update();
 }
 
-void CsvRowList::setCurveChecked(int index, bool checked)
+void UnpackRowList::setCurveChecked(int index, bool checked)
 {
     if (index < 0 || index >= m_rows.size())
         return;
@@ -135,7 +135,7 @@ void CsvRowList::setCurveChecked(int index, bool checked)
     invalidateRow(index);
 }
 
-void CsvRowList::setValues(int index, const QStringList &values)
+void UnpackRowList::setValues(int index, const QStringList &values)
 {
     if (index < 0 || index >= m_rows.size() || m_rows.at(index).values == values)
         return;
@@ -143,24 +143,24 @@ void CsvRowList::setValues(int index, const QStringList &values)
     invalidateRow(index);
 }
 
-void CsvRowList::clearValues()
+void UnpackRowList::clearValues()
 {
     for (Row &row : m_rows)
         row.values.clear();
     viewport()->update();
 }
 
-int CsvRowList::rowWidth() const
+int UnpackRowList::rowWidth() const
 {
     return qMax(0, viewport()->width() - 2 * kOuterMargin);
 }
 
-int CsvRowList::cardsPerRow(int rowWidth) const
+int UnpackRowList::cardsPerRow(int rowWidth) const
 {
     return qMax(1, (rowWidth - 12) / (kCardWidth + kCardSpacing));
 }
 
-int CsvRowList::rowHeight(const Row &row, int rowWidth) const
+int UnpackRowList::rowHeight(const Row &row, int rowWidth) const
 {
     int cards = 0;
     if (row.group.fields.isEmpty()) {
@@ -173,7 +173,7 @@ int CsvRowList::rowHeight(const Row &row, int rowWidth) const
     return kPadTop + kHeaderHeight + kCardsGap + cards + kPadBottom;
 }
 
-void CsvRowList::relayout()
+void UnpackRowList::relayout()
 {
     const int width = rowWidth();
     int top = kOuterMargin;
@@ -189,7 +189,7 @@ void CsvRowList::relayout()
     bar->setRange(0, qMax(0, m_contentHeight - viewport()->height()));
 }
 
-CsvRowList::RowGeometry CsvRowList::geometryFor(int rowWidth) const
+UnpackRowList::RowGeometry UnpackRowList::geometryFor(int rowWidth) const
 {
     RowGeometry g;
     const int centerY = kPadTop + kHeaderHeight / 2;
@@ -211,13 +211,13 @@ CsvRowList::RowGeometry CsvRowList::geometryFor(int rowWidth) const
     return g;
 }
 
-QRect CsvRowList::rowRect(int index) const
+QRect UnpackRowList::rowRect(int index) const
 {
     const Row &row = m_rows.at(index);
     return QRect(kOuterMargin, row.top, rowWidth(), row.height);
 }
 
-QRect CsvRowList::cardRect(int index, int card) const
+QRect UnpackRowList::cardRect(int index, int card) const
 {
     const RowGeometry g = geometryFor(rowWidth());
     Q_UNUSED(index)
@@ -226,17 +226,17 @@ QRect CsvRowList::cardRect(int index, int card) const
                  kCardWidth, kCardHeight);
 }
 
-QRect CsvRowList::fxRect(const QRect &card)
+QRect UnpackRowList::fxRect(const QRect &card)
 {
     return QRect(card.right() + 1 - 6 - 16 - 3 - 20, card.top() + 4, 20, 16);
 }
 
-QRect CsvRowList::cardCurveRect(const QRect &card)
+QRect UnpackRowList::cardCurveRect(const QRect &card)
 {
     return QRect(card.right() + 1 - 6 - 16, card.top() + 4, 16, 16);
 }
 
-CsvRowList::Hit CsvRowList::hitTest(const QPoint &viewportPos) const
+UnpackRowList::Hit UnpackRowList::hitTest(const QPoint &viewportPos) const
 {
     Hit hit;
     const int y = viewportPos.y() + verticalScrollBar()->value();
@@ -278,7 +278,7 @@ CsvRowList::Hit CsvRowList::hitTest(const QPoint &viewportPos) const
     return hit;
 }
 
-QRect CsvRowList::partRect(const Hit &hit) const
+QRect UnpackRowList::partRect(const Hit &hit) const
 {
     if (hit.row < 0 || hit.row >= m_rows.size())
         return QRect();
@@ -298,7 +298,7 @@ QRect CsvRowList::partRect(const Hit &hit) const
     return local.translated(base.topLeft());
 }
 
-QString CsvRowList::toolTipFor(const Hit &hit) const
+QString UnpackRowList::toolTipFor(const Hit &hit) const
 {
     switch (hit.part) {
     case Part::Enabled:
@@ -324,7 +324,7 @@ QString CsvRowList::toolTipFor(const Hit &hit) const
     return QString();
 }
 
-void CsvRowList::invalidateRow(int index)
+void UnpackRowList::invalidateRow(int index)
 {
     if (index < 0 || index >= m_rows.size())
         return;
@@ -333,10 +333,10 @@ void CsvRowList::invalidateRow(int index)
     viewport()->update(rect.adjusted(-1, -1, 1, 1));
 }
 
-void CsvRowList::paintRow(QPainter *painter, int index, int width) const
+void UnpackRowList::paintRow(QPainter *painter, int index, int width) const
 {
     const Row &row = m_rows.at(index);
-    const CsvGroup &group = row.group;
+    const UnpackGroup &group = row.group;
     const RowGeometry g = geometryFor(width);
 
     // Row background and border
@@ -417,7 +417,7 @@ void CsvRowList::paintRow(QPainter *painter, int index, int width) const
     valueFont.setPointSizeF(15);
     valueFont.setWeight(QFont::DemiBold);
     for (int card = 0; card < group.fields.size(); ++card) {
-        const CsvField &field = group.fields.at(card);
+        const UnpackField &field = group.fields.at(card);
         const QRect cr = cardRect(index, card);
 
         painter->setPen(Qt::NoPen);
@@ -476,7 +476,7 @@ void CsvRowList::paintRow(QPainter *painter, int index, int width) const
     painter->setOpacity(1.0);
 }
 
-void CsvRowList::paintEvent(QPaintEvent *event)
+void UnpackRowList::paintEvent(QPaintEvent *event)
 {
     QPainter painter(viewport());
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -496,19 +496,19 @@ void CsvRowList::paintEvent(QPaintEvent *event)
     }
 }
 
-void CsvRowList::resizeEvent(QResizeEvent *event)
+void UnpackRowList::resizeEvent(QResizeEvent *event)
 {
     QAbstractScrollArea::resizeEvent(event);
     relayout();
     viewport()->update();
 }
 
-void CsvRowList::scrollContentsBy(int, int)
+void UnpackRowList::scrollContentsBy(int, int)
 {
     viewport()->update();
 }
 
-void CsvRowList::mousePressEvent(QMouseEvent *event)
+void UnpackRowList::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) {
         QAbstractScrollArea::mousePressEvent(event);
@@ -522,7 +522,7 @@ void CsvRowList::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void CsvRowList::mouseMoveEvent(QMouseEvent *event)
+void UnpackRowList::mouseMoveEvent(QMouseEvent *event)
 {
     const Hit hit = hitTest(event->position().toPoint());
     if (hit == m_hover)
@@ -535,7 +535,7 @@ void CsvRowList::mouseMoveEvent(QMouseEvent *event)
     viewport()->setCursor(hit.part == Part::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
 }
 
-void CsvRowList::leaveEvent(QEvent *event)
+void UnpackRowList::leaveEvent(QEvent *event)
 {
     QAbstractScrollArea::leaveEvent(event);
     const int oldRow = m_hover.row;
@@ -543,7 +543,7 @@ void CsvRowList::leaveEvent(QEvent *event)
     invalidateRow(oldRow);
 }
 
-void CsvRowList::mouseReleaseEvent(QMouseEvent *event)
+void UnpackRowList::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) {
         QAbstractScrollArea::mouseReleaseEvent(event);
@@ -584,7 +584,7 @@ void CsvRowList::mouseReleaseEvent(QMouseEvent *event)
         break;
     }
     case Part::CardCurve: {
-        CsvField &field = row.group.fields[pressed.card];
+        UnpackField &field = row.group.fields[pressed.card];
         field.curve = !field.curve;
         invalidateRow(index);
         emit fieldCurveToggled(index, pressed.card, field.curve);
@@ -595,7 +595,7 @@ void CsvRowList::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-bool CsvRowList::viewportEvent(QEvent *event)
+bool UnpackRowList::viewportEvent(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {
         const auto *help = static_cast<QHelpEvent *>(event);

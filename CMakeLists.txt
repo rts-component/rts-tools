@@ -87,19 +87,21 @@ qt_add_executable(rts-tools
     highlight/highlightrule.h
     highlight/highlightdialog.cpp
     highlight/highlightdialog.h
-    csv/csvparser.cpp
-    csv/csvparser.h
-    csv/protocolparser.cpp
-    csv/protocolparser.h
-    csv/protocoldialog.cpp
-    csv/protocoldialog.h
-    csv/csvpanel.cpp
-    csv/csvpanel.h
-    csv/csvrowlist.cpp
-    csv/csvrowlist.h
-    csv/csvgroupdialog.cpp
-    csv/csvgroupdialog.h
-    csv/csvicons.h
+    unpack/csvparser.cpp
+    unpack/csvparser.h
+    unpack/unpackconfig.cpp
+    unpack/unpackconfig.h
+    unpack/protocolparser.cpp
+    unpack/protocolparser.h
+    unpack/protocoldialog.cpp
+    unpack/protocoldialog.h
+    unpack/unpackpanel.cpp
+    unpack/unpackpanel.h
+    unpack/unpackrowlist.cpp
+    unpack/unpackrowlist.h
+    unpack/unpackgroupdialog.cpp
+    unpack/unpackgroupdialog.h
+    unpack/unpackicons.h
     flash/armflashpanel.cpp
     flash/armflashpanel.h
     plot/server/plotserver.cpp

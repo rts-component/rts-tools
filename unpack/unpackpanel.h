@@ -1,13 +1,13 @@
-#ifndef CSVPANEL_H
-#define CSVPANEL_H
+#ifndef UNPACKPANEL_H
+#define UNPACKPANEL_H
 
-#include "csv/csvparser.h"
+#include "unpack/unpackconfig.h"
 
 #include <QByteArray>
 #include <QVector>
 #include <QWidget>
 
-class CsvRowList;
+class UnpackRowList;
 class PlotLauncher;
 class PlotServer;
 class QCheckBox;
@@ -15,15 +15,15 @@ class QLabel;
 class QPushButton;
 class QTimer;
 
-// 按参考界面组织的 CSV 解析面板：
+// 解包面板（文本 CSV 行 / 二进制协议帧）：
 // 上方是若干“行”（每行一套分隔符/列名，列数匹配才更新），
 // 勾选曲线的数字列会把采样点推给 PlotServer（每个系列一个 rts-plot）。
-class CsvPanel : public QWidget
+class UnpackPanel : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit CsvPanel(QWidget *parent = nullptr);
+    explicit UnpackPanel(QWidget *parent = nullptr);
 
     // 串口原始数据；内部按换行拼行
     void feed(const QByteArray &bytes);
@@ -68,7 +68,7 @@ private:
     QString nextAutoGroupName() const;
     QString uniqueGroupName(const QString &base) const;
 
-    CsvParseConfig m_config;
+    UnpackConfig m_config;
     QStringList m_rowIds;                 // 与 m_values 等逐行对应的行 id，重建时据此保留各行的值
     QVector<QStringList> m_values;
     QVector<QStringList> m_pendingValues; // 每行各自的最新值
@@ -84,7 +84,7 @@ private:
     quint64 m_parsedLines = 0;
     quint64 m_skippedLines = 0;
 
-    CsvRowList *m_list = nullptr;
+    UnpackRowList *m_list = nullptr;
     QLabel *m_headerIndex = nullptr;
     QLabel *m_headerPanel = nullptr;
     QLabel *m_headerCurve = nullptr;
@@ -101,4 +101,4 @@ private:
     QTimer *m_hintTimer = nullptr;
 };
 
-#endif // CSVPANEL_H
+#endif // UNPACKPANEL_H

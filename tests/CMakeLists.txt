@@ -10,9 +10,10 @@ function(rts_add_test name)
 endfunction()
 
 rts_add_test(test_plotprotocol test_plotprotocol.cpp)
-rts_add_test(test_csvparser test_csvparser.cpp ${PROJECT_SOURCE_DIR}/csv/csvparser.cpp
-    ${PROJECT_SOURCE_DIR}/csv/protocolparser.cpp)
-rts_add_test(test_protocolparser test_protocolparser.cpp ${PROJECT_SOURCE_DIR}/csv/protocolparser.cpp)
+rts_add_test(test_csvparser test_csvparser.cpp ${PROJECT_SOURCE_DIR}/unpack/csvparser.cpp)
+rts_add_test(test_unpackconfig test_unpackconfig.cpp ${PROJECT_SOURCE_DIR}/unpack/unpackconfig.cpp
+    ${PROJECT_SOURCE_DIR}/unpack/protocolparser.cpp)
+rts_add_test(test_protocolparser test_protocolparser.cpp ${PROJECT_SOURCE_DIR}/unpack/protocolparser.cpp)
 
 # 集成测试：PlotServer 与 PlotClient 在同一进程里通过真实的本地管道通信
 qt_add_executable(test_plotroundtrip
@@ -43,19 +44,20 @@ rts_enable_warnings(test_plotcanvas)
 add_test(NAME test_plotcanvas COMMAND test_plotcanvas)
 set_tests_properties(test_plotcanvas PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
-# CSV 行列表：增删行保留已有值、命中测试（需要 QApplication，offscreen）
-qt_add_executable(test_csvrowlist
-    test_csvrowlist.cpp
-    ${PROJECT_SOURCE_DIR}/csv/csvrowlist.cpp
-    ${PROJECT_SOURCE_DIR}/csv/csvrowlist.h
-    ${PROJECT_SOURCE_DIR}/csv/csvparser.cpp
-    ${PROJECT_SOURCE_DIR}/csv/protocolparser.cpp
+# 解包行列表：增删行保留已有值、命中测试（需要 QApplication，offscreen）
+qt_add_executable(test_unpackrowlist
+    test_unpackrowlist.cpp
+    ${PROJECT_SOURCE_DIR}/unpack/unpackrowlist.cpp
+    ${PROJECT_SOURCE_DIR}/unpack/unpackrowlist.h
+    ${PROJECT_SOURCE_DIR}/unpack/unpackconfig.cpp
+    ${PROJECT_SOURCE_DIR}/unpack/protocolparser.cpp
+    ${PROJECT_SOURCE_DIR}/unpack/csvparser.cpp
 )
-target_link_libraries(test_csvrowlist PRIVATE Qt::Core Qt::Gui Qt::Widgets Qt::Test rts-common)
-target_include_directories(test_csvrowlist PRIVATE ${PROJECT_SOURCE_DIR})
-rts_enable_warnings(test_csvrowlist)
-add_test(NAME test_csvrowlist COMMAND test_csvrowlist)
-set_tests_properties(test_csvrowlist PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+target_link_libraries(test_unpackrowlist PRIVATE Qt::Core Qt::Gui Qt::Widgets Qt::Test rts-common)
+target_include_directories(test_unpackrowlist PRIVATE ${PROJECT_SOURCE_DIR})
+rts_enable_warnings(test_unpackrowlist)
+add_test(NAME test_unpackrowlist COMMAND test_unpackrowlist)
+set_tests_properties(test_unpackrowlist PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
 # 版本比较与 Release 解析（不发网络请求）
 qt_add_executable(test_updatechecker

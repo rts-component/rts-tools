@@ -213,303 +213,6 @@
     </message>
 </context>
 <context>
-    <name>CsvGroupDialog</name>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="36"/>
-        <source>Edit data row</source>
-        <translation>编辑数据行</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="50"/>
-        <source>Text (CSV)</source>
-        <translation>文本 (CSV)</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="51"/>
-        <source>Binary protocol frame</source>
-        <translation>二进制协议帧</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="55"/>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="56"/>
-        <source>Format</source>
-        <translation>格式</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="62"/>
-        <source>Separator</source>
-        <translation>分隔符</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="65"/>
-        <source>No.</source>
-        <translation>序号</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="65"/>
-        <source>Field name</source>
-        <translation>字段名</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="65"/>
-        <source>Numeric</source>
-        <translation>数值</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="73"/>
-        <source>Field names are matched to CSV columns by order. A row only updates when the field count matches.</source>
-        <translation>字段名按顺序与 CSV 列对应。只有字段数量一致时，这一行才会更新。</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="78"/>
-        <source>Add</source>
-        <translation>添加</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="79"/>
-        <source>Remove</source>
-        <translation>删除</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="97"/>
-        <source>Parses raw bytes: header + ID + length + data + checksum. Frames that fail the checksum are dropped.</source>
-        <translation>按原始字节解析：帧头 + ID + 长度 + 数据 + 校验。校验不通过的帧会被丢弃。</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="101"/>
-        <source>Edit frame format...</source>
-        <translation>编辑帧格式...</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="124"/>
-        <source>Column %1</source>
-        <translation>第 %1 列</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="225"/>
-        <source>No frame format defined yet.</source>
-        <translation>还没有定义帧格式。</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvgroupdialog.cpp" line="231"/>
-        <source>%1 fields, %2 shown on the panel
-%3</source>
-        <translation>共 %1 个字段，%2 个显示到面板
-%3</translation>
-    </message>
-</context>
-<context>
-    <name>CsvPanel</name>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="582"/>
-        <source>No data rows yet. Use + to add one.</source>
-        <translation>还没有数据行，点击 + 添加。</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="583"/>
-        <source>Start parsing</source>
-        <translation>开始解析</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="66"/>
-        <source>Copy</source>
-        <translation>复制</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="77"/>
-        <location filename="../csv/csvpanel.cpp" line="580"/>
-        <source>Curve</source>
-        <translation>曲线</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="578"/>
-        <source>No.</source>
-        <translation>序号</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="579"/>
-        <source>Data panel</source>
-        <translation>数据面板</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="140"/>
-        <location filename="../csv/csvpanel.cpp" line="584"/>
-        <source>Duplicate the selected row</source>
-        <translation>复制选中的行</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="141"/>
-        <location filename="../csv/csvpanel.cpp" line="585"/>
-        <source>Add a new row</source>
-        <translation>添加一行</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="142"/>
-        <location filename="../csv/csvpanel.cpp" line="586"/>
-        <source>Delete the selected row</source>
-        <translation>删除选中的行</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="143"/>
-        <location filename="../csv/csvpanel.cpp" line="587"/>
-        <source>Move the selected row up</source>
-        <translation>选中行上移</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="144"/>
-        <location filename="../csv/csvpanel.cpp" line="588"/>
-        <source>Move the selected row down</source>
-        <translation>选中行下移</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="211"/>
-        <source>No column selected for this row yet - click the curve icon of a numeric column to pick the data.</source>
-        <translation>这一行还没有选择要画的列 - 请点击数值列的曲线图标。</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="232"/>
-        <source>Tick Curve of this row first - the row decides whether its columns are drawn.</source>
-        <translation>请先勾选这一行的“曲线” - 是否绘制由行决定。</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="506"/>
-        <source>%1 copy</source>
-        <translation>%1 副本</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="547"/>
-        <source>Close the curve window of this row before editing it.</source>
-        <translation>编辑前请先关闭这一行的曲线窗口。</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="566"/>
-        <source>Edit...</source>
-        <translation>编辑...</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="567"/>
-        <source>Duplicate</source>
-        <translation>复制一行</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="569"/>
-        <source>Move up</source>
-        <translation>上移</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="570"/>
-        <source>Move down</source>
-        <translation>下移</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="572"/>
-        <source>Delete</source>
-        <translation>删除</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="598"/>
-        <source>Parsing is off</source>
-        <translation>解析未开启</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="602"/>
-        <source>%1 line(s) parsed, %2 skipped</source>
-        <translation>已解析 %1 行，跳过 %2 行</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="637"/>
-        <source>Row %1</source>
-        <translation>第 %1 行</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="646"/>
-        <source>Column %1</source>
-        <translation>第 %1 列</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="734"/>
-        <source>Unnamed%1</source>
-        <translation>未命名%1</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvpanel.cpp" line="738"/>
-        <location filename="../csv/csvpanel.cpp" line="746"/>
-        <source>Unnamed</source>
-        <translation>未命名</translation>
-    </message>
-</context>
-<context>
-    <name>CsvRowList</name>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="318"/>
-        <source>Hide this field&apos;s curve</source>
-        <translation>隐藏该字段的曲线</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="319"/>
-        <source>Show this field on the curve</source>
-        <translation>在曲线中显示该字段</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="vanished">编辑</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="307"/>
-        <source>Edit name, separator and columns</source>
-        <translation>编辑名称、分隔符和列</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="305"/>
-        <source>Use this row</source>
-        <translation>启用此行</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="309"/>
-        <source>Show curve for this row (needs at least one column with the curve icon)</source>
-        <translation>显示此行的曲线（至少要有一列点亮曲线图标）</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="311"/>
-        <source>More actions</source>
-        <translation>更多操作</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="401"/>
-        <source>Unnamed</source>
-        <translation>未命名</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="317"/>
-        <source>Close the curve window to change the curves</source>
-        <translation>请先关闭曲线窗口再修改曲线</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="411"/>
-        <source>No columns - click the pencil to configure</source>
-        <translation>还没有列 - 点击铅笔图标进行配置</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="433"/>
-        <source>Field %1</source>
-        <translation>字段 %1</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="313"/>
-        <source>Formula conversion (not implemented yet)</source>
-        <translation>公式换算（尚未实现）</translation>
-    </message>
-    <message>
-        <location filename="../csv/csvrowlist.cpp" line="583"/>
-        <source>Formula conversion is not implemented yet</source>
-        <translation>公式换算尚未实现</translation>
-    </message>
-</context>
-<context>
     <name>FlashWorker</name>
     <message>
         <location filename="../flash/flashworker.cpp" line="130"/>
@@ -712,265 +415,270 @@
 <context>
     <name>ProtocolDialog</name>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="34"/>
+        <location filename="../unpack/protocoldialog.cpp" line="34"/>
         <source>Header</source>
         <translation>帧头</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="35"/>
-        <location filename="../csv/protocoldialog.cpp" line="226"/>
+        <location filename="../unpack/protocoldialog.cpp" line="35"/>
+        <location filename="../unpack/protocoldialog.cpp" line="226"/>
         <source>Seq</source>
         <translation>帧序号</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="36"/>
-        <location filename="../csv/protocoldialog.cpp" line="223"/>
+        <location filename="../unpack/protocoldialog.cpp" line="36"/>
+        <location filename="../unpack/protocoldialog.cpp" line="223"/>
         <source>ID</source>
         <translation>帧ID</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="37"/>
-        <location filename="../csv/protocoldialog.cpp" line="229"/>
+        <location filename="../unpack/protocoldialog.cpp" line="37"/>
+        <location filename="../unpack/protocoldialog.cpp" line="229"/>
         <source>Length</source>
         <translation>帧长度</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="38"/>
+        <location filename="../unpack/protocoldialog.cpp" line="38"/>
         <source>1Byte</source>
         <translation>1Byte</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="39"/>
+        <location filename="../unpack/protocoldialog.cpp" line="39"/>
         <source>2Byte</source>
         <translation>2Byte</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="40"/>
+        <location filename="../unpack/protocoldialog.cpp" line="40"/>
         <source>3Byte</source>
         <translation>3Byte</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="41"/>
+        <location filename="../unpack/protocoldialog.cpp" line="41"/>
         <source>4Byte</source>
         <translation>4Byte</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="42"/>
+        <location filename="../unpack/protocoldialog.cpp" line="42"/>
         <source>8Byte</source>
         <translation>8Byte</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="43"/>
+        <location filename="../unpack/protocoldialog.cpp" line="43"/>
         <source>Checksum</source>
         <translation>校验</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="44"/>
+        <location filename="../unpack/protocoldialog.cpp" line="44"/>
         <source>Tail</source>
         <translation>帧尾</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="79"/>
+        <location filename="../unpack/protocoldialog.cpp" line="79"/>
         <source>Frame format</source>
         <translation>帧格式</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="83"/>
+        <location filename="../unpack/protocoldialog.cpp" line="83"/>
         <source>Add field (click a button to add the field)</source>
         <translation>添加字段（点击对应按钮添加需要的字段）</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="97"/>
+        <location filename="../unpack/protocoldialog.cpp" line="97"/>
         <source>No.</source>
         <translation type="unfinished">序号</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="97"/>
+        <location filename="../unpack/protocoldialog.cpp" line="97"/>
         <source>Field</source>
         <translation>字段</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="97"/>
+        <location filename="../unpack/protocoldialog.cpp" line="97"/>
         <source>Bytes</source>
         <translation>字节</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="108"/>
+        <location filename="../unpack/protocoldialog.cpp" line="108"/>
         <source>Remove</source>
         <translation type="unfinished">删除</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="126"/>
+        <location filename="../unpack/protocoldialog.cpp" line="126"/>
         <source>Hex bytes, e.g. AA 55</source>
         <translation>十六进制字节，如 AA 55</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="129"/>
+        <location filename="../unpack/protocoldialog.cpp" line="129"/>
         <source>Sum (8-bit)</source>
         <translation>累加和 (8 位)</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="130"/>
+        <location filename="../unpack/protocoldialog.cpp" line="130"/>
         <source>XOR (8-bit)</source>
         <translation>异或 (8 位)</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="132"/>
+        <location filename="../unpack/protocoldialog.cpp" line="132"/>
         <source>Sum (16-bit)</source>
         <translation>累加和 (16 位)</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="136"/>
+        <location filename="../unpack/protocoldialog.cpp" line="136"/>
         <source>From header</source>
         <translation>从帧头开始</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="137"/>
+        <location filename="../unpack/protocoldialog.cpp" line="137"/>
         <source>After header</source>
         <translation>从帧头之后开始</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="140"/>
+        <location filename="../unpack/protocoldialog.cpp" line="140"/>
         <source>Data bytes = value in frame + this offset</source>
         <translation>数据区字节数 = 帧中的值 + 此偏移</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="141"/>
+        <location filename="../unpack/protocoldialog.cpp" line="141"/>
         <source>High byte first</source>
         <translation>高字节在前</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="142"/>
+        <location filename="../unpack/protocoldialog.cpp" line="142"/>
         <source>Show on panel</source>
         <translation>显示到面板</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="145"/>
+        <location filename="../unpack/protocoldialog.cpp" line="145"/>
         <source>Name</source>
         <translation type="unfinished">名称</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="146"/>
+        <location filename="../unpack/protocoldialog.cpp" line="146"/>
         <source>Value</source>
         <translation>值</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="147"/>
+        <location filename="../unpack/protocoldialog.cpp" line="147"/>
         <source>Conversion</source>
         <translation>数据转换</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="148"/>
+        <location filename="../unpack/protocoldialog.cpp" line="148"/>
         <source>Length offset</source>
         <translation>长度偏移</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="149"/>
+        <location filename="../unpack/protocoldialog.cpp" line="149"/>
         <source>Algorithm</source>
         <translation>算法</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="150"/>
+        <location filename="../unpack/protocoldialog.cpp" line="150"/>
         <source>Range</source>
         <translation>校验范围</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="151"/>
+        <location filename="../unpack/protocoldialog.cpp" line="151"/>
         <source>Byte order</source>
         <translation>字节顺序</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="152"/>
+        <location filename="../unpack/protocoldialog.cpp" line="152"/>
         <source>Panel</source>
         <translation>面板显示</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="158"/>
+        <location filename="../unpack/protocoldialog.cpp" line="158"/>
         <source>Field properties</source>
         <translation>字段属性设置</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="237"/>
+        <location filename="../unpack/protocoldialog.cpp" line="237"/>
         <source>Data%1</source>
         <translation>数据%1</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="318"/>
+        <location filename="../unpack/protocoldialog.cpp" line="318"/>
         <source>Declared frame size: %1 bytes</source>
         <translation>已声明的帧大小：%1 字节</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="337"/>
+        <location filename="../unpack/protocoldialog.cpp" line="337"/>
         <source>Unsigned</source>
         <translation>无符号整数</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="338"/>
+        <location filename="../unpack/protocoldialog.cpp" line="338"/>
         <source>Signed</source>
         <translation>有符号整数</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="340"/>
+        <location filename="../unpack/protocoldialog.cpp" line="340"/>
         <source>Float (32-bit)</source>
         <translation>浮点 (32 位)</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="342"/>
+        <location filename="../unpack/protocoldialog.cpp" line="342"/>
         <source>Double (64-bit)</source>
         <translation>双精度浮点 (64 位)</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="343"/>
+        <location filename="../unpack/protocoldialog.cpp" line="343"/>
         <source>Hex</source>
         <translation type="unfinished">十六进制</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="390"/>
+        <location filename="../unpack/protocoldialog.cpp" line="344"/>
+        <source>Binary</source>
+        <translation>二进制</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="391"/>
         <source>Fixed bytes that mark the start of a frame.</source>
         <translation>标记帧起点的固定字节。</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="393"/>
+        <location filename="../unpack/protocoldialog.cpp" line="394"/>
         <source>Leave Value empty to accept any ID; otherwise only frames with this ID are decoded.</source>
         <translation>“值”留空表示接受任意 ID；否则只解析该 ID 的帧。</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="397"/>
+        <location filename="../unpack/protocoldialog.cpp" line="398"/>
         <source>Number of data bytes between this field and the checksum / tail. Use the offset if the device counts differently.</source>
         <translation>本字段之后、校验/帧尾之前的数据字节数。设备的计法不同时请调整偏移。</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="401"/>
+        <location filename="../unpack/protocoldialog.cpp" line="402"/>
         <source>Frames whose checksum does not match are dropped.</source>
         <translation>校验不匹配的帧会被丢弃。</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="404"/>
+        <location filename="../unpack/protocoldialog.cpp" line="405"/>
         <source>Fixed bytes at the end of a frame.</source>
         <translation>标记帧结尾的固定字节。</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="473"/>
+        <location filename="../unpack/protocoldialog.cpp" line="474"/>
         <source>The frame must start with a Header that has at least one byte.</source>
         <translation>帧必须以至少一个字节的帧头开始。</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="475"/>
+        <location filename="../unpack/protocoldialog.cpp" line="476"/>
         <source>Only one Header is allowed, and it must be the first field.</source>
         <translation>只能有一个帧头，且必须是第一个字段。</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="477"/>
+        <location filename="../unpack/protocoldialog.cpp" line="478"/>
         <source>A Tail needs at least one byte.</source>
         <translation>帧尾至少需要一个字节。</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="479"/>
+        <location filename="../unpack/protocoldialog.cpp" line="480"/>
         <source>Checksum and Tail must come last; no data fields may follow them.</source>
         <translation>校验和帧尾必须放在最后，其后不能再有数据字段。</translation>
     </message>
     <message>
-        <location filename="../csv/protocoldialog.cpp" line="481"/>
+        <location filename="../unpack/protocoldialog.cpp" line="482"/>
         <source>Only one Length field is allowed.</source>
         <translation>只能有一个帧长度字段。</translation>
     </message>
@@ -1540,8 +1248,8 @@
     </message>
     <message>
         <location filename="../app/serialpanel.cpp" line="341"/>
-        <source>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;Serial / RTT debugging tool with CSV parsing and live plots.&lt;/p&gt;&lt;p&gt;Built with Qt %2.&lt;/p&gt;&lt;p&gt;Released under the MIT License. Qt is used under the LGPLv3; see THIRD-PARTY-NOTICES.md.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/rts-component/rts-tools&quot;&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;串口 / RTT 调试工具，支持 CSV 解析与实时曲线。&lt;/p&gt;&lt;p&gt;基于 Qt %2 构建。&lt;/p&gt;&lt;p&gt;以 MIT 许可证发布；Qt 按 LGPLv3 使用，详见 THIRD-PARTY-NOTICES.md。&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/rts-component/rts-tools&quot;&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</translation>
+        <source>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;Serial / RTT debugging tool with CSV / protocol unpacking and live plots.&lt;/p&gt;&lt;p&gt;Built with Qt %2.&lt;/p&gt;&lt;p&gt;Released under the MIT License. Qt is used under the LGPLv3; see THIRD-PARTY-NOTICES.md.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/rts-component/rts-tools&quot;&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</source>
+        <translation>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;串口 / RTT 调试工具，支持 CSV / 协议解包与实时曲线。&lt;/p&gt;&lt;p&gt;基于 Qt %2 构建。&lt;/p&gt;&lt;p&gt;以 MIT 许可证发布；Qt 按 LGPLv3 使用，详见 THIRD-PARTY-NOTICES.md。&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/rts-component/rts-tools&quot;&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../app/serialpanel.ui" line="14"/>
@@ -1598,9 +1306,13 @@
         <translation>展开</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="625"/>
         <source>CSV</source>
-        <translation>CSV</translation>
+        <translation type="vanished">CSV</translation>
+    </message>
+    <message>
+        <location filename="../app/serialpanel.ui" line="625"/>
+        <source>Unpack</source>
+        <translation>解包</translation>
     </message>
     <message>
         <location filename="../app/serialpanel.ui" line="630"/>
@@ -1796,6 +1508,303 @@ Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
         <location filename="../app/serialpanel.cpp" line="469"/>
         <source>Interface language</source>
         <translation>界面语言</translation>
+    </message>
+</context>
+<context>
+    <name>UnpackGroupDialog</name>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="36"/>
+        <source>Edit data row</source>
+        <translation>编辑数据行</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="50"/>
+        <source>Text (CSV)</source>
+        <translation>文本 (CSV)</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="51"/>
+        <source>Binary protocol frame</source>
+        <translation>二进制协议帧</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="55"/>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="56"/>
+        <source>Format</source>
+        <translation>格式</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="62"/>
+        <source>Separator</source>
+        <translation>分隔符</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="65"/>
+        <source>No.</source>
+        <translation>序号</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="65"/>
+        <source>Field name</source>
+        <translation>字段名</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="65"/>
+        <source>Numeric</source>
+        <translation>数值</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="73"/>
+        <source>Field names are matched to CSV columns by order. A row only updates when the field count matches.</source>
+        <translation>字段名按顺序与 CSV 列对应。只有字段数量一致时，这一行才会更新。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="78"/>
+        <source>Add</source>
+        <translation>添加</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="79"/>
+        <source>Remove</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="97"/>
+        <source>Parses raw bytes: header + ID + length + data + checksum. Frames that fail the checksum are dropped.</source>
+        <translation>按原始字节解析：帧头 + ID + 长度 + 数据 + 校验。校验不通过的帧会被丢弃。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="101"/>
+        <source>Edit frame format...</source>
+        <translation>编辑帧格式...</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="124"/>
+        <source>Column %1</source>
+        <translation>第 %1 列</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="225"/>
+        <source>No frame format defined yet.</source>
+        <translation>还没有定义帧格式。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackgroupdialog.cpp" line="231"/>
+        <source>%1 fields, %2 shown on the panel
+%3</source>
+        <translation>共 %1 个字段，%2 个显示到面板
+%3</translation>
+    </message>
+</context>
+<context>
+    <name>UnpackPanel</name>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="583"/>
+        <source>No data rows yet. Use + to add one.</source>
+        <translation>还没有数据行，点击 + 添加。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="584"/>
+        <source>Start parsing</source>
+        <translation>开始解析</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="67"/>
+        <source>Copy</source>
+        <translation>复制</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="78"/>
+        <location filename="../unpack/unpackpanel.cpp" line="581"/>
+        <source>Curve</source>
+        <translation>曲线</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="579"/>
+        <source>No.</source>
+        <translation>序号</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="580"/>
+        <source>Data panel</source>
+        <translation>数据面板</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="141"/>
+        <location filename="../unpack/unpackpanel.cpp" line="585"/>
+        <source>Duplicate the selected row</source>
+        <translation>复制选中的行</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="142"/>
+        <location filename="../unpack/unpackpanel.cpp" line="586"/>
+        <source>Add a new row</source>
+        <translation>添加一行</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="143"/>
+        <location filename="../unpack/unpackpanel.cpp" line="587"/>
+        <source>Delete the selected row</source>
+        <translation>删除选中的行</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="144"/>
+        <location filename="../unpack/unpackpanel.cpp" line="588"/>
+        <source>Move the selected row up</source>
+        <translation>选中行上移</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="145"/>
+        <location filename="../unpack/unpackpanel.cpp" line="589"/>
+        <source>Move the selected row down</source>
+        <translation>选中行下移</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="212"/>
+        <source>No column selected for this row yet - click the curve icon of a numeric column to pick the data.</source>
+        <translation>这一行还没有选择要画的列 - 请点击数值列的曲线图标。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="233"/>
+        <source>Tick Curve of this row first - the row decides whether its columns are drawn.</source>
+        <translation>请先勾选这一行的“曲线” - 是否绘制由行决定。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="507"/>
+        <source>%1 copy</source>
+        <translation>%1 副本</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="548"/>
+        <source>Close the curve window of this row before editing it.</source>
+        <translation>编辑前请先关闭这一行的曲线窗口。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="567"/>
+        <source>Edit...</source>
+        <translation>编辑...</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="568"/>
+        <source>Duplicate</source>
+        <translation>复制一行</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="570"/>
+        <source>Move up</source>
+        <translation>上移</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="571"/>
+        <source>Move down</source>
+        <translation>下移</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="573"/>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="599"/>
+        <source>Parsing is off</source>
+        <translation>解析未开启</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="603"/>
+        <source>%1 line(s) parsed, %2 skipped</source>
+        <translation>已解析 %1 行，跳过 %2 行</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="638"/>
+        <source>Row %1</source>
+        <translation>第 %1 行</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="647"/>
+        <source>Column %1</source>
+        <translation>第 %1 列</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="735"/>
+        <source>Unnamed%1</source>
+        <translation>未命名%1</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="739"/>
+        <location filename="../unpack/unpackpanel.cpp" line="747"/>
+        <source>Unnamed</source>
+        <translation>未命名</translation>
+    </message>
+</context>
+<context>
+    <name>UnpackRowList</name>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="318"/>
+        <source>Hide this field&apos;s curve</source>
+        <translation>隐藏该字段的曲线</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="319"/>
+        <source>Show this field on the curve</source>
+        <translation>在曲线中显示该字段</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="vanished">编辑</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="307"/>
+        <source>Edit name, separator and columns</source>
+        <translation>编辑名称、分隔符和列</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="305"/>
+        <source>Use this row</source>
+        <translation>启用此行</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="309"/>
+        <source>Show curve for this row (needs at least one column with the curve icon)</source>
+        <translation>显示此行的曲线（至少要有一列点亮曲线图标）</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="311"/>
+        <source>More actions</source>
+        <translation>更多操作</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="401"/>
+        <source>Unnamed</source>
+        <translation>未命名</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="317"/>
+        <source>Close the curve window to change the curves</source>
+        <translation>请先关闭曲线窗口再修改曲线</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="411"/>
+        <source>No columns - click the pencil to configure</source>
+        <translation>还没有列 - 点击铅笔图标进行配置</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="433"/>
+        <source>Field %1</source>
+        <translation>字段 %1</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="313"/>
+        <source>Formula conversion (not implemented yet)</source>
+        <translation>公式换算（尚未实现）</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="583"/>
+        <source>Formula conversion is not implemented yet</source>
+        <translation>公式换算尚未实现</translation>
     </message>
 </context>
 <context>

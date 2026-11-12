@@ -1,5 +1,5 @@
-#ifndef CSVICONS_H
-#define CSVICONS_H
+#ifndef UNPACKICONS_H
+#define UNPACKICONS_H
 
 #include <QIcon>
 #include <QPainter>
@@ -7,7 +7,7 @@
 #include <QPolygon>
 
 // 用绘制出来的小图标代替字体符号，避免不同机器上缺字形显示成空框
-namespace CsvIcons {
+namespace UnpackIcons {
 
 inline QIcon chart(bool on)
 {
@@ -66,6 +66,6 @@ inline QIcon copy()
     return QIcon(pixmap);
 }
 
-} // namespace CsvIcons
+} // namespace UnpackIcons
 
-#endif // CSVICONS_H
+#endif // UNPACKICONS_H

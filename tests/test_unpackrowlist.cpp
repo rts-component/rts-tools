@@ -1,4 +1,4 @@
-#include "csv/csvrowlist.h"
+#include "unpack/unpackrowlist.h"
 
 #include <QApplication>
 #include <QSignalSpy>
@@ -6,13 +6,13 @@
 
 namespace {
 
-CsvGroup makeGroup(const QString &id, int fields)
+UnpackGroup makeGroup(const QString &id, int fields)
 {
-    CsvGroup group;
+    UnpackGroup group;
     group.id = id;
     group.name = id;
     for (int i = 0; i < fields; ++i) {
-        CsvField field;
+        UnpackField field;
         field.name = QStringLiteral("f%1").arg(i);
         field.numeric = true;
         group.fields.append(field);
@@ -22,7 +22,7 @@ CsvGroup makeGroup(const QString &id, int fields)
 
 } // namespace
 
-class TstCsvRowList : public QObject
+class TstUnpackRowList : public QObject
 {
     Q_OBJECT
 
@@ -31,10 +31,10 @@ private slots:
     void clickOnPartsEmitsSignals();
 };
 
-void TstCsvRowList::valuesSurviveAddRemoveMove()
+void TstUnpackRowList::valuesSurviveAddRemoveMove()
 {
-    CsvRowList list;
-    QVector<CsvGroup> groups{makeGroup("a", 2), makeGroup("b", 2)};
+    UnpackRowList list;
+    QVector<UnpackGroup> groups{makeGroup("a", 2), makeGroup("b", 2)};
     list.setGroups(groups);
     list.setValues(0, {"1", "2"});
 
@@ -53,14 +53,14 @@ void TstCsvRowList::valuesSurviveAddRemoveMove()
     QCOMPARE(list.m_rows.at(0).values, QStringList({"1", "2"}));
 }
 
-void TstCsvRowList::clickOnPartsEmitsSignals()
+void TstUnpackRowList::clickOnPartsEmitsSignals()
 {
-    CsvRowList list;
+    UnpackRowList list;
     list.resize(600, 400);
     list.show();
     list.setGroups({makeGroup("a", 2)});
-    QSignalSpy enabled(&list, &CsvRowList::enabledToggled);
-    QSignalSpy select(&list, &CsvRowList::selectRequested);
+    QSignalSpy enabled(&list, &UnpackRowList::enabledToggled);
+    QSignalSpy select(&list, &UnpackRowList::selectRequested);
 
     // 第一行的启用勾选框：行左上 (2,2) + 勾选框位置
     QTest::mouseClick(list.viewport(), Qt::LeftButton, {}, QPoint(2 + 6 + 8, 2 + 4 + 11));
@@ -69,5 +69,5 @@ void TstCsvRowList::clickOnPartsEmitsSignals()
     QCOMPARE(enabled.first().at(1).toBool(), false);
 }
 
-QTEST_MAIN(TstCsvRowList)
-#include "test_csvrowlist.moc"
+QTEST_MAIN(TstUnpackRowList)
+#include "test_unpackrowlist.moc"

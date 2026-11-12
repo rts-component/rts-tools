@@ -1,8 +1,9 @@
-﻿#include "csv/csvpanel.h"
+﻿#include "unpack/unpackpanel.h"
 
-#include "csv/csvgroupdialog.h"
-#include "csv/csvicons.h"
-#include "csv/csvrowlist.h"
+#include "unpack/csvparser.h"
+#include "unpack/unpackgroupdialog.h"
+#include "unpack/unpackicons.h"
+#include "unpack/unpackrowlist.h"
 #include "plot/server/plotlauncher.h"
 #include "plot/server/plotserver.h"
 
@@ -49,7 +50,7 @@ QColor colorForKey(const QString &key)
     return kSeriesColors[stableHash(key) % quint32(count)];
 }
 
-QString curveKeyFor(const CsvGroup &group, int fieldIndex)
+QString curveKeyFor(const UnpackGroup &group, int fieldIndex)
 {
     const QString id = group.id.isEmpty() ? QStringLiteral("nogroup") : group.id.left(8);
     return id + QLatin1Char('f') + QString::number(fieldIndex);
@@ -57,9 +58,9 @@ QString curveKeyFor(const CsvGroup &group, int fieldIndex)
 
 } // namespace
 
-CsvPanel::CsvPanel(QWidget *parent)
+UnpackPanel::UnpackPanel(QWidget *parent)
     : QWidget(parent)
-    , m_list(new CsvRowList(this))
+    , m_list(new UnpackRowList(this))
     , m_placeholder(new QLabel(this))
     , m_parseCheckBox(new QCheckBox(this))
     , m_statusLabel(new QLabel(this))
@@ -80,7 +81,7 @@ CsvPanel::CsvPanel(QWidget *parent)
     // 图表窗口被关掉（或崩溃后不再重启）：这一行的 Curve 勾选也要取消
     connect(m_plotLauncher, &PlotLauncher::viewerClosed, this, [this](const QString &groupKey) {
         for (int index = 0; index < m_config.groups.size(); ++index) {
-            CsvGroup &group = m_config.groups[index];
+            UnpackGroup &group = m_config.groups[index];
             if (group.id != groupKey)
                 continue;
             if (!group.curve)
@@ -96,7 +97,7 @@ CsvPanel::CsvPanel(QWidget *parent)
     connect(m_plotServer, &PlotServer::seriesColorChanged, this,
             [this](const QString &seriesKey, const QColor &color) {
                 for (int groupIndex = 0; groupIndex < m_config.groups.size(); ++groupIndex) {
-                    CsvGroup &group = m_config.groups[groupIndex];
+                    UnpackGroup &group = m_config.groups[groupIndex];
                     for (int fieldIndex = 0; fieldIndex < group.fields.size(); ++fieldIndex) {
                         if (curveKeyFor(group, fieldIndex) != seriesKey)
                             continue;
@@ -106,10 +107,10 @@ CsvPanel::CsvPanel(QWidget *parent)
                     }
                 }
             });
-    setObjectName(QStringLiteral("csvPanel"));
+    setObjectName(QStringLiteral("unpackPanel"));
     setStyleSheet(QStringLiteral(
-            "QLabel#csvPlaceholder { color: #8a8a8a; }"
-            "QPushButton#csvToolButton { min-height: 0px; padding: 1px 6px; }"));
+            "QLabel#unpackPlaceholder { color: #8a8a8a; }"
+            "QPushButton#unpackToolButton { min-height: 0px; padding: 1px 6px; }"));
 
     // 列表头（对应参考图的 No. / 数据展示面板 / 曲线）
     m_headerIndex = new QLabel(this);
@@ -125,17 +126,17 @@ CsvPanel::CsvPanel(QWidget *parent)
     header->addWidget(m_headerPanel, 1);
     header->addWidget(m_headerCurve);
 
-    m_placeholder->setObjectName(QStringLiteral("csvPlaceholder"));
+    m_placeholder->setObjectName(QStringLiteral("unpackPlaceholder"));
     m_placeholder->setAlignment(Qt::AlignCenter);
     m_placeholder->setWordWrap(true);
 
-    m_statusLabel->setObjectName(QStringLiteral("csvStatus"));
+    m_statusLabel->setObjectName(QStringLiteral("unpackStatus"));
     for (QPushButton *button : {m_copyButton, m_addButton, m_removeButton, m_upButton, m_downButton}) {
-        button->setObjectName(QStringLiteral("csvToolButton"));
+        button->setObjectName(QStringLiteral("unpackToolButton"));
         button->setCursor(Qt::PointingHandCursor);
     }
     m_copyButton->setText(QString());
-    m_copyButton->setIcon(CsvIcons::copy());
+    m_copyButton->setIcon(UnpackIcons::copy());
     m_copyButton->setIconSize(QSize(14, 14));
     m_copyButton->setToolTip(tr("Duplicate the selected row"));
     m_addButton->setToolTip(tr("Add a new row"));
@@ -169,7 +170,7 @@ CsvPanel::CsvPanel(QWidget *parent)
     m_updateTimer = new QTimer(this);
     m_updateTimer->setSingleShot(true);
     m_updateTimer->setInterval(kUpdateIntervalMs);
-    connect(m_updateTimer, &QTimer::timeout, this, &CsvPanel::applyPendingValues);
+    connect(m_updateTimer, &QTimer::timeout, this, &UnpackPanel::applyPendingValues);
 
     connect(m_parseCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
         m_buffer.clear();
@@ -178,30 +179,30 @@ CsvPanel::CsvPanel(QWidget *parent)
         updateStatus();
         saveConfig();
     });
-    connect(m_addButton, &QPushButton::clicked, this, &CsvPanel::addGroup);
-    connect(m_copyButton, &QPushButton::clicked, this, &CsvPanel::copySelectedGroup);
-    connect(m_removeButton, &QPushButton::clicked, this, &CsvPanel::removeSelectedGroup);
+    connect(m_addButton, &QPushButton::clicked, this, &UnpackPanel::addGroup);
+    connect(m_copyButton, &QPushButton::clicked, this, &UnpackPanel::copySelectedGroup);
+    connect(m_removeButton, &QPushButton::clicked, this, &UnpackPanel::removeSelectedGroup);
     connect(m_upButton, &QPushButton::clicked, this, [this] { moveSelectedGroup(-1); });
     connect(m_downButton, &QPushButton::clicked, this, [this] { moveSelectedGroup(1); });
 
-    connect(m_list, &CsvRowList::selectRequested, this, &CsvPanel::selectGroup);
-    connect(m_list, &CsvRowList::editRequested, this, &CsvPanel::editGroup);
-    connect(m_list, &CsvRowList::menuRequested, this, &CsvPanel::showGroupMenu);
-    connect(m_list, &CsvRowList::enabledToggled, this, [this](int groupIndex, bool on) {
+    connect(m_list, &UnpackRowList::selectRequested, this, &UnpackPanel::selectGroup);
+    connect(m_list, &UnpackRowList::editRequested, this, &UnpackPanel::editGroup);
+    connect(m_list, &UnpackRowList::menuRequested, this, &UnpackPanel::showGroupMenu);
+    connect(m_list, &UnpackRowList::enabledToggled, this, [this](int groupIndex, bool on) {
         if (groupIndex < 0 || groupIndex >= m_config.groups.size())
             return;
         m_config.groups[groupIndex].enabled = on;
         saveConfig();
         syncCurveSeries(); // 关掉某一行时，它的曲线也不该再画
     });
-    connect(m_list, &CsvRowList::curveToggled, this, [this](int groupIndex, bool on) {
+    connect(m_list, &UnpackRowList::curveToggled, this, [this](int groupIndex, bool on) {
         if (groupIndex < 0 || groupIndex >= m_config.groups.size())
             return;
 
-        CsvGroup &group = m_config.groups[groupIndex];
+        UnpackGroup &group = m_config.groups[groupIndex];
         const bool anyPlotted = std::any_of(
                 group.fields.cbegin(), group.fields.cend(),
-                [](const CsvField &field) { return field.numeric && field.curve; });
+                [](const UnpackField &field) { return field.numeric && field.curve; });
         if (on && !anyPlotted) {
             // 这一行还没有选中要画的数据：不允许打勾，勾选框退回未选中并说明原因
             group.curve = false;
@@ -217,13 +218,13 @@ CsvPanel::CsvPanel(QWidget *parent)
         saveConfig();
         syncCurveSeries();
     });
-    connect(m_list, &CsvRowList::fieldCurveToggled, this,
+    connect(m_list, &UnpackRowList::fieldCurveToggled, this,
             [this](int groupIndex, int fieldIndex, bool on) {
                 if (groupIndex < 0 || groupIndex >= m_config.groups.size() || fieldIndex < 0
                     || fieldIndex >= m_config.groups.at(groupIndex).fields.size())
                     return;
 
-                CsvGroup &group = m_config.groups[groupIndex];
+                UnpackGroup &group = m_config.groups[groupIndex];
                 group.fields[fieldIndex].curve = on;
                 saveConfig();
                 syncCurveSeries();
@@ -234,16 +235,16 @@ CsvPanel::CsvPanel(QWidget *parent)
                 }
             });
 
-    m_config = loadCsvParseConfig();
+    m_config = loadUnpackConfig();
     bool assignedIds = false;
-    for (CsvGroup &group : m_config.groups) {
+    for (UnpackGroup &group : m_config.groups) {
         if (group.id.isEmpty()) {
             group.id = newGroupId(); // 旧配置没有 id：补一个并落盘，保证曲线系列名稳定
             assignedIds = true;
         }
     }
     if (m_config.groups.isEmpty()) {
-        CsvGroup group;
+        UnpackGroup group;
         group.id = newGroupId();
         m_config.groups.append(group);
         assignedIds = true;
@@ -251,7 +252,7 @@ CsvPanel::CsvPanel(QWidget *parent)
 
     // 行名：空名或旧的默认名 "Unnamed" 统一补成 Unnamed1、Unnamed2 ……
     bool namedGroups = false;
-    for (CsvGroup &group : m_config.groups) {
+    for (UnpackGroup &group : m_config.groups) {
         if (group.name.trimmed().isEmpty()
             || group.name.compare(QStringLiteral("Unnamed"), Qt::CaseInsensitive) == 0) {
             group.name.clear();
@@ -259,7 +260,7 @@ CsvPanel::CsvPanel(QWidget *parent)
         }
     }
     if (namedGroups) {
-        for (CsvGroup &group : m_config.groups) {
+        for (UnpackGroup &group : m_config.groups) {
             if (group.name.isEmpty())
                 group.name = nextAutoGroupName();
         }
@@ -274,7 +275,7 @@ CsvPanel::CsvPanel(QWidget *parent)
     retranslateUi();
 }
 
-void CsvPanel::feed(const QByteArray &bytes)
+void UnpackPanel::feed(const QByteArray &bytes)
 {
     if (bytes.isEmpty() || !m_parseCheckBox->isChecked())
         return;
@@ -283,10 +284,10 @@ void CsvPanel::feed(const QByteArray &bytes)
     bool protocolMatched = false;
     bool hasTextGroup = false;
     for (int index = 0; index < m_config.groups.size() && index < m_protocolParsers.size(); ++index) {
-        const CsvGroup &group = m_config.groups.at(index);
+        const UnpackGroup &group = m_config.groups.at(index);
         if (!group.enabled || group.fields.isEmpty())
             continue;
-        if (!group.protocol) {
+        if (!group.isProtocol()) {
             hasTextGroup = true;
             continue;
         }
@@ -334,14 +335,14 @@ void CsvPanel::feed(const QByteArray &bytes)
     updateStatus();
 }
 
-void CsvPanel::resetCounters()
+void UnpackPanel::resetCounters()
 {
     m_parsedLines = 0;
     m_skippedLines = 0;
     updateStatus();
 }
 
-void CsvPanel::clearData()
+void UnpackPanel::clearData()
 {
     m_buffer.clear();
     rebuildProtocolParsers();
@@ -357,15 +358,15 @@ void CsvPanel::clearData()
     updateStatus();
 }
 
-void CsvPanel::processLine(const QString &line)
+void UnpackPanel::processLine(const QString &line)
 {
     if (line.trimmed().isEmpty())
         return;
 
     bool matched = false;
     for (int index = 0; index < m_config.groups.size(); ++index) {
-        CsvGroup &group = m_config.groups[index];
-        if (group.protocol || !group.enabled || group.fields.isEmpty())
+        UnpackGroup &group = m_config.groups[index];
+        if (group.isProtocol() || !group.enabled || group.fields.isEmpty())
             continue; // 协议行走字节流；没配置列名的行不参与解析
 
         const QStringList fields = splitCsvLine(line, decodeSeparator(group.separator));
@@ -399,7 +400,7 @@ void CsvPanel::processLine(const QString &line)
     updateStatus();
 }
 
-void CsvPanel::applyRecord(int index, const QStringList &fields)
+void UnpackPanel::applyRecord(int index, const QStringList &fields)
 {
     if (index < 0 || index >= m_values.size())
         return;
@@ -421,18 +422,18 @@ void CsvPanel::applyRecord(int index, const QStringList &fields)
     ++m_parsedLines;
 }
 
-void CsvPanel::rebuildProtocolParsers()
+void UnpackPanel::rebuildProtocolParsers()
 {
     m_protocolParsers.clear();
     m_protocolParsers.resize(m_config.groups.size());
     for (int index = 0; index < m_config.groups.size(); ++index) {
-        if (m_config.groups.at(index).protocol)
+        if (m_config.groups.at(index).isProtocol())
             m_protocolParsers[index].setLayout(m_config.groups.at(index).layout);
     }
     m_protocolBadSeen = 0;
 }
 
-void CsvPanel::applyPendingValues()
+void UnpackPanel::applyPendingValues()
 {
     for (int index = 0; index < m_list->count() && index < m_pendingDirty.size(); ++index) {
         if (!m_pendingDirty.at(index))
@@ -442,7 +443,7 @@ void CsvPanel::applyPendingValues()
     }
 }
 
-void CsvPanel::rebuildGroups()
+void UnpackPanel::rebuildGroups()
 {
     // 增删/移动行时，其余行已经显示的值不能被清掉：按行 id 把旧的值带到新位置
     struct Saved { QStringList values, pending; bool dirty = false; };
@@ -455,7 +456,7 @@ void CsvPanel::rebuildGroups()
     m_values.clear();
     m_pendingValues.clear();
     m_pendingDirty.clear();
-    for (const CsvGroup &group : std::as_const(m_config.groups)) {
+    for (const UnpackGroup &group : std::as_const(m_config.groups)) {
         const Saved item = saved.value(group.id);
         m_rowIds.append(group.id);
         m_values.append(item.values);
@@ -469,7 +470,7 @@ void CsvPanel::rebuildGroups()
     syncCurveSeries();
 }
 
-void CsvPanel::refreshGroup(int index)
+void UnpackPanel::refreshGroup(int index)
 {
     if (index < 0 || index >= m_list->count())
         return;
@@ -478,7 +479,7 @@ void CsvPanel::refreshGroup(int index)
     syncCurveSeries();
 }
 
-void CsvPanel::selectGroup(int index)
+void UnpackPanel::selectGroup(int index)
 {
     if (index < 0 || index >= m_list->count())
         return;
@@ -486,9 +487,9 @@ void CsvPanel::selectGroup(int index)
     m_list->setSelected(index);
 }
 
-void CsvPanel::addGroup()
+void UnpackPanel::addGroup()
 {
-    CsvGroup group;
+    UnpackGroup group;
     group.id = newGroupId();
     group.name = nextAutoGroupName();
     m_config.groups.append(group);
@@ -497,11 +498,11 @@ void CsvPanel::addGroup()
     saveConfig();
 }
 
-void CsvPanel::copySelectedGroup()
+void UnpackPanel::copySelectedGroup()
 {
     if (m_selectedIndex < 0 || m_selectedIndex >= m_config.groups.size())
         return;
-    CsvGroup copy = m_config.groups.at(m_selectedIndex);
+    UnpackGroup copy = m_config.groups.at(m_selectedIndex);
     copy.id = newGroupId(); // 副本是新的系列，不能沿用原 id
     copy.name = uniqueGroupName(tr("%1 copy").arg(copy.name));
     m_config.groups.insert(m_selectedIndex + 1, copy);
@@ -510,7 +511,7 @@ void CsvPanel::copySelectedGroup()
     saveConfig();
 }
 
-void CsvPanel::removeSelectedGroup()
+void UnpackPanel::removeSelectedGroup()
 {
     if (m_selectedIndex < 0 || m_selectedIndex >= m_config.groups.size())
         return;
@@ -525,7 +526,7 @@ void CsvPanel::removeSelectedGroup()
     saveConfig();
 }
 
-void CsvPanel::moveSelectedGroup(int offset)
+void UnpackPanel::moveSelectedGroup(int offset)
 {
     const int from = m_selectedIndex;
     const int to = from + offset;
@@ -538,7 +539,7 @@ void CsvPanel::moveSelectedGroup(int offset)
     saveConfig();
 }
 
-void CsvPanel::editGroup(int index)
+void UnpackPanel::editGroup(int index)
 {
     if (index < 0 || index >= m_config.groups.size())
         return;
@@ -548,7 +549,7 @@ void CsvPanel::editGroup(int index)
         return;
     }
 
-    CsvGroupDialog dialog(m_config.groups.at(index), this);
+    UnpackGroupDialog dialog(m_config.groups.at(index), this);
     if (dialog.exec() != QDialog::Accepted)
         return;
 
@@ -558,22 +559,22 @@ void CsvPanel::editGroup(int index)
     saveConfig();
 }
 
-void CsvPanel::showGroupMenu(int index, const QPoint &globalPos)
+void UnpackPanel::showGroupMenu(int index, const QPoint &globalPos)
 {
     selectGroup(index);
 
     QMenu menu(this);
     menu.addAction(tr("Edit..."), this, [this, index] { editGroup(index); });
-    menu.addAction(tr("Duplicate"), this, &CsvPanel::copySelectedGroup);
+    menu.addAction(tr("Duplicate"), this, &UnpackPanel::copySelectedGroup);
     menu.addSeparator();
     menu.addAction(tr("Move up"), this, [this] { moveSelectedGroup(-1); });
     menu.addAction(tr("Move down"), this, [this] { moveSelectedGroup(1); });
     menu.addSeparator();
-    menu.addAction(tr("Delete"), this, &CsvPanel::removeSelectedGroup);
+    menu.addAction(tr("Delete"), this, &UnpackPanel::removeSelectedGroup);
     menu.exec(globalPos);
 }
 
-void CsvPanel::retranslateUi()
+void UnpackPanel::retranslateUi()
 {
     m_headerIndex->setText(tr("No."));
     m_headerPanel->setText(tr("Data panel"));
@@ -592,7 +593,7 @@ void CsvPanel::retranslateUi()
     m_list->viewport()->update();
 }
 
-void CsvPanel::updateStatus()
+void UnpackPanel::updateStatus()
 {
     if (!m_parseCheckBox->isChecked()) {
         m_statusLabel->setText(tr("Parsing is off"));
@@ -602,19 +603,19 @@ void CsvPanel::updateStatus()
             tr("%1 line(s) parsed, %2 skipped").arg(m_parsedLines).arg(m_skippedLines));
 }
 
-void CsvPanel::saveConfig()
+void UnpackPanel::saveConfig()
 {
-    saveCsvParseConfig(m_config);
+    saveUnpackConfig(m_config);
 }
 
-void CsvPanel::rebuildCurveKeys()
+void UnpackPanel::rebuildCurveKeys()
 {
     m_curveKeys.clear();
-    for (const CsvGroup &group : std::as_const(m_config.groups)) {
+    for (const UnpackGroup &group : std::as_const(m_config.groups)) {
         QStringList keys;
         keys.reserve(group.fields.size());
         for (int field = 0; field < group.fields.size(); ++field) {
-            const CsvField &definition = group.fields.at(field);
+            const UnpackField &definition = group.fields.at(field);
             const bool plotted = group.enabled && group.curve && definition.numeric
                     && definition.curve;
             keys.append(plotted ? curveKeyFor(group, field) : QString());
@@ -623,13 +624,13 @@ void CsvPanel::rebuildCurveKeys()
     }
 }
 
-void CsvPanel::syncCurveSeries()
+void UnpackPanel::syncCurveSeries()
 {
     rebuildCurveKeys();
 
     QVector<PlotServer::GroupDefinition> groups;
     for (int groupIndex = 0; groupIndex < m_config.groups.size(); ++groupIndex) {
-        const CsvGroup &group = m_config.groups.at(groupIndex);
+        const UnpackGroup &group = m_config.groups.at(groupIndex);
         const QStringList &keys = m_curveKeys.at(groupIndex);
 
         PlotServer::GroupDefinition definition;
@@ -640,7 +641,7 @@ void CsvPanel::syncCurveSeries()
             if (keys.at(field).isEmpty())
                 continue;
 
-            const CsvField &csvField = group.fields.at(field);
+            const UnpackField &csvField = group.fields.at(field);
             PlotServer::SeriesDefinition series;
             series.key = keys.at(field);
             series.title = csvField.name.isEmpty() ? tr("Column %1").arg(field + 1)
@@ -661,7 +662,7 @@ void CsvPanel::syncCurveSeries()
     m_plotLauncher->syncSeries(groups);
 }
 
-int CsvPanel::curveSeriesCount() const
+int UnpackPanel::curveSeriesCount() const
 {
     int count = 0;
     for (const QStringList &keys : m_curveKeys) {
@@ -673,7 +674,7 @@ int CsvPanel::curveSeriesCount() const
     return count;
 }
 
-void CsvPanel::showHint(const QString &text)
+void UnpackPanel::showHint(const QString &text)
 {
     if (!m_hint) {
         m_hint = new QLabel(this);
@@ -701,7 +702,7 @@ void CsvPanel::showHint(const QString &text)
     m_hintTimer->start();
 }
 
-void CsvPanel::placeHint()
+void UnpackPanel::placeHint()
 {
     if (!m_hint)
         return;
@@ -712,23 +713,23 @@ void CsvPanel::placeHint()
                  qMax(8, height() - m_hint->height() - 46));
 }
 
-void CsvPanel::resizeEvent(QResizeEvent *event)
+void UnpackPanel::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
     if (m_hint && m_hint->isVisible())
         placeHint();
 }
 
-bool CsvPanel::isGroupNameUsed(const QString &name) const
+bool UnpackPanel::isGroupNameUsed(const QString &name) const
 {
-    for (const CsvGroup &group : m_config.groups) {
+    for (const UnpackGroup &group : m_config.groups) {
         if (group.name.compare(name, Qt::CaseInsensitive) == 0)
             return true;
     }
     return false;
 }
 
-QString CsvPanel::nextAutoGroupName() const
+QString UnpackPanel::nextAutoGroupName() const
 {
     for (int index = 1; index < 10000; ++index) {
         const QString candidate = tr("Unnamed%1").arg(index);
@@ -738,7 +739,7 @@ QString CsvPanel::nextAutoGroupName() const
     return tr("Unnamed");
 }
 
-QString CsvPanel::uniqueGroupName(const QString &base) const
+QString UnpackPanel::uniqueGroupName(const QString &base) const
 {
     const QString trimmed = base.trimmed();
     if (!trimmed.isEmpty() && !isGroupNameUsed(trimmed))
