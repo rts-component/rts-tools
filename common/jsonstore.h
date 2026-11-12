@@ -17,6 +17,12 @@ QJsonDocument read(const QString &path);
 // 失败时 qWarning(带 what 描述) 并返回 false
 bool write(const QString &path, const QJsonDocument &document, const char *what);
 
+// 把 settings 目录下的全部配置（*.json / *.csv）打成一个文件，便于备份或拷到别的机器
+bool exportBundle(const QString &path, QString *error);
+// 读取 exportBundle 生成的文件并覆盖对应的配置文件；返回导入的文件数，失败返回 -1。
+// 只接受不带路径的 .json / .csv 文件名，JSON 内容必须合法。
+int importBundle(const QString &path, QString *error);
+
 } // namespace JsonStore
 
 #endif // JSONSTORE_H

@@ -139,6 +139,7 @@ SerialPanel::SerialPanel(QWidget *parent)
     setWindowTitle(tr("rts-tools %1").arg(QCoreApplication::applicationVersion()));
 
     setupLanguageButton();
+    setupSettingsButton();
     setupAboutButton();
     setupUpdateButton();
 
@@ -329,6 +330,70 @@ void SerialPanel::setupLanguageButton()
     connect(menu, &QMenu::triggered, this, [this](QAction *action) {
         applyUiLanguage(action->data().toString());
     });
+}
+
+void SerialPanel::setupSettingsButton()
+{
+    // 备份图标：托盘 + 向下箭头
+    QPixmap icon(48, 48);
+    icon.setDevicePixelRatio(2.0);
+    icon.fill(Qt::transparent);
+    QPainter painter(&icon);
+    painter.setRenderHint(QPainter::Antialiasing);
+    QPen pen(Qt::white, 1.8);
+    pen.setCapStyle(Qt::RoundCap);
+    pen.setJoinStyle(Qt::RoundJoin);
+    painter.setPen(pen);
+    painter.drawLine(QPointF(12, 3.5), QPointF(12, 15));      // 箭杆
+    painter.drawPolyline(QPolygonF({QPointF(7.5, 10.5), QPointF(12, 15), QPointF(16.5, 10.5)}));
+    painter.drawPolyline(QPolygonF({QPointF(4, 14.5), QPointF(4, 20), QPointF(20, 20), QPointF(20, 14.5)}));
+    painter.end();
+    ui->settingsButton->setIcon(QIcon(icon));
+    ui->settingsButton->setIconSize(QSize(22, 22));
+    ui->settingsButton->setToolTip(tr("Settings backup"));
+
+    auto *menu = new QMenu(ui->settingsButton);
+    menu->addAction(tr("Export settings..."), this, &SerialPanel::exportSettings);
+    menu->addAction(tr("Import settings..."), this, &SerialPanel::importSettings);
+    ui->settingsButton->setMenu(menu);
+}
+
+void SerialPanel::exportSettings()
+{
+    saveSendPanelState(); // 把还没落盘的改动先写出去
+    const QString path = QFileDialog::getSaveFileName(
+            this, tr("Export settings"),
+            QDir::home().filePath(QStringLiteral("rts-tools-settings.json")),
+            tr("rts-tools settings (*.json)"));
+    if (path.isEmpty())
+        return;
+    QString error;
+    if (!JsonStore::exportBundle(path, &error))
+        QMessageBox::warning(this, tr("Export settings"), tr("Export failed: %1").arg(error));
+    else
+        QMessageBox::information(this, tr("Export settings"), tr("Settings exported to %1").arg(path));
+}
+
+void SerialPanel::importSettings()
+{
+    const QString path = QFileDialog::getOpenFileName(this, tr("Import settings"), QDir::homePath(),
+                                                      tr("rts-tools settings (*.json)"));
+    if (path.isEmpty())
+        return;
+    if (QMessageBox::question(this, tr("Import settings"),
+                              tr("Importing overwrites the current settings. Continue?"))
+            != QMessageBox::Yes)
+        return;
+    QString error;
+    const int count = JsonStore::importBundle(path, &error);
+    if (count < 0) {
+        QMessageBox::warning(this, tr("Import settings"), tr("Import failed: %1").arg(error));
+        return;
+    }
+    loadSendPanelState(); // 否则退出时会用内存里的旧状态把导入的发送区设置覆盖回去
+    // 各面板的设置已载入内存，且退出时可能被写回；重启后才会完整生效
+    QMessageBox::information(this, tr("Import settings"),
+                             tr("Imported %n file(s). Restart rts-tools to apply them.", nullptr, count));
 }
 
 void SerialPanel::setupAboutButton()

@@ -42,6 +42,9 @@ private:
 
     void setupLanguageButton();
     void setupAboutButton();
+    void setupSettingsButton();
+    void exportSettings();
+    void importSettings();
     void showAbout();
     void setupUpdateButton();
     void updateUpdateButton();
