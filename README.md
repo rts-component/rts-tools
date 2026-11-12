@@ -14,6 +14,7 @@
 ```
 app/        主程序入口与主窗口（串口收发、接收日志）
 unpack/     解包：CSV 文本与二进制协议帧的解析、分组与数据面板
+pack/       组包：可保存的发送列表，支持文本 / Hex / 协议帧打包、结束符和连续发送
 highlight/  接收日志的高亮规则
 common/     rts-tools 与 rts-plot 共用：本地管道协议、端点清单、数据目录（静态库 rts-common）
 plot/server/  主程序侧：曲线数据出口（PlotServer）与图表进程管理（PlotLauncher）

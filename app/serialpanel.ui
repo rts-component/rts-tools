@@ -625,6 +625,11 @@ QGroupBox#statusBar QLabel {
             <string>Unpack</string>
            </attribute>
           </widget>
+          <widget class="PackPanel" name="packPanel">
+           <attribute name="title">
+            <string>Pack</string>
+           </attribute>
+          </widget>
           <widget class="ArmFlashPanel" name="armFlashPanel">
            <attribute name="title">
             <string>ARM Flash</string>
@@ -1031,6 +1036,11 @@ QGroupBox#statusBar QLabel {
    <class>UnpackPanel</class>
    <extends>QWidget</extends>
    <header>unpack/unpackpanel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PackPanel</class>
+   <extends>QWidget</extends>
+   <header>pack/packpanel.h</header>
   </customwidget>
   <customwidget>
    <class>ArmFlashPanel</class>

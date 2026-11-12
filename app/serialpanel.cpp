@@ -161,6 +161,7 @@ SerialPanel::SerialPanel(QWidget *parent)
     m_periodicTimer->setTimerType(Qt::PreciseTimer);
     connect(m_periodicTimer, &QTimer::timeout, this, &SerialPanel::sendData);
 
+    ui->packPanel->setSender([this](const QByteArray &bytes) { return sendBytes(bytes); });
     connect(m_port, &QSerialPort::readyRead, this, &SerialPanel::handleReadyRead);
     connect(m_rtt->socket(), &QTcpSocket::readyRead, this, &SerialPanel::handleReadyRead);
     connect(m_rtt, &RttSession::connected, this, [this] {
@@ -276,6 +277,7 @@ void SerialPanel::changeEvent(QEvent *event)
         retranslateUi();
         // LanguageChange 只发给顶层窗口，解包面板要自己再刷一遍
         ui->unpackPanel->retranslateUi();
+        ui->packPanel->retranslateUi();
         ui->armFlashPanel->retranslateUi();
     }
     QWidget::changeEvent(event);
@@ -840,6 +842,14 @@ void SerialPanel::sendData()
         return;
     }
 
+    sendBytes(payload);
+}
+
+bool SerialPanel::sendBytes(const QByteArray &payload)
+{
+    if (!isConnected())
+        return false;
+
     const qint64 written = m_device->write(payload);
     if (written > 0) {
         m_txBytes += quint64(written);
@@ -847,6 +857,7 @@ void SerialPanel::sendData()
         if (ui->loopbackCheckBox->isChecked())
             processReceived(payload.left(int(written)));
     }
+    return written >= 0;
 }
 
 bool SerialPanel::buildPayload(QByteArray &payload, QString *error) const

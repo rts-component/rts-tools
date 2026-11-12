@@ -102,6 +102,12 @@ qt_add_executable(rts-tools
     unpack/unpackgroupdialog.cpp
     unpack/unpackgroupdialog.h
     unpack/unpackicons.h
+    pack/packconfig.cpp
+    pack/packconfig.h
+    pack/packpanel.cpp
+    pack/packpanel.h
+    pack/packformatsdialog.cpp
+    pack/packformatsdialog.h
     flash/armflashpanel.cpp
     flash/armflashpanel.h
     plot/server/plotserver.cpp

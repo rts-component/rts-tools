@@ -40,6 +40,7 @@ const TypeInfo kTypes[] = {
     {ProtoFieldType::Byte3, QT_TRANSLATE_NOOP("ProtocolDialog", "3Byte")},
     {ProtoFieldType::Byte4, QT_TRANSLATE_NOOP("ProtocolDialog", "4Byte")},
     {ProtoFieldType::Byte8, QT_TRANSLATE_NOOP("ProtocolDialog", "8Byte")},
+    {ProtoFieldType::Data, QT_TRANSLATE_NOOP("ProtocolDialog", "Data")},
     {ProtoFieldType::Checksum, QT_TRANSLATE_NOOP("ProtocolDialog", "Checksum")},
     {ProtoFieldType::Tail, QT_TRANSLATE_NOOP("ProtocolDialog", "Tail")},
 };
@@ -67,7 +68,8 @@ bool usesHexValue(ProtoFieldType type)
 bool hasConversion(ProtoFieldType type)
 {
     return type == ProtoFieldType::Seq || type == ProtoFieldType::Id
-            || type == ProtoFieldType::Length || protoTypeIsData(type);
+            || type == ProtoFieldType::Length || type == ProtoFieldType::Data
+            || protoTypeIsData(type);
 }
 
 } // namespace
@@ -200,7 +202,8 @@ ProtocolDialog::ProtocolDialog(const QVector<ProtoField> &layout, QWidget *paren
 void ProtocolDialog::addField(ProtoFieldType type)
 {
     // 帧头只能有一个且在最前；长度只能有一个：已有时直接选中它
-    if (type == ProtoFieldType::Header || type == ProtoFieldType::Length) {
+    if (type == ProtoFieldType::Header || type == ProtoFieldType::Length
+        || type == ProtoFieldType::Data) {
         for (int row = 0; row < m_layout.size(); ++row) {
             if (m_layout.at(row).type == type) {
                 m_table->selectRow(row);
@@ -227,6 +230,10 @@ void ProtocolDialog::addField(ProtoFieldType type)
         break;
     case ProtoFieldType::Length:
         field.name = tr("Length");
+        break;
+    case ProtoFieldType::Data:
+        field.name = tr("Payload");
+        field.conversion = ProtoConversion::Hex;
         break;
     case ProtoFieldType::Checksum:
         break;
@@ -315,7 +322,11 @@ void ProtocolDialog::refreshRow(int row)
     int bytes = 0;
     for (const ProtoField &item : std::as_const(m_layout))
         bytes += protoFieldSize(item);
-    m_summary->setText(tr("Declared frame size: %1 bytes").arg(bytes));
+    bool variable = false;
+    for (const ProtoField &item : std::as_const(m_layout))
+        variable = variable || item.type == ProtoFieldType::Data;
+    m_summary->setText(variable ? tr("Declared frame size: %1 bytes + payload").arg(bytes)
+                                : tr("Declared frame size: %1 bytes").arg(bytes));
 }
 
 void ProtocolDialog::onCurrentRowChanged()
@@ -333,6 +344,12 @@ void ProtocolDialog::setRowShown(QWidget *editor, bool shown)
 void ProtocolDialog::populateConversions(const ProtoField &field)
 {
     m_conversionCombo->clear();
+    if (field.type == ProtoFieldType::Data) {
+        // 变长数据段：十六进制字节或文本
+        m_conversionCombo->addItem(tr("Hex bytes"), int(ProtoConversion::Hex));
+        m_conversionCombo->addItem(tr("Text"), int(ProtoConversion::Text));
+        return;
+    }
     const int size = protoFieldSize(field);
     m_conversionCombo->addItem(tr("Unsigned"), int(ProtoConversion::UInt));
     m_conversionCombo->addItem(tr("Signed"), int(ProtoConversion::Int));
@@ -397,6 +414,11 @@ void ProtocolDialog::loadProperties()
     case ProtoFieldType::Length:
         m_propertyHint->setText(tr("Number of data bytes between this field and the checksum / "
                                    "tail. Use the offset if the device counts differently."));
+        break;
+    case ProtoFieldType::Data:
+        m_propertyHint->setText(tr("Variable-length payload: everything in the length field's data "
+                                   "area that the fixed fields around it do not use. Needs a Length "
+                                   "field before it."));
         break;
     case ProtoFieldType::Checksum:
         m_propertyHint->setText(tr("Frames whose checksum does not match are dropped."));
@@ -478,6 +500,10 @@ void ProtocolDialog::accept()
             text = tr("A Tail needs at least one byte.");
         else if (problem == QLatin1String("after-trailer"))
             text = tr("Checksum and Tail must come last; no data fields may follow them.");
+        else if (problem == QLatin1String("data-needs-length"))
+            text = tr("A Data field needs a Length field before it.");
+        else if (problem == QLatin1String("data-count"))
+            text = tr("Only one Data field is allowed.");
         else if (problem == QLatin1String("length"))
             text = tr("Only one Length field is allowed.");
         else

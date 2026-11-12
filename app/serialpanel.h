@@ -77,6 +77,8 @@ private:
     void startLogFile(const QString &portName);
 
     void sendData();
+    // 把字节写入当前连接并计数；回环开启时同时送进接收端。没有连接时返回 false
+    bool sendBytes(const QByteArray &payload);
     bool buildPayload(QByteArray &payload, QString *error) const;
     void updatePeriodicSend(bool enabled);
     void applyPeriodicInterval();

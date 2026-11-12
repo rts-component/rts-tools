@@ -19,6 +19,7 @@ enum class ProtoFieldType {
     Byte3,
     Byte4,
     Byte8,
+    Data,     // 变长数据段：占数据区里除固定字段之外的全部字节（必须有 Length）
     Checksum, // 校验
     Tail,     // 固定字节序列
 };
@@ -29,6 +30,7 @@ enum class ProtoConversion {
     Float, // 仅 4 / 8 字节：IEEE754 单/双精度
     Hex,
     Binary, // 每个字节 8 位，高位在前，字节之间空格分隔
+    Text,   // 仅变长 Data 段：按文本显示
 };
 
 enum class ProtoChecksum {
@@ -54,6 +56,7 @@ struct ProtoField
 };
 
 // 字段在帧中占的字节数；Length 不能写死时（Header/Tail 取 value 长度）按类型给出
+// （变长的 Data 段返回 0，实际长度由帧里的 Length 决定）
 int protoFieldSize(const ProtoField &field);
 bool protoTypeIsData(ProtoFieldType type);   // 1/2/3/4/8 Byte
 bool protoFieldShowable(const ProtoField &field);
@@ -76,6 +79,23 @@ QString protoFieldPreview(const ProtoField &field);
 // 把字节序列文本（"AA 55" / "0xAA,0x55" / "aa55"）转成字节；失败返回 false
 bool parseHexBytes(const QString &text, QByteArray *out);
 QString formatHexBytes(const QByteArray &bytes);
+
+// ---- 组包（发送侧）：解码的逆操作 ----
+// 数据字段（1/2/3/4/8Byte）的个数，组包时要按顺序给出这么多个值
+int protoDataFieldCount(const QVector<ProtoField> &layout);
+// 是否有变长 Data 段
+bool protoHasDataBlock(const QVector<ProtoField> &layout);
+
+// 按协议定义把 values 组成一帧：帧头/帧尾/ID 取定义里的值，序号用 seq，
+// 长度与校验自动计算。数值按字段的"数据转换"和字节顺序编码：
+// 无符号/有符号为十进制（hexNumbers 为 true 或带 0x 前缀时按十六进制），
+// 十六进制字段按十六进制，二进制字段按二进制，浮点按 IEEE754。
+// 失败时返回 false 并在 error 里给出可读的原因。
+// 数值直接给整段文本：按空白（没有 Data 段时也接受 , ;）切出。
+// 有 Data 段时，它前面的固定字段取开头的数值、后面的取结尾的数值，
+// 中间剩下的原文（保留其中的空格 / 标点）就是 Data 段的内容：十六进制字节或文本。
+bool encodeFrame(const QVector<ProtoField> &layout, const QString &text, bool hexNumbers,
+                 quint8 seq, QByteArray *out, QString *error = nullptr);
 
 class ProtocolParser
 {

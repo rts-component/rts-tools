@@ -3,6 +3,7 @@
 
 #include "unpack/protocolparser.h"
 
+#include <QJsonArray>
 #include <QString>
 #include <QVector>
 
@@ -50,6 +51,10 @@ struct UnpackConfig
     bool enabled = false;
     QVector<UnpackGroup> groups;
 };
+
+// 协议帧定义的 JSON 读写（解包的行和发送的组包格式共用）
+QJsonArray protoLayoutToJson(const QVector<ProtoField> &layout);
+QVector<ProtoField> protoLayoutFromJson(const QJsonArray &array);
 
 UnpackConfig loadUnpackConfig();
 void saveUnpackConfig(const UnpackConfig &config);

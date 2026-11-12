@@ -17,12 +17,14 @@ const NamedType kFieldTypes[] = {
     {"id", int(ProtoFieldType::Id)},         {"length", int(ProtoFieldType::Length)},
     {"byte1", int(ProtoFieldType::Byte1)},   {"byte2", int(ProtoFieldType::Byte2)},
     {"byte3", int(ProtoFieldType::Byte3)},   {"byte4", int(ProtoFieldType::Byte4)},
-    {"byte8", int(ProtoFieldType::Byte8)},   {"checksum", int(ProtoFieldType::Checksum)},
+    {"byte8", int(ProtoFieldType::Byte8)},   {"data", int(ProtoFieldType::Data)},
+    {"checksum", int(ProtoFieldType::Checksum)},
     {"tail", int(ProtoFieldType::Tail)},
 };
 const NamedType kConversions[] = {
     {"uint", int(ProtoConversion::UInt)}, {"int", int(ProtoConversion::Int)},
     {"float", int(ProtoConversion::Float)}, {"hex", int(ProtoConversion::Hex)}, {"bin", int(ProtoConversion::Binary)},
+    {"text", int(ProtoConversion::Text)},
 };
 const NamedType kChecksums[] = {
     {"sum8", int(ProtoChecksum::Sum8)},         {"xor8", int(ProtoChecksum::Xor8)},
@@ -109,6 +111,25 @@ QString newGroupId()
 
 
 
+QJsonArray protoLayoutToJson(const QVector<ProtoField> &layout)
+{
+    QJsonArray array;
+    for (const ProtoField &field : layout)
+        array.append(protoFieldToJson(field));
+    return array;
+}
+
+QVector<ProtoField> protoLayoutFromJson(const QJsonArray &array)
+{
+    QVector<ProtoField> layout;
+    for (const QJsonValue &value : array) {
+        ProtoField field;
+        if (protoFieldFromJson(value.toObject(), &field))
+            layout.append(field);
+    }
+    return layout;
+}
+
 UnpackConfig loadUnpackConfig()
 {
     UnpackConfig config;
@@ -134,12 +155,7 @@ UnpackConfig loadUnpackConfig()
         group.mode = groupObject.value(QLatin1String("mode")).toString() == QLatin1String("protocol")
                 ? UnpackMode::Protocol
                 : UnpackMode::Csv;
-        const QJsonArray layout = groupObject.value(QLatin1String("layout")).toArray();
-        for (const QJsonValue &layoutValue : layout) {
-            ProtoField protoField;
-            if (protoFieldFromJson(layoutValue.toObject(), &protoField))
-                group.layout.append(protoField);
-        }
+        group.layout = protoLayoutFromJson(groupObject.value(QLatin1String("layout")).toArray());
 
         const QJsonArray fields = groupObject.value(QLatin1String("fields")).toArray();
         for (const QJsonValue &fieldValue : fields) {
@@ -183,10 +199,7 @@ void saveUnpackConfig(const UnpackConfig &config)
         groupObject.insert(QLatin1String("separator"), group.separator);
         groupObject.insert(QLatin1String("mode"),
                            group.isProtocol() ? QLatin1String("protocol") : QLatin1String("csv"));
-        QJsonArray layout;
-        for (const ProtoField &protoField : group.layout)
-            layout.append(protoFieldToJson(protoField));
-        groupObject.insert(QLatin1String("layout"), layout);
+        groupObject.insert(QLatin1String("layout"), protoLayoutToJson(group.layout));
         // 行级 Curve 勾选是运行期状态，不落盘（重启后不会自己弹图表窗口）
         groupObject.insert(QLatin1String("fields"), fields);
         groups.append(groupObject);

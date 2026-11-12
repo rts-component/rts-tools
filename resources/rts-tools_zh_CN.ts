@@ -395,6 +395,211 @@
     </message>
 </context>
 <context>
+    <name>PackFormatsDialog</name>
+    <message>
+        <location filename="../pack/packformatsdialog.cpp" line="18"/>
+        <source>Pack formats</source>
+        <translation>组包格式</translation>
+    </message>
+    <message>
+        <location filename="../pack/packformatsdialog.cpp" line="21"/>
+        <source>A pack format describes a frame (header, length, data fields, checksum, ...). Choose it on a row to send that row&apos;s values as a frame. Double-click a name to rename it.</source>
+        <translation>组包格式描述一种帧（帧头、长度、数据字段、校验……）。在某一行里选择它，就会把该行的数值打包成帧再发送。双击名称可重命名。</translation>
+    </message>
+    <message>
+        <location filename="../pack/packformatsdialog.cpp" line="27"/>
+        <source>Add</source>
+        <translation type="unfinished">添加</translation>
+    </message>
+    <message>
+        <location filename="../pack/packformatsdialog.cpp" line="28"/>
+        <source>Edit frame...</source>
+        <translation>编辑帧...</translation>
+    </message>
+    <message>
+        <location filename="../pack/packformatsdialog.cpp" line="29"/>
+        <source>Remove</source>
+        <translation type="unfinished">删除</translation>
+    </message>
+    <message>
+        <location filename="../pack/packformatsdialog.cpp" line="102"/>
+        <source>Format</source>
+        <translation type="unfinished">格式</translation>
+    </message>
+</context>
+<context>
+    <name>PackPanel</name>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="115"/>
+        <location filename="../pack/packpanel.cpp" line="132"/>
+        <location filename="../pack/packpanel.cpp" line="209"/>
+        <location filename="../pack/packpanel.cpp" line="389"/>
+        <location filename="../pack/packpanel.cpp" line="435"/>
+        <source>Send</source>
+        <translation type="unfinished">发送</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="131"/>
+        <source>No.</source>
+        <translation type="unfinished">序号</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="131"/>
+        <source>Name</source>
+        <translation type="unfinished">名称</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="131"/>
+        <source>Data</source>
+        <translation>数据</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="131"/>
+        <source>Hex</source>
+        <translation type="unfinished">十六进制</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="131"/>
+        <source>Delay (ms)</source>
+        <translation>延时(ms)</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="132"/>
+        <source>Pack format</source>
+        <translation>组包</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="132"/>
+        <source>Line ending</source>
+        <translation>结束符</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="133"/>
+        <location filename="../pack/packpanel.cpp" line="419"/>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="134"/>
+        <location filename="../pack/packpanel.cpp" line="449"/>
+        <source>Send checked</source>
+        <translation>发送已勾选</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="135"/>
+        <source>Send the checked rows in order, waiting each row&apos;s delay before the next one</source>
+        <translation>按顺序发送已勾选的行，每行发完后等待该行的延时再发下一行</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="137"/>
+        <source>Formats...</source>
+        <translation>组包格式...</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="138"/>
+        <source>Create and edit pack formats</source>
+        <translation>新建和编辑组包格式</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="139"/>
+        <source>Duplicate the selected row</source>
+        <translation type="unfinished">复制选中的行</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="140"/>
+        <source>Add a row</source>
+        <translation>添加一行</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="141"/>
+        <source>Delete the selected row</source>
+        <translation type="unfinished">删除选中的行</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="142"/>
+        <source>Move up</source>
+        <translation type="unfinished">上移</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="143"/>
+        <source>Move down</source>
+        <translation type="unfinished">下移</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="186"/>
+        <location filename="../pack/packpanel.cpp" line="201"/>
+        <source>None</source>
+        <translation type="unfinished">无</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="261"/>
+        <source>%1 value(s) for the fixed fields of &quot;%2&quot; (before / after the payload), with the payload (hex bytes or text) in between</source>
+        <translation>“%2”的固定字段共需 %1 个值（分别在数据段前后），数据段内容（十六进制字节或文本）写在中间</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="266"/>
+        <source>%1 value(s) for the data fields of &quot;%2&quot;, separated by spaces</source>
+        <translation>“%2”的数据字段共需 %1 个值，用空格分隔</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="272"/>
+        <source>Text to send (or hex bytes when Hex is checked)</source>
+        <translation>要发送的文本（勾选 Hex 时为十六进制字节）</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="362"/>
+        <source>Enter valid hex bytes, e.g. 01 0A FF.</source>
+        <translation>请输入有效的十六进制字节，例如 01 0A FF。</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="369"/>
+        <source>Enter the data to send first.</source>
+        <translation type="unfinished">请先输入要发送的数据。</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="394"/>
+        <location filename="../pack/packpanel.cpp" line="437"/>
+        <source>Serial port</source>
+        <translation type="unfinished">串口</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="394"/>
+        <location filename="../pack/packpanel.cpp" line="437"/>
+        <source>Open the port first.</source>
+        <translation type="unfinished">请先打开串口。</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="399"/>
+        <source>Sent %1 byte(s) from row %2</source>
+        <translation>已发送第 %2 行的 %1 字节</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="415"/>
+        <source>Check the rows to send first</source>
+        <translation>请先勾选要发送的行</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="426"/>
+        <source>All checked rows sent</source>
+        <translation>已发送完所有勾选的行</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="435"/>
+        <source>Row %1: %2</source>
+        <translation>第 %1 行：%2</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="438"/>
+        <source>Stopped at row %1</source>
+        <translation>在第 %1 行停止</translation>
+    </message>
+    <message>
+        <location filename="../pack/packpanel.cpp" line="450"/>
+        <source>Stopped</source>
+        <translation>已停止</translation>
+    </message>
+</context>
+<context>
     <name>PlotLauncher</name>
     <message>
         <location filename="../plot/server/plotlauncher.cpp" line="51"/>
@@ -413,6 +618,56 @@
     </message>
 </context>
 <context>
+    <name>Protocol</name>
+    <message>
+        <location filename="../unpack/protocolparser.cpp" line="285"/>
+        <source>Value &quot;%1&quot; for field &quot;%2&quot;: %3</source>
+        <translation>字段“%2”的值“%1”：%3</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocolparser.cpp" line="293"/>
+        <source>not a number</source>
+        <translation>不是数字</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocolparser.cpp" line="325"/>
+        <source>not a valid number</source>
+        <translation>不是有效的数字</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocolparser.cpp" line="330"/>
+        <source>negative value for an unsigned field</source>
+        <translation>无符号字段不能为负数</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocolparser.cpp" line="333"/>
+        <location filename="../unpack/protocolparser.cpp" line="338"/>
+        <location filename="../unpack/protocolparser.cpp" line="340"/>
+        <source>does not fit in %1 byte(s)</source>
+        <translation>超出 %1 字节能表示的范围</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocolparser.cpp" line="366"/>
+        <source>The frame format is not valid. Open the format editor and fix it.</source>
+        <translation>帧格式无效，请打开格式编辑器修正。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocolparser.cpp" line="390"/>
+        <source>This frame format needs %1 value(s), separated by spaces; got %2.</source>
+        <translation>该帧格式需要 %1 个值（用空格分隔），实际给了 %2 个。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocolparser.cpp" line="437"/>
+        <source>The data part must be hex bytes, e.g. 01 0A FF.</source>
+        <translation>数据段必须是十六进制字节，例如 01 0A FF。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocolparser.cpp" line="464"/>
+        <source>The data length %1 does not fit in the length field.</source>
+        <translation>数据长度 %1 超出了长度字段能表示的范围。</translation>
+    </message>
+</context>
+<context>
     <name>ProtocolDialog</name>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="34"/>
@@ -421,19 +676,19 @@
     </message>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="35"/>
-        <location filename="../unpack/protocoldialog.cpp" line="226"/>
+        <location filename="../unpack/protocoldialog.cpp" line="229"/>
         <source>Seq</source>
         <translation>帧序号</translation>
     </message>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="36"/>
-        <location filename="../unpack/protocoldialog.cpp" line="223"/>
+        <location filename="../unpack/protocoldialog.cpp" line="226"/>
         <source>ID</source>
         <translation>帧ID</translation>
     </message>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="37"/>
-        <location filename="../unpack/protocoldialog.cpp" line="229"/>
+        <location filename="../unpack/protocoldialog.cpp" line="232"/>
         <source>Length</source>
         <translation>帧长度</translation>
     </message>
@@ -464,221 +719,261 @@
     </message>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="43"/>
+        <source>Data</source>
+        <translation type="unfinished">数据</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="44"/>
         <source>Checksum</source>
         <translation>校验</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="44"/>
+        <location filename="../unpack/protocoldialog.cpp" line="45"/>
         <source>Tail</source>
         <translation>帧尾</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="79"/>
+        <location filename="../unpack/protocoldialog.cpp" line="81"/>
         <source>Frame format</source>
         <translation>帧格式</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="83"/>
+        <location filename="../unpack/protocoldialog.cpp" line="85"/>
         <source>Add field (click a button to add the field)</source>
         <translation>添加字段（点击对应按钮添加需要的字段）</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="97"/>
+        <location filename="../unpack/protocoldialog.cpp" line="99"/>
         <source>No.</source>
         <translation type="unfinished">序号</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="97"/>
+        <location filename="../unpack/protocoldialog.cpp" line="99"/>
         <source>Field</source>
         <translation>字段</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="97"/>
+        <location filename="../unpack/protocoldialog.cpp" line="99"/>
         <source>Bytes</source>
         <translation>字节</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="108"/>
+        <location filename="../unpack/protocoldialog.cpp" line="110"/>
         <source>Remove</source>
         <translation type="unfinished">删除</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="126"/>
+        <location filename="../unpack/protocoldialog.cpp" line="128"/>
         <source>Hex bytes, e.g. AA 55</source>
         <translation>十六进制字节，如 AA 55</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="129"/>
+        <location filename="../unpack/protocoldialog.cpp" line="131"/>
         <source>Sum (8-bit)</source>
         <translation>累加和 (8 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="130"/>
+        <location filename="../unpack/protocoldialog.cpp" line="132"/>
         <source>XOR (8-bit)</source>
         <translation>异或 (8 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="132"/>
+        <location filename="../unpack/protocoldialog.cpp" line="134"/>
         <source>Sum (16-bit)</source>
         <translation>累加和 (16 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="136"/>
+        <location filename="../unpack/protocoldialog.cpp" line="138"/>
         <source>From header</source>
         <translation>从帧头开始</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="137"/>
+        <location filename="../unpack/protocoldialog.cpp" line="139"/>
         <source>After header</source>
         <translation>从帧头之后开始</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="140"/>
+        <location filename="../unpack/protocoldialog.cpp" line="142"/>
         <source>Data bytes = value in frame + this offset</source>
         <translation>数据区字节数 = 帧中的值 + 此偏移</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="141"/>
+        <location filename="../unpack/protocoldialog.cpp" line="143"/>
         <source>High byte first</source>
         <translation>高字节在前</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="142"/>
+        <location filename="../unpack/protocoldialog.cpp" line="144"/>
         <source>Show on panel</source>
         <translation>显示到面板</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="145"/>
+        <location filename="../unpack/protocoldialog.cpp" line="147"/>
         <source>Name</source>
         <translation type="unfinished">名称</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="146"/>
+        <location filename="../unpack/protocoldialog.cpp" line="148"/>
         <source>Value</source>
         <translation>值</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="147"/>
+        <location filename="../unpack/protocoldialog.cpp" line="149"/>
         <source>Conversion</source>
         <translation>数据转换</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="148"/>
+        <location filename="../unpack/protocoldialog.cpp" line="150"/>
         <source>Length offset</source>
         <translation>长度偏移</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="149"/>
+        <location filename="../unpack/protocoldialog.cpp" line="151"/>
         <source>Algorithm</source>
         <translation>算法</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="150"/>
+        <location filename="../unpack/protocoldialog.cpp" line="152"/>
         <source>Range</source>
         <translation>校验范围</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="151"/>
+        <location filename="../unpack/protocoldialog.cpp" line="153"/>
         <source>Byte order</source>
         <translation>字节顺序</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="152"/>
+        <location filename="../unpack/protocoldialog.cpp" line="154"/>
         <source>Panel</source>
         <translation>面板显示</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="158"/>
+        <location filename="../unpack/protocoldialog.cpp" line="160"/>
         <source>Field properties</source>
         <translation>字段属性设置</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="237"/>
+        <location filename="../unpack/protocoldialog.cpp" line="235"/>
+        <source>Payload</source>
+        <translation>数据</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="244"/>
         <source>Data%1</source>
         <translation>数据%1</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="318"/>
+        <location filename="../unpack/protocoldialog.cpp" line="328"/>
+        <source>Declared frame size: %1 bytes + payload</source>
+        <translation>已声明的帧大小：%1 字节 + 数据段</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="329"/>
         <source>Declared frame size: %1 bytes</source>
         <translation>已声明的帧大小：%1 字节</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="337"/>
+        <location filename="../unpack/protocoldialog.cpp" line="349"/>
+        <source>Hex bytes</source>
+        <translation>十六进制字节</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="350"/>
+        <source>Text</source>
+        <translation>文本</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="354"/>
         <source>Unsigned</source>
         <translation>无符号整数</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="338"/>
+        <location filename="../unpack/protocoldialog.cpp" line="355"/>
         <source>Signed</source>
         <translation>有符号整数</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="340"/>
+        <location filename="../unpack/protocoldialog.cpp" line="357"/>
         <source>Float (32-bit)</source>
         <translation>浮点 (32 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="342"/>
+        <location filename="../unpack/protocoldialog.cpp" line="359"/>
         <source>Double (64-bit)</source>
         <translation>双精度浮点 (64 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="343"/>
+        <location filename="../unpack/protocoldialog.cpp" line="360"/>
         <source>Hex</source>
         <translation type="unfinished">十六进制</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="344"/>
+        <location filename="../unpack/protocoldialog.cpp" line="361"/>
         <source>Binary</source>
         <translation>二进制</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="391"/>
+        <location filename="../unpack/protocoldialog.cpp" line="408"/>
         <source>Fixed bytes that mark the start of a frame.</source>
         <translation>标记帧起点的固定字节。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="394"/>
+        <location filename="../unpack/protocoldialog.cpp" line="411"/>
         <source>Leave Value empty to accept any ID; otherwise only frames with this ID are decoded.</source>
         <translation>“值”留空表示接受任意 ID；否则只解析该 ID 的帧。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="398"/>
+        <location filename="../unpack/protocoldialog.cpp" line="415"/>
         <source>Number of data bytes between this field and the checksum / tail. Use the offset if the device counts differently.</source>
         <translation>本字段之后、校验/帧尾之前的数据字节数。设备的计法不同时请调整偏移。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="402"/>
+        <location filename="../unpack/protocoldialog.cpp" line="419"/>
+        <source>Variable-length payload: everything in the length field&apos;s data area that the fixed fields around it do not use. Needs a Length field before it.</source>
+        <translation>变长数据段：长度字段所指数据区里，除前后固定字段之外的全部字节。前面必须有帧长度字段。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="424"/>
         <source>Frames whose checksum does not match are dropped.</source>
         <translation>校验不匹配的帧会被丢弃。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="405"/>
+        <location filename="../unpack/protocoldialog.cpp" line="427"/>
         <source>Fixed bytes at the end of a frame.</source>
         <translation>标记帧结尾的固定字节。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="474"/>
+        <location filename="../unpack/protocoldialog.cpp" line="496"/>
         <source>The frame must start with a Header that has at least one byte.</source>
         <translation>帧必须以至少一个字节的帧头开始。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="476"/>
+        <location filename="../unpack/protocoldialog.cpp" line="498"/>
         <source>Only one Header is allowed, and it must be the first field.</source>
         <translation>只能有一个帧头，且必须是第一个字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="478"/>
+        <location filename="../unpack/protocoldialog.cpp" line="500"/>
         <source>A Tail needs at least one byte.</source>
         <translation>帧尾至少需要一个字节。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="480"/>
+        <location filename="../unpack/protocoldialog.cpp" line="502"/>
         <source>Checksum and Tail must come last; no data fields may follow them.</source>
         <translation>校验和帧尾必须放在最后，其后不能再有数据字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="482"/>
+        <location filename="../unpack/protocoldialog.cpp" line="504"/>
+        <source>A Data field needs a Length field before it.</source>
+        <translation>数据段前面必须有帧长度字段。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="506"/>
+        <source>Only one Data field is allowed.</source>
+        <translation>只能有一个数据段。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="508"/>
         <source>Only one Length field is allowed.</source>
         <translation>只能有一个帧长度字段。</translation>
     </message>
@@ -1142,36 +1437,36 @@
 <context>
     <name>SerialPanel</name>
     <message>
-        <location filename="../app/serialpanel.cpp" line="405"/>
+        <location filename="../app/serialpanel.cpp" line="407"/>
         <source>New version %1 available, click to update</source>
         <translation>发现新版本 %1，点击升级</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="406"/>
-        <location filename="../app/serialpanel.cpp" line="427"/>
-        <location filename="../app/serialpanel.cpp" line="439"/>
+        <location filename="../app/serialpanel.cpp" line="408"/>
+        <location filename="../app/serialpanel.cpp" line="429"/>
+        <location filename="../app/serialpanel.cpp" line="441"/>
         <source>Check for updates</source>
         <translation>检查更新</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="428"/>
+        <location filename="../app/serialpanel.cpp" line="430"/>
         <source>Could not check for updates: %1</source>
         <translation>检查更新失败：%1</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="440"/>
+        <location filename="../app/serialpanel.cpp" line="442"/>
         <source>You are using the latest version (%1).</source>
         <translation>当前已是最新版本（%1）。</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="173"/>
-        <location filename="../app/serialpanel.cpp" line="507"/>
-        <location filename="../app/serialpanel.cpp" line="635"/>
+        <location filename="../app/serialpanel.cpp" line="174"/>
+        <location filename="../app/serialpanel.cpp" line="509"/>
+        <location filename="../app/serialpanel.cpp" line="637"/>
         <source>RTT</source>
         <translation>RTT</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="636"/>
+        <location filename="../app/serialpanel.cpp" line="638"/>
         <source>Enter the target device name first, e.g. STM32F407VG.</source>
         <translation>请先填写目标芯片型号，例如 STM32F407VG。</translation>
     </message>
@@ -1184,7 +1479,7 @@
         <translation type="vanished">RTT 设置</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="592"/>
+        <location filename="../app/serialpanel.cpp" line="594"/>
         <source>Settings</source>
         <translation>设置</translation>
     </message>
@@ -1237,17 +1532,17 @@
         <translation type="vanished">从 J-Link 获取支持的芯片列表</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="470"/>
+        <location filename="../app/serialpanel.cpp" line="472"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="353"/>
+        <location filename="../app/serialpanel.cpp" line="355"/>
         <source>About rts-tools</source>
         <translation>关于 rts-tools</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="341"/>
+        <location filename="../app/serialpanel.cpp" line="343"/>
         <source>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;Serial / RTT debugging tool with CSV / protocol unpacking and live plots.&lt;/p&gt;&lt;p&gt;Built with Qt %2.&lt;/p&gt;&lt;p&gt;Released under the MIT License. Qt is used under the LGPLv3; see THIRD-PARTY-NOTICES.md.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/rts-component/rts-tools&quot;&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</source>
         <translation>&lt;h3&gt;rts-tools %1&lt;/h3&gt;&lt;p&gt;串口 / RTT 调试工具，支持 CSV / 协议解包与实时曲线。&lt;/p&gt;&lt;p&gt;基于 Qt %2 构建。&lt;/p&gt;&lt;p&gt;以 MIT 许可证发布；Qt 按 LGPLv3 使用，详见 THIRD-PARTY-NOTICES.md。&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/rts-component/rts-tools&quot;&gt;github.com/rts-component/rts-tools&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
@@ -1263,14 +1558,14 @@
     </message>
     <message>
         <location filename="../app/serialpanel.ui" line="362"/>
-        <location filename="../app/serialpanel.cpp" line="478"/>
-        <location filename="../app/serialpanel.cpp" line="684"/>
+        <location filename="../app/serialpanel.cpp" line="480"/>
+        <location filename="../app/serialpanel.cpp" line="686"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
         <location filename="../app/serialpanel.ui" line="479"/>
-        <location filename="../app/serialpanel.ui" line="724"/>
+        <location filename="../app/serialpanel.ui" line="729"/>
         <source>Clear</source>
         <translation>清空</translation>
     </message>
@@ -1301,7 +1596,7 @@
     </message>
     <message>
         <location filename="../app/serialpanel.ui" line="551"/>
-        <location filename="../app/serialpanel.cpp" line="490"/>
+        <location filename="../app/serialpanel.cpp" line="492"/>
         <source>Expand</source>
         <translation>展开</translation>
     </message>
@@ -1316,196 +1611,201 @@
     </message>
     <message>
         <location filename="../app/serialpanel.ui" line="630"/>
+        <source>Pack</source>
+        <translation>组包</translation>
+    </message>
+    <message>
+        <location filename="../app/serialpanel.ui" line="635"/>
         <source>ARM Flash</source>
         <translation type="unfinished">ARM Flash</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="677"/>
+        <location filename="../app/serialpanel.ui" line="682"/>
         <source>Type data to send</source>
         <translation>输入要发送的数据</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="707"/>
-        <location filename="../app/serialpanel.cpp" line="839"/>
+        <location filename="../app/serialpanel.ui" line="712"/>
+        <location filename="../app/serialpanel.cpp" line="841"/>
         <source>Send</source>
         <translation>发送</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="741"/>
+        <location filename="../app/serialpanel.ui" line="746"/>
         <source>Hex Send </source>
         <translation>十六进制发送 </translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="746"/>
+        <location filename="../app/serialpanel.ui" line="751"/>
         <source>Feed everything you send straight into the receive side (for loopback tests)</source>
         <translation>把发送的数据直接送入接收端（用于回环测试）</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="761"/>
+        <location filename="../app/serialpanel.ui" line="766"/>
         <source>Loopback</source>
         <translation>回环</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="783"/>
+        <location filename="../app/serialpanel.ui" line="788"/>
         <source>Periodic(ms)</source>
         <translation>定时发送(毫秒)</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="800"/>
+        <location filename="../app/serialpanel.ui" line="805"/>
         <source>1000</source>
         <translation>1000</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="842"/>
+        <location filename="../app/serialpanel.ui" line="847"/>
         <source>Add End</source>
         <translation>结束符</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="866"/>
+        <location filename="../app/serialpanel.ui" line="871"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="871"/>
+        <location filename="../app/serialpanel.ui" line="876"/>
         <source>+\r\n</source>
         <translation>+\r\n</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="876"/>
+        <location filename="../app/serialpanel.ui" line="881"/>
         <source>+\r</source>
         <translation>+\r</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="881"/>
+        <location filename="../app/serialpanel.ui" line="886"/>
         <source>+\n</source>
         <translation>+\n</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="978"/>
+        <location filename="../app/serialpanel.ui" line="983"/>
         <source>R:</source>
         <translation>接收:</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="985"/>
-        <location filename="../app/serialpanel.ui" line="1015"/>
+        <location filename="../app/serialpanel.ui" line="990"/>
+        <location filename="../app/serialpanel.ui" line="1020"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.ui" line="1008"/>
+        <location filename="../app/serialpanel.ui" line="1013"/>
         <source>T:</source>
         <translation>发送:</translation>
     </message>
     <message>
         <location filename="../app/serialpanel.cpp" line="138"/>
-        <location filename="../app/serialpanel.cpp" line="477"/>
+        <location filename="../app/serialpanel.cpp" line="479"/>
         <source>rts-tools %1</source>
         <translation>rts-tools %1</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="191"/>
-        <location filename="../app/serialpanel.cpp" line="211"/>
-        <location filename="../app/serialpanel.cpp" line="610"/>
-        <location filename="../app/serialpanel.cpp" line="623"/>
+        <location filename="../app/serialpanel.cpp" line="192"/>
+        <location filename="../app/serialpanel.cpp" line="212"/>
+        <location filename="../app/serialpanel.cpp" line="612"/>
+        <location filename="../app/serialpanel.cpp" line="625"/>
         <source>Serial port</source>
         <translation>串口</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="211"/>
-        <location filename="../app/serialpanel.cpp" line="911"/>
+        <location filename="../app/serialpanel.cpp" line="212"/>
+        <location filename="../app/serialpanel.cpp" line="922"/>
         <source>Open the port first.</source>
         <translation>请先打开串口。</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="490"/>
+        <location filename="../app/serialpanel.cpp" line="492"/>
         <source>Collapse</source>
         <translation>收起</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="506"/>
+        <location filename="../app/serialpanel.cpp" line="508"/>
         <source>No serial port</source>
         <translation>没有可用串口</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="611"/>
+        <location filename="../app/serialpanel.cpp" line="613"/>
         <source>Select a valid port and baud rate first.</source>
         <translation>请先选择有效的串口和波特率。</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="624"/>
+        <location filename="../app/serialpanel.cpp" line="626"/>
         <source>Cannot open %1: %2</source>
         <translation>无法打开 %1：%2</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="478"/>
-        <location filename="../app/serialpanel.cpp" line="643"/>
-        <location filename="../app/serialpanel.cpp" line="659"/>
+        <location filename="../app/serialpanel.cpp" line="480"/>
+        <location filename="../app/serialpanel.cpp" line="645"/>
+        <location filename="../app/serialpanel.cpp" line="661"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="764"/>
+        <location filename="../app/serialpanel.cpp" line="766"/>
         <source>[%1 bytes dropped]</source>
         <translation>[已丢弃 %1 字节]</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="815"/>
+        <location filename="../app/serialpanel.cpp" line="817"/>
         <source>Log file</source>
         <translation>日志文件</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="860"/>
+        <location filename="../app/serialpanel.cpp" line="871"/>
         <source>Enter the data to send first.</source>
         <translation>请先输入要发送的数据。</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="875"/>
+        <location filename="../app/serialpanel.cpp" line="886"/>
         <source>&apos;%1&apos; at position %2 is not a hex digit.
 Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
         <translation>第 %2 个字符“%1”不是十六进制数字。
 十六进制模式只接受 0-9 和 A-F，例如 01 0A FF。</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="887"/>
+        <location filename="../app/serialpanel.cpp" line="898"/>
         <source>Enter the hex bytes to send, e.g. 01 0A FF.</source>
         <translation>请输入要发送的十六进制字节，例如 01 0A FF。</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="892"/>
+        <location filename="../app/serialpanel.cpp" line="903"/>
         <source>Hex input needs an even number of digits, got %1.</source>
         <translation>十六进制输入的数字个数必须是偶数，当前为 %1 个。</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="911"/>
-        <location filename="../app/serialpanel.cpp" line="921"/>
+        <location filename="../app/serialpanel.cpp" line="922"/>
+        <location filename="../app/serialpanel.cpp" line="932"/>
         <source>Periodic send</source>
         <translation>定时发送</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="949"/>
-        <location filename="../app/serialpanel.cpp" line="958"/>
-        <location filename="../app/serialpanel.cpp" line="965"/>
+        <location filename="../app/serialpanel.cpp" line="960"/>
+        <location filename="../app/serialpanel.cpp" line="969"/>
+        <location filename="../app/serialpanel.cpp" line="976"/>
         <source>Save log</source>
         <translation>保存日志</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="950"/>
+        <location filename="../app/serialpanel.cpp" line="961"/>
         <source>Text files (*.txt);;All files (*)</source>
         <translation>文本文件 (*.txt);;所有文件 (*)</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="966"/>
+        <location filename="../app/serialpanel.cpp" line="977"/>
         <source>Cannot write %1: %2</source>
         <translation>无法写入 %1：%2</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="302"/>
-        <location filename="../app/serialpanel.cpp" line="466"/>
+        <location filename="../app/serialpanel.cpp" line="304"/>
+        <location filename="../app/serialpanel.cpp" line="468"/>
         <source>Follow system</source>
         <translation>跟随系统</translation>
     </message>
     <message>
-        <location filename="../app/serialpanel.cpp" line="469"/>
+        <location filename="../app/serialpanel.cpp" line="471"/>
         <source>Interface language</source>
         <translation>界面语言</translation>
     </message>
