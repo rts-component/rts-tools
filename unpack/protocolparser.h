@@ -2,6 +2,7 @@
 #define PROTOCOLPARSER_H
 
 #include <QByteArray>
+#include <QMap>
 #include <QString>
 #include <QStringList>
 #include <QVector>
@@ -42,6 +43,15 @@ enum class ProtoChecksum {
     Crc16Ccitt, // CCITT-FALSE，init 0xFFFF
 };
 
+// 二进制显示时的位分组：bit low..high 为一组，各取值可命名（如 bit1:0 = 模式：0 停止 / 1 运行）
+struct ProtoBitGroup
+{
+    QString name;
+    int low = 0;
+    int high = 0;
+    QMap<int, QString> valueNames; // 取值 → 名称；缺省的取值显示数字
+};
+
 struct ProtoField
 {
     ProtoFieldType type = ProtoFieldType::Byte1;
@@ -50,9 +60,16 @@ struct ProtoField
     ProtoConversion conversion = ProtoConversion::UInt;
     bool bigEndian = false;                         // "高字节在前"；对多字节数据、校验有效
     bool show = true;                               // 是否显示到面板
-    int lengthOffset = 0;                           // Length：数据区字节数 = 帧里的值 + 偏移
+    // Length / Checksum 的作用范围：按字段编号（NO.）从 rangeFrom 到 rangeTo（含两端）。
+    //   Length：值 = 范围内各字段的总字节数
+    //   Checksum：对范围内的字节计算校验
+    // -1 = 自动：Checksum 为"帧头到前一个字段"；Length 为"后一个字段到校验/帧尾之前"，
+    // 这样在中间增删字段时范围会跟着变
+    int rangeFrom = -1;
+    int rangeTo = -1;
     ProtoChecksum checksum = ProtoChecksum::Sum8;
-    bool checksumFromHeader = true;                 // 校验范围：true 从帧头开始，false 从帧头之后开始
+    QVector<ProtoBitGroup> bitGroups;               // 仅 Binary 转换：非空时按位分组显示命名
+    bool invertChecksum = false;                    // 校验结果取反（如 LIN：0xFF - sum）
 };
 
 // 字段在帧中占的字节数；Length 不能写死时（Header/Tail 取 value 长度）按类型给出
@@ -63,8 +80,19 @@ bool protoFieldShowable(const ProtoField &field);
 // 转换方式是否产生数字（决定 fx / 曲线是否可用）
 bool protoFieldNumeric(const ProtoField &field);
 int checksumSize(ProtoChecksum algorithm);
+// 位分组 ⇄ 文本（"名称 | 位 | 取值名"，位写 "1:0" 或 "3"，取值名写 "0=停止;1=运行"）
+QString protoBitRangeText(const ProtoBitGroup &group);
+bool protoParseBitRange(const QString &text, int *low, int *high);
+QString protoBitValuesText(const ProtoBitGroup &group);
+QMap<int, QString> protoParseBitValues(const QString &text);
+// 按位分组把 raw 显示成多行 "名称: 取值名\n"（每组一行，末尾带换行）
+QString protoBitGroupsDisplay(const QVector<ProtoBitGroup> &groups, quint64 raw);
 
 quint32 computeChecksum(ProtoChecksum algorithm, const QByteArray &data);
+
+// 把 index 处 Length / Checksum 字段的范围（含自动）解析成具体的字段编号；
+// 范围不合法时返回 false。自动的 Length 范围可以为空（from > to，表示 0 字节）
+bool protoResolveRange(const QVector<ProtoField> &layout, int index, int *from, int *to);
 
 // 定义本身是否可用；不可用时给出原因
 bool validateProtocol(const QVector<ProtoField> &layout, QString *error = nullptr);

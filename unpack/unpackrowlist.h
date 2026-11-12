@@ -64,6 +64,7 @@ private:
     {
         UnpackGroup group;
         QStringList values;
+        QVector<int> cardWidths; // 位分组表格卡片需要的宽度（只增不减）
         int top = 0;    // 内容坐标
         int height = 0;
     };
@@ -90,6 +91,10 @@ private:
     };
 
     void relayout();
+    int cardHeight(const Row &row) const;
+    QFont tableFont() const;
+    int tableWidthFor(const QString &text) const;
+    QVector<QRect> cardRects(const Row &row, int rowWidth) const;
     int rowHeight(const Row &row, int rowWidth) const;
     int rowWidth() const;
     int cardsPerRow(int rowWidth) const;

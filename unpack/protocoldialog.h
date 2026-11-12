@@ -10,7 +10,6 @@ class QComboBox;
 class QFormLayout;
 class QLabel;
 class QLineEdit;
-class QSpinBox;
 class QTableWidget;
 
 // 协议帧编辑：顶部按钮添加字段，左侧是字段列表（可上移/下移/删除），右侧是选中字段的属性。
@@ -41,6 +40,16 @@ private:
     void onValueEdited();
     void onConversionChanged();
     void onOptionChanged();
+    void populateRangeCombos(int row);
+    void updateRangeHint();
+    void loadBitGroups(const ProtoField &field);
+    void onBitCellChanged(int row, int column);
+    void addBitGroup();
+    void removeBitGroup();
+
+    // 增删 / 移动字段时，让 Length / Checksum 里写死的字段编号跟着走（须在改动 m_layout 之前调用）
+    enum class Edit { Insert, Remove, Swap };
+    void remapRanges(Edit edit, int a, int b = -1);
 
     QVector<ProtoField> m_layout;
     bool m_updating = false;
@@ -52,11 +61,16 @@ private:
     QLineEdit *m_valueEdit = nullptr;
     QComboBox *m_conversionCombo = nullptr;
     QComboBox *m_checksumCombo = nullptr;
-    QComboBox *m_checksumRangeCombo = nullptr;
-    QSpinBox *m_lengthOffsetSpin = nullptr;
+    QWidget *m_rangeRow = nullptr;
+    QComboBox *m_rangeFromCombo = nullptr;
+    QComboBox *m_rangeToCombo = nullptr;
+    QWidget *m_bitRow = nullptr;
+    QTableWidget *m_bitTable = nullptr;
+    QCheckBox *m_invertCheck = nullptr;
     QCheckBox *m_bigEndianCheck = nullptr;
     QCheckBox *m_showCheck = nullptr;
     QLabel *m_propertyHint = nullptr;
+    QLabel *m_rangeHint = nullptr;
 };
 
 #endif // PROTOCOLDIALOG_H

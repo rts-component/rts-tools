@@ -64,9 +64,25 @@ QJsonObject protoFieldToJson(const ProtoField &field)
     object.insert(QLatin1String("conversion"), nameOf(kConversions, int(field.conversion)));
     object.insert(QLatin1String("bigEndian"), field.bigEndian);
     object.insert(QLatin1String("show"), field.show);
-    object.insert(QLatin1String("lengthOffset"), field.lengthOffset);
+    object.insert(QLatin1String("rangeFrom"), field.rangeFrom);
+    object.insert(QLatin1String("rangeTo"), field.rangeTo);
     object.insert(QLatin1String("checksum"), nameOf(kChecksums, int(field.checksum)));
-    object.insert(QLatin1String("checksumFromHeader"), field.checksumFromHeader);
+    object.insert(QLatin1String("invertChecksum"), field.invertChecksum);
+    if (!field.bitGroups.isEmpty()) {
+        QJsonArray groups;
+        for (const ProtoBitGroup &group : field.bitGroups) {
+            QJsonObject item;
+            item.insert(QLatin1String("name"), group.name);
+            item.insert(QLatin1String("low"), group.low);
+            item.insert(QLatin1String("high"), group.high);
+            QJsonObject names;
+            for (auto it = group.valueNames.cbegin(); it != group.valueNames.cend(); ++it)
+                names.insert(QString::number(it.key()), it.value());
+            item.insert(QLatin1String("values"), names);
+            groups.append(item);
+        }
+        object.insert(QLatin1String("bitGroups"), groups);
+    }
     return object;
 }
 
@@ -82,10 +98,27 @@ bool protoFieldFromJson(const QJsonObject &object, ProtoField *field)
         field->conversion = ProtoConversion(value);
     field->bigEndian = object.value(QLatin1String("bigEndian")).toBool(false);
     field->show = object.value(QLatin1String("show")).toBool(true);
-    field->lengthOffset = object.value(QLatin1String("lengthOffset")).toInt(0);
+    // 旧版本的 lengthOffset / checksumFromHeader 无法对应到字段范围，忽略（回到自动范围）
+    field->rangeFrom = object.value(QLatin1String("rangeFrom")).toInt(-1);
+    field->rangeTo = object.value(QLatin1String("rangeTo")).toInt(-1);
     if (valueOf(kChecksums, object.value(QLatin1String("checksum")).toString(), &value))
         field->checksum = ProtoChecksum(value);
-    field->checksumFromHeader = object.value(QLatin1String("checksumFromHeader")).toBool(true);
+    field->bitGroups.clear();
+    const QJsonArray groups = object.value(QLatin1String("bitGroups")).toArray();
+    for (const QJsonValue &entry : groups) {
+        const QJsonObject item = entry.toObject();
+        ProtoBitGroup group;
+        group.name = item.value(QLatin1String("name")).toString();
+        group.low = item.value(QLatin1String("low")).toInt();
+        group.high = item.value(QLatin1String("high")).toInt();
+        if (group.low < 0 || group.high < group.low || group.high > 63)
+            continue;
+        const QJsonObject names = item.value(QLatin1String("values")).toObject();
+        for (auto it = names.begin(); it != names.end(); ++it)
+            group.valueNames.insert(it.key().toInt(), it.value().toString());
+        field->bitGroups.append(group);
+    }
+    field->invertChecksum = object.value(QLatin1String("invertChecksum")).toBool(false);
     return true;
 }
 

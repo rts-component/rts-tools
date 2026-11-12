@@ -25,6 +25,7 @@ constexpr int kCardsGap = 5;
 constexpr int kCardWidth = 118;
 constexpr int kCardHeight = 62;
 constexpr int kCardSpacing = 4;
+constexpr int kTableLineHeight = 17; // 位分组表格每行的高度
 constexpr int kCheckSize = 16;
 constexpr int kIconSize = 14;
 
@@ -93,8 +94,10 @@ void UnpackRowList::setGroups(const QVector<UnpackGroup> &groups)
         Row row;
         row.group = group;
         const auto it = old.constFind(group.id);
-        if (it != old.constEnd() && it->group.fields.size() == group.fields.size())
+        if (it != old.constEnd() && it->group.fields.size() == group.fields.size()) {
             row.values = it->values;
+            row.cardWidths = it->cardWidths;
+        }
         m_rows.append(row);
     }
 
@@ -112,8 +115,10 @@ void UnpackRowList::setGroup(int index, const UnpackGroup &group)
         return;
 
     Row &row = m_rows[index];
-    if (row.group.fields.size() != group.fields.size())
+    if (row.group.fields.size() != group.fields.size()) {
         row.values.clear();
+        row.cardWidths.clear();
+    }
     row.group = group;
     relayout();
     viewport()->update();
@@ -139,14 +144,35 @@ void UnpackRowList::setValues(int index, const QStringList &values)
 {
     if (index < 0 || index >= m_rows.size() || m_rows.at(index).values == values)
         return;
-    m_rows[index].values = values;
+    const int oldHeight = m_rows.at(index).height;
+    Row &row = m_rows[index];
+    row.values = values;
+    // 表格卡片的宽度只增不减，避免取值名称变化时卡片来回抖动
+    bool widened = false;
+    row.cardWidths.resize(row.group.fields.size());
+    for (int i = 0; i < values.size() && i < row.cardWidths.size(); ++i) {
+        if (!values.at(i).endsWith(QLatin1Char('\n')))
+            continue;
+        const int need = tableWidthFor(values.at(i));
+        if (need > row.cardWidths.at(i)) {
+            row.cardWidths[i] = need;
+            widened = true;
+        }
+    }
+    if (widened || rowHeight(row, rowWidth()) != oldHeight) {
+        relayout(); // 位分组表格的行数变了：行高跟着变
+        viewport()->update();
+        return;
+    }
     invalidateRow(index);
 }
 
 void UnpackRowList::clearValues()
 {
-    for (Row &row : m_rows)
+    for (Row &row : m_rows) {
         row.values.clear();
+        row.cardWidths.clear();
+    }
     viewport()->update();
 }
 
@@ -160,15 +186,68 @@ int UnpackRowList::cardsPerRow(int rowWidth) const
     return qMax(1, (rowWidth - 12) / (kCardWidth + kCardSpacing));
 }
 
+// 一行里所有卡片共用的高度：有位分组表格时按最多的行数撑高
+int UnpackRowList::cardHeight(const Row &row) const
+{
+    int lines = 0;
+    for (const QString &text : row.values) {
+        if (text.endsWith(QLatin1Char('\n')))
+            lines = qMax(lines, int(text.count(QLatin1Char('\n'))));
+    }
+    return qMax(kCardHeight, 4 + 16 + lines * kTableLineHeight + 6);
+}
+
+QFont UnpackRowList::tableFont() const
+{
+    QFont f = font();
+    f.setWeight(QFont::DemiBold);
+    return f;
+}
+
+// 位分组表格需要的卡片宽度：最长的一行 "名称 + 间隔 + 取值"
+int UnpackRowList::tableWidthFor(const QString &text) const
+{
+    const QFontMetrics lm(tableFont());
+    int need = 0;
+    const QStringList lines = text.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        const int sep = line.indexOf(QLatin1String(": "));
+        const int left = sep >= 0 ? lm.horizontalAdvance(line.left(sep)) : 0;
+        const int right = lm.horizontalAdvance(sep >= 0 ? line.mid(sep + 2) : line);
+        need = qMax(need, left + 16 + right);
+    }
+    return need + 12 + 8; // 左右内边距 + 余量（字体度量与实际绘制有几个像素的偏差）
+}
+
+// 卡片按内容流式排列：普通卡片固定宽度，位分组表格卡片按内容加宽（行内坐标）
+QVector<QRect> UnpackRowList::cardRects(const Row &row, int rowWidth) const
+{
+    QVector<QRect> rects;
+    const int height = cardHeight(row);
+    const int top = kPadTop + kHeaderHeight + kCardsGap;
+    const int maxWidth = qMax(kCardWidth, rowWidth - 2 * kPadLeft);
+    int x = kPadLeft;
+    int y = top;
+    for (int i = 0; i < row.group.fields.size(); ++i) {
+        const int w = qMin(maxWidth, qMax(kCardWidth, row.cardWidths.value(i)));
+        if (x > kPadLeft && x + w > rowWidth - kPadLeft) {
+            x = kPadLeft;
+            y += height + kCardSpacing;
+        }
+        rects.append(QRect(x, y, w, height));
+        x += w + kCardSpacing;
+    }
+    return rects;
+}
+
 int UnpackRowList::rowHeight(const Row &row, int rowWidth) const
 {
     int cards = 0;
     if (row.group.fields.isEmpty()) {
         cards = fontMetrics().height();
     } else {
-        const int perRow = cardsPerRow(rowWidth);
-        const int lines = (row.group.fields.size() + perRow - 1) / perRow;
-        cards = lines * kCardHeight + (lines - 1) * kCardSpacing;
+        const QVector<QRect> rects = cardRects(row, rowWidth);
+        cards = rects.last().bottom() + 1 - (kPadTop + kHeaderHeight + kCardsGap);
     }
     return kPadTop + kHeaderHeight + kCardsGap + cards + kPadBottom;
 }
@@ -219,11 +298,7 @@ QRect UnpackRowList::rowRect(int index) const
 
 QRect UnpackRowList::cardRect(int index, int card) const
 {
-    const RowGeometry g = geometryFor(rowWidth());
-    Q_UNUSED(index)
-    return QRect(kPadLeft + (card % g.cardsPerRow) * (kCardWidth + kCardSpacing),
-                 g.cardsTop + (card / g.cardsPerRow) * (kCardHeight + kCardSpacing),
-                 kCardWidth, kCardHeight);
+    return cardRects(m_rows.at(index), rowWidth()).value(card);
 }
 
 QRect UnpackRowList::fxRect(const QRect &card)
@@ -465,10 +540,35 @@ void UnpackRowList::paintRow(QPainter *painter, int index, int width) const
         }
 
         const QString text = card < row.values.size() ? row.values.at(card) : kNoValue;
-        painter->setFont(valueFont);
-        painter->setPen(kValueColor);
         const QRect valueRect(cr.left() + 6, cr.top() + 4 + 16, cr.width() - 12,
                               cr.height() - 4 - 16 - 4);
+        if (text.endsWith(QLatin1Char('\n'))) {
+            // 位分组：每行 "名称 | 取值"，名称靠左（淡色），取值靠右
+            const QFont lineFont = tableFont();
+            painter->setFont(lineFont);
+            const QFontMetrics lm(lineFont);
+            const QStringList lines = text.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+            int y = valueRect.top() + 1;
+            for (const QString &line : lines) {
+                const int sep = line.indexOf(QLatin1String(": "));
+                const QString left = sep >= 0 ? line.left(sep) : QString();
+                const QString right = sep >= 0 ? line.mid(sep + 2) : line;
+                const int leftWidth = left.isEmpty() ? 0 : qMin(lm.horizontalAdvance(left) + 4,
+                                                                valueRect.width() - 20);
+                const QRect lineRect(valueRect.left(), y, valueRect.width(), kTableLineHeight);
+                painter->setPen(QColor(255, 255, 255, 190));
+                painter->drawText(lineRect, Qt::AlignLeft | Qt::AlignVCenter,
+                                  lm.elidedText(left, Qt::ElideRight, leftWidth));
+                painter->setPen(kValueColor);
+                const QRect rightRect = lineRect.adjusted(leftWidth + 4, 0, 0, 0);
+                painter->drawText(rightRect, Qt::AlignRight | Qt::AlignVCenter,
+                                  lm.elidedText(right, Qt::ElideRight, rightRect.width()));
+                y += kTableLineHeight;
+            }
+            continue;
+        }
+        painter->setFont(valueFont);
+        painter->setPen(kValueColor);
         painter->drawText(valueRect, Qt::AlignLeft | Qt::AlignVCenter,
                           QFontMetrics(valueFont).elidedText(text, Qt::ElideRight,
                                                              valueRect.width()));

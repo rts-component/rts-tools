@@ -124,6 +124,8 @@ int checksumSize(ProtoChecksum algorithm)
     return 1;
 }
 
+static quint32 fieldChecksum(const ProtoField &field, const QByteArray &data);
+
 quint32 computeChecksum(ProtoChecksum algorithm, const QByteArray &data)
 {
     switch (algorithm) {
@@ -155,6 +157,61 @@ quint32 computeChecksum(ProtoChecksum algorithm, const QByteArray &data)
     return 0;
 }
 
+// 按字段设置计算校验值：可选取反（按校验字节数取反，如 Sum8 取反 = 0xFF - sum）
+static quint32 fieldChecksum(const ProtoField &field, const QByteArray &data)
+{
+    quint32 value = computeChecksum(field.checksum, data);
+    if (field.invertChecksum) {
+        const int size = checksumSize(field.checksum);
+        const quint32 mask = size >= 4 ? 0xFFFFFFFFu : ((1u << (size * 8)) - 1);
+        value = ~value & mask;
+    }
+    return value;
+}
+
+bool protoResolveRange(const QVector<ProtoField> &layout, int index, int *from, int *to)
+{
+    const int count = int(layout.size());
+    if (index < 0 || index >= count)
+        return false;
+    const ProtoField &field = layout.at(index);
+    const bool isLength = field.type == ProtoFieldType::Length;
+    if (!isLength && field.type != ProtoFieldType::Checksum)
+        return false;
+
+    int first = field.rangeFrom;
+    int last = field.rangeTo;
+    const bool autoFirst = first < 0;
+    const bool autoLast = last < 0;
+    if (isLength) {
+        if (autoFirst)
+            first = index + 1;
+        if (autoLast) { // 到第一个校验 / 帧尾之前
+            last = count - 1;
+            for (int i = index + 1; i < count; ++i) {
+                if (isTrailerType(layout.at(i).type)) {
+                    last = i - 1;
+                    break;
+                }
+            }
+        }
+    } else {
+        if (autoFirst)
+            first = 0;
+        if (autoLast)
+            last = index - 1;
+    }
+    *from = first;
+    *to = last;
+
+    if (first < 0 || last >= count)
+        return false;
+    if (first > last)
+        return isLength && autoFirst && autoLast; // 只有"自动"的长度范围允许为空
+    // 校验不能把自己和后面的字段算进去
+    return isLength || last < index;
+}
+
 bool validateProtocol(const QVector<ProtoField> &layout, QString *error)
 {
     auto fail = [error](const QString &message) {
@@ -170,6 +227,7 @@ bool validateProtocol(const QVector<ProtoField> &layout, QString *error)
 
     int lengthCount = 0;
     int dataCount = 0;
+    int dataIndex = -1;
     bool inTrailer = false;
     for (int i = 0; i < layout.size(); ++i) {
         const ProtoField &field = layout.at(i);
@@ -179,6 +237,7 @@ bool validateProtocol(const QVector<ProtoField> &layout, QString *error)
             ++lengthCount;
         if (field.type == ProtoFieldType::Data) {
             ++dataCount;
+            dataIndex = i;
             if (lengthCount == 0)
                 return fail(QStringLiteral("data-needs-length"));
         }
@@ -188,12 +247,24 @@ bool validateProtocol(const QVector<ProtoField> &layout, QString *error)
             return fail(QStringLiteral("after-trailer"));
         if (isTrailerType(field.type))
             inTrailer = true;
-        // 长度字段之前不能有不定长内容，所以 Length 之前只能是定长字段（天然满足）
     }
     if (lengthCount > 1)
         return fail(QStringLiteral("length"));
     if (dataCount > 1)
         return fail(QStringLiteral("data-count"));
+
+    for (int i = 0; i < layout.size(); ++i) {
+        const ProtoField &field = layout.at(i);
+        if (field.type != ProtoFieldType::Length && field.type != ProtoFieldType::Checksum)
+            continue;
+        int from = 0;
+        int to = 0;
+        if (!protoResolveRange(layout, i, &from, &to))
+            return fail(QStringLiteral("range"));
+        // 变长的 Data 段必须落在长度范围内，否则无法由长度算出它有多长
+        if (field.type == ProtoFieldType::Length && dataIndex >= 0 && (dataIndex < from || dataIndex > to))
+            return fail(QStringLiteral("data-range"));
+    }
     return true;
 }
 
@@ -215,6 +286,71 @@ QStringList protocolDisplayNames(const QVector<ProtoField> &layout)
         names.append(field.name.isEmpty() ? QStringLiteral("#%1").arg(index) : field.name);
     }
     return names;
+}
+
+QString protoBitRangeText(const ProtoBitGroup &group)
+{
+    return group.high == group.low ? QString::number(group.low)
+                                   : QStringLiteral("%1:%2").arg(group.high).arg(group.low);
+}
+
+bool protoParseBitRange(const QString &text, int *low, int *high)
+{
+    const QStringList parts = text.trimmed().split(QLatin1Char(':'));
+    bool okHigh = false;
+    bool okLow = false;
+    int h = parts.value(0).trimmed().toInt(&okHigh);
+    int l = parts.size() == 1 ? h : parts.value(1).trimmed().toInt(&okLow);
+    if (parts.size() == 1)
+        okLow = okHigh;
+    if (parts.size() > 2 || !okHigh || !okLow)
+        return false;
+    if (h < l)
+        std::swap(h, l);
+    if (l < 0 || h > 63)
+        return false;
+    *low = l;
+    *high = h;
+    return true;
+}
+
+QString protoBitValuesText(const ProtoBitGroup &group)
+{
+    QStringList items;
+    for (auto it = group.valueNames.cbegin(); it != group.valueNames.cend(); ++it)
+        items.append(QStringLiteral("%1=%2").arg(it.key()).arg(it.value()));
+    return items.join(QLatin1Char(';'));
+}
+
+QMap<int, QString> protoParseBitValues(const QString &text)
+{
+    QMap<int, QString> result;
+    const QStringList items = text.split(QRegularExpression(QStringLiteral("[;；]")));
+    for (const QString &item : items) {
+        const int eq = item.indexOf(QLatin1Char('='));
+        if (eq < 0)
+            continue;
+        bool ok = false;
+        const int value = item.left(eq).trimmed().toInt(&ok);
+        const QString name = item.mid(eq + 1).trimmed();
+        if (ok && value >= 0 && !name.isEmpty())
+            result.insert(value, name);
+    }
+    return result;
+}
+
+QString protoBitGroupsDisplay(const QVector<ProtoBitGroup> &groups, quint64 raw)
+{
+    QStringList parts;
+    for (const ProtoBitGroup &group : groups) {
+        const int width = group.high - group.low + 1;
+        const quint64 mask = width >= 64 ? ~quint64(0) : ((quint64(1) << width) - 1);
+        const int value = int((raw >> group.low) & mask);
+        const QString valueText = group.valueNames.value(value, QString::number(value));
+        parts.append(group.name.isEmpty() ? valueText : group.name + QLatin1String(": ") + valueText);
+    }
+    // 每组一行（以换行结尾）：面板据此把它画成"名称 | 取值"的小表格
+    return parts.isEmpty() ? QString() : parts.join(QLatin1Char('\n')) + QLatin1Char('\n');
 }
 
 QString formatHexBytes(const QByteArray &bytes)
@@ -401,41 +537,32 @@ bool encodeFrame(const QVector<ProtoField> &layout, const QString &text, bool he
         dataText = text.mid(from, to - from).trimmed();
     }
 
-    QByteArray frame;
-    int lengthPos = -1;
-    int payloadStart = -1;
+    // 先逐字段生成字节：长度、校验先占位，等全帧的各字段大小确定后再回填
+    const int count = int(layout.size());
+    QVector<QByteArray> parts(count);
     int fixedSeen = 0;
-    int trailerStart = int(layout.size());
-
-    for (int i = 0; i < layout.size(); ++i) {
+    for (int i = 0; i < count; ++i) {
         const ProtoField &field = layout.at(i);
-        if (field.type == ProtoFieldType::Checksum || field.type == ProtoFieldType::Tail) {
-            trailerStart = i;
-            break;
-        }
         switch (field.type) {
         case ProtoFieldType::Header:
-            frame.append(field.value);
+        case ProtoFieldType::Tail:
+            parts[i] = field.value;
             break;
         case ProtoFieldType::Seq:
-            frame.append(char(seq));
+            parts[i] = QByteArray(1, char(seq));
             break;
         case ProtoFieldType::Id:
-            frame.append(field.value.isEmpty() ? char(0) : field.value.at(0));
+            parts[i] = QByteArray(1, field.value.isEmpty() ? char(0) : field.value.at(0));
             break;
         case ProtoFieldType::Length:
-            lengthPos = int(frame.size());
-            frame.append(char(0)); // 稍后回填
-            payloadStart = int(frame.size());
+        case ProtoFieldType::Checksum:
+            parts[i] = QByteArray(protoFieldSize(field), '\0');
             break;
         case ProtoFieldType::Data: {
             if (field.conversion == ProtoConversion::Text) {
-                frame.append(dataText.toLocal8Bit());
-            } else {
-                QByteArray bytes;
-                if (!parseHexBytes(dataText, &bytes))
-                    return fail(protoTr(QT_TRANSLATE_NOOP("Protocol", "The data part must be hex bytes, e.g. 01 0A FF.")));
-                frame.append(bytes);
+                parts[i] = dataText.toLocal8Bit();
+            } else if (!parseHexBytes(dataText, &parts[i])) {
+                return fail(protoTr(QT_TRANSLATE_NOOP("Protocol", "The data part must be hex bytes, e.g. 01 0A FF.")));
             }
             break;
         }
@@ -445,39 +572,53 @@ bool encodeFrame(const QVector<ProtoField> &layout, const QString &text, bool he
             quint64 raw = 0;
             if (!encodeNumber(field, token.text, hexNumbers, &raw, error))
                 return false;
-            appendInteger(&frame, raw, protoFieldSize(field), field.bigEndian);
+            appendInteger(&parts[i], raw, protoFieldSize(field), field.bigEndian);
             break;
         }
         }
     }
 
-    if (lengthPos >= 0) {
-        const int length = int(frame.size()) - payloadStart; // 数据区字节数
-        // 长度字段的值 = 数据区字节数 - 偏移（解析时：数据区 = 值 + 偏移）
-        int offset = 0;
-        for (const ProtoField &field : layout) {
-            if (field.type == ProtoFieldType::Length)
-                offset = field.lengthOffset;
-        }
-        const int encoded = length - offset;
-        if (encoded < 0 || encoded > 255)
-            return fail(protoTr(QT_TRANSLATE_NOOP("Protocol", "The data length %1 does not fit in the length field.")).arg(length));
-        frame[lengthPos] = char(encoded);
+    auto rangeBytes = [&](int from, int to) {
+        int bytes = 0;
+        for (int i = from; i <= to; ++i)
+            bytes += int(parts.at(i).size());
+        return bytes;
+    };
+
+    // 长度：范围内各字段的总字节数（校验的字节数是固定的，占位时已经算进去）
+    for (int i = 0; i < count; ++i) {
+        if (layout.at(i).type != ProtoFieldType::Length)
+            continue;
+        int from = 0;
+        int to = 0;
+        protoResolveRange(layout, i, &from, &to);
+        const int bytes = rangeBytes(from, to);
+        if (bytes > 255)
+            return fail(protoTr(QT_TRANSLATE_NOOP("Protocol", "The data length %1 does not fit in the length field.")).arg(bytes));
+        parts[i] = QByteArray(1, char(bytes));
     }
 
-    for (int i = trailerStart; i < layout.size(); ++i) {
+    // 校验：按顺序算，后面的校验可以把前面的校验也算进范围
+    for (int i = 0; i < count; ++i) {
         const ProtoField &field = layout.at(i);
-        if (field.type == ProtoFieldType::Tail) {
-            frame.append(field.value);
-        } else if (field.type == ProtoFieldType::Checksum) {
-            const int start = field.checksumFromHeader ? 0 : protoFieldSize(layout.first());
-            const quint32 sum = computeChecksum(field.checksum, frame.mid(start));
-            appendInteger(&frame, sum, protoFieldSize(field), field.bigEndian);
-        }
+        if (field.type != ProtoFieldType::Checksum)
+            continue;
+        int from = 0;
+        int to = 0;
+        protoResolveRange(layout, i, &from, &to);
+        QByteArray covered;
+        for (int j = from; j <= to; ++j)
+            covered.append(parts.at(j));
+        parts[i].clear();
+        appendInteger(&parts[i], fieldChecksum(field, covered), protoFieldSize(field),
+                      field.bigEndian);
     }
 
-    if (out)
-        *out = frame;
+    if (out) {
+        out->clear();
+        for (const QByteArray &part : std::as_const(parts))
+            out->append(part);
+    }
     return true;
 }
 
@@ -543,6 +684,8 @@ QString ProtocolParser::decode(const ProtoField &field, const QByteArray &bytes)
     case ProtoConversion::Text:
         return QString::fromLocal8Bit(bytes);
     case ProtoConversion::Binary: {
+        if (!field.bitGroups.isEmpty())
+            return protoBitGroupsDisplay(field.bitGroups, raw);
         QStringList groups;
         for (int i = size - 1; i >= 0; --i) // 从最高字节开始，每字节 8 位
             groups.append(QString::number((raw >> (i * 8)) & 0xFF, 2).rightJustified(8, QLatin1Char('0')));
@@ -555,95 +698,70 @@ QString ProtocolParser::decode(const ProtoField &field, const QByteArray &bytes)
 ProtocolParser::Result ProtocolParser::tryParse(QStringList *values, int *consumed)
 {
     // 调用前保证 m_buffer 以帧头开头
-    int prefixSize = 0;     // 到 Length（含）为止的字节数；没有 Length 时 = 全部定长字段
+    const int count = int(m_layout.size());
+    QVector<int> sizes(count, 0);
+    QVector<int> offsets(count, 0);
     int lengthIndex = -1;
-    int trailerSize = 0;    // Length 之后的 Checksum / Tail 总字节数
-
-    for (int i = 0; i < m_layout.size(); ++i) {
-        const ProtoField &field = m_layout.at(i);
-        if (field.type == ProtoFieldType::Length) {
+    int dataIndex = -1;
+    for (int i = 0; i < count; ++i) {
+        sizes[i] = protoFieldSize(m_layout.at(i));
+        if (m_layout.at(i).type == ProtoFieldType::Length)
             lengthIndex = i;
-            break;
-        }
+        else if (m_layout.at(i).type == ProtoFieldType::Data)
+            dataIndex = i;
     }
 
-    // 各字段在帧内的偏移，Length 之后的位置要等读到长度才能确定
-    QVector<int> offsets(m_layout.size(), 0);
-    QVector<int> sizes(m_layout.size(), 0);
-    for (int i = 0; i < m_layout.size(); ++i)
-        sizes[i] = protoFieldSize(m_layout.at(i));
-    int payloadLength = 0;
-    int total = 0;
+    int lengthFrom = 0;
+    int lengthTo = -1;
+    qint64 lengthValue = 0;
+    if (lengthIndex >= 0) {
+        protoResolveRange(m_layout, lengthIndex, &lengthFrom, &lengthTo);
 
-    if (lengthIndex < 0) {
-        int pos = 0;
-        for (int i = 0; i < m_layout.size(); ++i) {
-            offsets[i] = pos;
-            pos += protoFieldSize(m_layout.at(i));
-        }
-        total = pos;
-    } else {
-        int pos = 0;
-        for (int i = 0; i <= lengthIndex; ++i) {
-            offsets[i] = pos;
-            pos += protoFieldSize(m_layout.at(i));
-        }
-        prefixSize = pos;
-        for (int i = lengthIndex + 1; i < m_layout.size(); ++i) {
-            if (isTrailerType(m_layout.at(i).type))
-                trailerSize += protoFieldSize(m_layout.at(i));
-        }
+        // Length 之前都是定长字段，读到它就能知道后面的情况
+        int lengthOffset = 0;
+        for (int i = 0; i < lengthIndex; ++i)
+            lengthOffset += sizes.at(i);
+        const int prefixSize = lengthOffset + sizes.at(lengthIndex);
         if (m_buffer.size() < prefixSize)
             return Result::NeedMore;
 
         const ProtoField &lengthField = m_layout.at(lengthIndex);
-        const quint64 raw = readInteger(m_buffer.mid(offsets[lengthIndex], protoFieldSize(lengthField)),
-                                        lengthField.bigEndian);
-        const qint64 length = qint64(raw) + lengthField.lengthOffset;
-        if (length < 0 || length > kMaxPayloadBytes)
-            return Result::Reject;
-        payloadLength = int(length);
+        lengthValue = qint64(readInteger(m_buffer.mid(lengthOffset, sizes.at(lengthIndex)),
+                                         lengthField.bigEndian));
 
-        // 变长 Data 段 = 数据区 - 其余固定字段
-        int dataIndex = -1;
-        int fixedPayload = 0;
-        for (int i = lengthIndex + 1; i < m_layout.size(); ++i) {
-            if (isTrailerType(m_layout.at(i).type))
-                continue;
-            if (m_layout.at(i).type == ProtoFieldType::Data)
-                dataIndex = i;
-            else
-                fixedPayload += sizes.at(i);
-        }
         if (dataIndex >= 0) {
-            if (payloadLength < fixedPayload)
-                return Result::Reject;
-            sizes[dataIndex] = payloadLength - fixedPayload;
-        }
-
-        int payloadPos = prefixSize;
-        int trailerPos = prefixSize + payloadLength;
-        for (int i = lengthIndex + 1; i < m_layout.size(); ++i) {
-            const ProtoField &field = m_layout.at(i);
-            if (isTrailerType(field.type)) {
-                offsets[i] = trailerPos;
-                trailerPos += sizes.at(i);
-            } else {
-                offsets[i] = payloadPos;
-                payloadPos += sizes.at(i);
+            // 变长 Data 段 = 长度值 - 范围内其余固定字段
+            int fixedInRange = 0;
+            for (int i = lengthFrom; i <= lengthTo; ++i) {
+                if (i != dataIndex)
+                    fixedInRange += sizes.at(i);
             }
+            const qint64 dataLength = lengthValue - fixedInRange;
+            if (dataLength < 0 || dataLength > kMaxPayloadBytes)
+                return Result::Reject;
+            sizes[dataIndex] = int(dataLength);
+        } else {
+            // 没有变长段时帧长是固定的，长度值必须与范围内的字节数一致
+            int bytes = 0;
+            for (int i = lengthFrom; i <= lengthTo; ++i)
+                bytes += sizes.at(i);
+            if (lengthValue != bytes)
+                return Result::Reject;
         }
-        total = prefixSize + payloadLength + trailerSize;
     }
 
+    int total = 0;
+    for (int i = 0; i < count; ++i) {
+        offsets[i] = total;
+        total += sizes.at(i);
+    }
     if (m_buffer.size() < total)
         return Result::NeedMore;
 
     const QByteArray frame = m_buffer.left(total);
-    const int payloadEnd = lengthIndex < 0 ? total : prefixSize + payloadLength;
 
     // 校验 Id / Tail / Checksum
-    for (int i = 0; i < m_layout.size(); ++i) {
+    for (int i = 0; i < count; ++i) {
         const ProtoField &field = m_layout.at(i);
         const int size = sizes.at(i);
         const int offset = offsets.at(i);
@@ -655,10 +773,12 @@ ProtocolParser::Result ProtocolParser::tryParse(QStringList *values, int *consum
             if (frame.mid(offset, size) != field.value)
                 return Result::Reject;
         } else if (field.type == ProtoFieldType::Checksum) {
-            const int start = field.checksumFromHeader ? 0 : protoFieldSize(m_layout.first());
-            if (offset < start)
-                return Result::Reject;
-            const quint32 expected = computeChecksum(field.checksum, frame.mid(start, offset - start));
+            int from = 0;
+            int to = 0;
+            protoResolveRange(m_layout, i, &from, &to);
+            const int start = offsets.at(from);
+            const int end = offsets.at(to) + sizes.at(to);
+            const quint32 expected = fieldChecksum(field, frame.mid(start, end - start));
             const quint32 actual = quint32(readInteger(frame.mid(offset, size), field.bigEndian));
             if (expected != actual)
                 return Result::Reject;
@@ -666,18 +786,8 @@ ProtocolParser::Result ProtocolParser::tryParse(QStringList *values, int *consum
     }
 
     values->clear();
-    for (const int index : protocolDisplayIndexes(m_layout)) {
-        const ProtoField &field = m_layout.at(index);
-        const int size = sizes.at(index);
-        const int offset = offsets.at(index);
-        // 数据区比声明的短时，放不下的字段留空
-        const bool inPayload = lengthIndex >= 0 && index > lengthIndex;
-        if (offset + size > total || (inPayload && offset + size > payloadEnd)) {
-            values->append(QString());
-            continue;
-        }
-        values->append(decode(field, frame.mid(offset, size)));
-    }
+    for (const int index : protocolDisplayIndexes(m_layout))
+        values->append(decode(m_layout.at(index), frame.mid(offsets.at(index), sizes.at(index))));
     *consumed = total;
     return Result::Frame;
 }

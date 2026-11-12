@@ -60,6 +60,9 @@ private slots:
     void variableDataBetweenFixedFields();
     void textDataBlock();
     void dataBlockValidation();
+    void explicitChecksumRange();
+    void lengthCountsWholeFrame();
+    void rangeValidation();
 };
 
 void TestProtocolParser::checksumKnownValues()
@@ -199,10 +202,9 @@ void TestProtocolParser::lengthFieldDrivesFrameSize()
     QCOMPARE(frames.size(), 1);
     QCOMPARE(frames.first(), QStringList({"3", "1", "2"}));
 
-    // 数据区只有 1 字节：放不下的字段为空
-    const auto shortFrames = parser.feed(withSum8(QByteArray::fromHex("AA 01 07")));
-    QCOMPARE(shortFrames.size(), 1);
-    QCOMPARE(shortFrames.first(), QStringList({"1", "7", ""}));
+    // 长度值与范围内的字节数对不上：没有 Data 段时帧长是固定的，这样的帧被丢弃
+    QVERIFY(parser.feed(withSum8(QByteArray::fromHex("AA 01 07"))).isEmpty());
+    QVERIFY(parser.badFrames() >= 1);
 }
 
 void TestProtocolParser::tailMismatchRejected()
@@ -371,6 +373,73 @@ void TestProtocolParser::dataBlockValidation()
                                field(ProtoFieldType::Data), field(ProtoFieldType::Data)}));
     QVERIFY(validateProtocol({headerField(QByteArray::fromHex("AA")), hiddenLength(),
                               field(ProtoFieldType::Data)}));
+}
+
+// 校验范围按字段编号指定：NO.1 ~ NO.2，帧头不参与
+void TestProtocolParser::explicitChecksumRange()
+{
+    ProtoField checksum = field(ProtoFieldType::Checksum);
+    checksum.rangeFrom = 1;
+    checksum.rangeTo = 2;
+    const QVector<ProtoField> layout{headerField(QByteArray::fromHex("AA55")), field(ProtoFieldType::Byte1, "a"),
+                                     field(ProtoFieldType::Byte1, "b"), checksum};
+    QVERIFY(validateProtocol(layout));
+
+    QByteArray frame;
+    QVERIFY(encodeFrame(layout, QStringLiteral("1 2"), false, 0, &frame));
+    QCOMPARE(frame, QByteArray::fromHex("AA55 01 02 03")); // 只加 01 + 02
+
+    ProtocolParser parser;
+    parser.setLayout(layout);
+    QCOMPARE(parser.feed(frame).size(), 1);
+    // 从帧头开始算得到的 0x02 在这里是错的
+    QCOMPARE(parser.feed(QByteArray::fromHex("AA55 01 02 02")).size(), 0);
+}
+
+// 长度范围 NO.0 ~ 最后一个字段：长度 = 整帧字节数，Data 取剩下的
+void TestProtocolParser::lengthCountsWholeFrame()
+{
+    ProtoField length = hiddenLength();
+    length.rangeFrom = 0;
+    length.rangeTo = 4;
+    ProtoField checksum = field(ProtoFieldType::Checksum);
+    const QVector<ProtoField> layout{headerField(QByteArray::fromHex("AA")), length,
+                                     field(ProtoFieldType::Data, "d"), field(ProtoFieldType::Byte1, "t"),
+                                     checksum};
+    QVERIFY(validateProtocol(layout));
+
+    QByteArray frame;
+    QVERIFY(encodeFrame(layout, QStringLiteral("11 22 33 9"), false, 0, &frame));
+    // 头(1) + 长度(1) + 数据(3) + t(1) + 校验(1) = 7
+    QCOMPARE(frame.size(), 7);
+    QCOMPARE(quint8(frame.at(1)), quint8(7));
+
+    ProtocolParser parser;
+    parser.setLayout(layout);
+    const auto frames = parser.feed(frame);
+    QCOMPARE(frames.size(), 1);
+    QCOMPARE(frames.first(), QStringList({"11 22 33", "9"}));
+}
+
+void TestProtocolParser::rangeValidation()
+{
+    ProtoField checksum = field(ProtoFieldType::Checksum);
+    checksum.rangeFrom = 0;
+    checksum.rangeTo = 2; // 包含了校验自己
+    QVERIFY(!validateProtocol({headerField(QByteArray::fromHex("AA")), field(ProtoFieldType::Byte1), checksum}));
+    checksum.rangeTo = 1;
+    QVERIFY(validateProtocol({headerField(QByteArray::fromHex("AA")), field(ProtoFieldType::Byte1), checksum}));
+    checksum.rangeFrom = 2; // 起点在终点之后
+    QVERIFY(!validateProtocol({headerField(QByteArray::fromHex("AA")), field(ProtoFieldType::Byte1), checksum}));
+
+    // Data 必须在长度范围里
+    ProtoField length = hiddenLength();
+    length.rangeFrom = 1;
+    length.rangeTo = 1;
+    QVERIFY(!validateProtocol({headerField(QByteArray::fromHex("AA")), length, field(ProtoFieldType::Data)}));
+    // 范围越界
+    length.rangeTo = 9;
+    QVERIFY(!validateProtocol({headerField(QByteArray::fromHex("AA")), length}));
 }
 
 QTEST_MAIN(TestProtocolParser)

@@ -620,49 +620,49 @@
 <context>
     <name>Protocol</name>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="285"/>
+        <location filename="../unpack/protocolparser.cpp" line="342"/>
         <source>Value &quot;%1&quot; for field &quot;%2&quot;: %3</source>
         <translation>字段“%2”的值“%1”：%3</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="293"/>
+        <location filename="../unpack/protocolparser.cpp" line="350"/>
         <source>not a number</source>
         <translation>不是数字</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="325"/>
+        <location filename="../unpack/protocolparser.cpp" line="382"/>
         <source>not a valid number</source>
         <translation>不是有效的数字</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="330"/>
+        <location filename="../unpack/protocolparser.cpp" line="387"/>
         <source>negative value for an unsigned field</source>
         <translation>无符号字段不能为负数</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="333"/>
-        <location filename="../unpack/protocolparser.cpp" line="338"/>
-        <location filename="../unpack/protocolparser.cpp" line="340"/>
+        <location filename="../unpack/protocolparser.cpp" line="390"/>
+        <location filename="../unpack/protocolparser.cpp" line="395"/>
+        <location filename="../unpack/protocolparser.cpp" line="397"/>
         <source>does not fit in %1 byte(s)</source>
         <translation>超出 %1 字节能表示的范围</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="366"/>
+        <location filename="../unpack/protocolparser.cpp" line="423"/>
         <source>The frame format is not valid. Open the format editor and fix it.</source>
         <translation>帧格式无效，请打开格式编辑器修正。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="390"/>
+        <location filename="../unpack/protocolparser.cpp" line="447"/>
         <source>This frame format needs %1 value(s), separated by spaces; got %2.</source>
         <translation>该帧格式需要 %1 个值（用空格分隔），实际给了 %2 个。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="437"/>
+        <location filename="../unpack/protocolparser.cpp" line="486"/>
         <source>The data part must be hex bytes, e.g. 01 0A FF.</source>
         <translation>数据段必须是十六进制字节，例如 01 0A FF。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="464"/>
+        <location filename="../unpack/protocolparser.cpp" line="518"/>
         <source>The data length %1 does not fit in the length field.</source>
         <translation>数据长度 %1 超出了长度字段能表示的范围。</translation>
     </message>
@@ -670,310 +670,370 @@
 <context>
     <name>ProtocolDialog</name>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="34"/>
+        <location filename="../unpack/protocoldialog.cpp" line="33"/>
         <source>Header</source>
         <translation>帧头</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="35"/>
-        <location filename="../unpack/protocoldialog.cpp" line="229"/>
+        <location filename="../unpack/protocoldialog.cpp" line="34"/>
+        <location filename="../unpack/protocoldialog.cpp" line="235"/>
         <source>Seq</source>
         <translation>帧序号</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="36"/>
-        <location filename="../unpack/protocoldialog.cpp" line="226"/>
+        <location filename="../unpack/protocoldialog.cpp" line="35"/>
+        <location filename="../unpack/protocoldialog.cpp" line="232"/>
         <source>ID</source>
         <translation>帧ID</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="37"/>
-        <location filename="../unpack/protocoldialog.cpp" line="232"/>
+        <location filename="../unpack/protocoldialog.cpp" line="36"/>
+        <location filename="../unpack/protocoldialog.cpp" line="238"/>
         <source>Length</source>
         <translation>帧长度</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="38"/>
+        <location filename="../unpack/protocoldialog.cpp" line="37"/>
         <source>1Byte</source>
         <translation>1Byte</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="39"/>
+        <location filename="../unpack/protocoldialog.cpp" line="38"/>
         <source>2Byte</source>
         <translation>2Byte</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="40"/>
+        <location filename="../unpack/protocoldialog.cpp" line="39"/>
         <source>3Byte</source>
         <translation>3Byte</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="41"/>
+        <location filename="../unpack/protocoldialog.cpp" line="40"/>
         <source>4Byte</source>
         <translation>4Byte</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="42"/>
+        <location filename="../unpack/protocoldialog.cpp" line="41"/>
         <source>8Byte</source>
         <translation>8Byte</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="43"/>
+        <location filename="../unpack/protocoldialog.cpp" line="42"/>
         <source>Data</source>
         <translation type="unfinished">数据</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="44"/>
+        <location filename="../unpack/protocoldialog.cpp" line="43"/>
         <source>Checksum</source>
         <translation>校验</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="45"/>
+        <location filename="../unpack/protocoldialog.cpp" line="44"/>
         <source>Tail</source>
         <translation>帧尾</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="81"/>
+        <location filename="../unpack/protocoldialog.cpp" line="80"/>
         <source>Frame format</source>
         <translation>帧格式</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="85"/>
+        <location filename="../unpack/protocoldialog.cpp" line="84"/>
         <source>Add field (click a button to add the field)</source>
         <translation>添加字段（点击对应按钮添加需要的字段）</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="99"/>
+        <location filename="../unpack/protocoldialog.cpp" line="98"/>
         <source>No.</source>
         <translation type="unfinished">序号</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="99"/>
+        <location filename="../unpack/protocoldialog.cpp" line="98"/>
         <source>Field</source>
         <translation>字段</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="99"/>
+        <location filename="../unpack/protocoldialog.cpp" line="98"/>
         <source>Bytes</source>
         <translation>字节</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="110"/>
+        <location filename="../unpack/protocoldialog.cpp" line="109"/>
         <source>Remove</source>
         <translation type="unfinished">删除</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="128"/>
+        <location filename="../unpack/protocoldialog.cpp" line="127"/>
         <source>Hex bytes, e.g. AA 55</source>
         <translation>十六进制字节，如 AA 55</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="131"/>
+        <location filename="../unpack/protocoldialog.cpp" line="130"/>
         <source>Sum (8-bit)</source>
         <translation>累加和 (8 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="132"/>
+        <location filename="../unpack/protocoldialog.cpp" line="131"/>
         <source>XOR (8-bit)</source>
         <translation>异或 (8 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="134"/>
+        <location filename="../unpack/protocoldialog.cpp" line="133"/>
         <source>Sum (16-bit)</source>
         <translation>累加和 (16 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="138"/>
+        <location filename="../unpack/protocoldialog.cpp" line="423"/>
+        <source>The length value is the number of bytes of the fields in this range. With a Data field, the Data field takes whatever the length leaves over.</source>
+        <translation>长度值 = 本区间内各字段的字节数之和。有数据段时，数据段占长度扣除其余字段后剩下的字节。</translation>
+    </message>
+    <message>
         <source>From header</source>
-        <translation>从帧头开始</translation>
+        <translation type="vanished">从帧头开始</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="139"/>
         <source>After header</source>
-        <translation>从帧头之后开始</translation>
+        <translation type="vanished">从帧头之后开始</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="142"/>
         <source>Data bytes = value in frame + this offset</source>
-        <translation>数据区字节数 = 帧中的值 + 此偏移</translation>
+        <translation type="vanished">数据区字节数 = 帧中的值 + 此偏移</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="143"/>
+        <location filename="../unpack/protocoldialog.cpp" line="146"/>
         <source>High byte first</source>
         <translation>高字节在前</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="144"/>
+        <location filename="../unpack/protocoldialog.cpp" line="147"/>
         <source>Show on panel</source>
         <translation>显示到面板</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="147"/>
+        <location filename="../unpack/protocoldialog.cpp" line="150"/>
         <source>Name</source>
         <translation type="unfinished">名称</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="148"/>
+        <location filename="../unpack/protocoldialog.cpp" line="151"/>
         <source>Value</source>
         <translation>值</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="149"/>
+        <location filename="../unpack/protocoldialog.cpp" line="152"/>
         <source>Conversion</source>
         <translation>数据转换</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="150"/>
         <source>Length offset</source>
-        <translation>长度偏移</translation>
+        <translation type="vanished">长度偏移</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="151"/>
+        <location filename="../unpack/protocoldialog.cpp" line="154"/>
         <source>Algorithm</source>
         <translation>算法</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="152"/>
+        <location filename="../unpack/protocoldialog.cpp" line="153"/>
         <source>Range</source>
         <translation>校验范围</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="153"/>
+        <location filename="../unpack/protocoldialog.cpp" line="142"/>
+        <source>From</source>
+        <translation>从</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="144"/>
+        <source>to</source>
+        <translation>到</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="155"/>
         <source>Byte order</source>
         <translation>字节顺序</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="154"/>
+        <location filename="../unpack/protocoldialog.cpp" line="156"/>
         <source>Panel</source>
         <translation>面板显示</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="160"/>
+        <location filename="../unpack/protocoldialog.cpp" line="165"/>
         <source>Field properties</source>
         <translation>字段属性设置</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="235"/>
+        <location filename="../unpack/protocoldialog.cpp" line="241"/>
         <source>Payload</source>
         <translation>数据</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="244"/>
+        <location filename="../unpack/protocoldialog.cpp" line="250"/>
         <source>Data%1</source>
         <translation>数据%1</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="328"/>
+        <location filename="../unpack/protocoldialog.cpp" line="337"/>
         <source>Declared frame size: %1 bytes + payload</source>
         <translation>已声明的帧大小：%1 字节 + 数据段</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="329"/>
+        <location filename="../unpack/protocoldialog.cpp" line="338"/>
         <source>Declared frame size: %1 bytes</source>
         <translation>已声明的帧大小：%1 字节</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="349"/>
+        <location filename="../unpack/protocoldialog.cpp" line="358"/>
         <source>Hex bytes</source>
         <translation>十六进制字节</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="350"/>
+        <location filename="../unpack/protocoldialog.cpp" line="359"/>
         <source>Text</source>
         <translation>文本</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="354"/>
+        <location filename="../unpack/protocoldialog.cpp" line="363"/>
         <source>Unsigned</source>
         <translation>无符号整数</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="355"/>
+        <location filename="../unpack/protocoldialog.cpp" line="364"/>
         <source>Signed</source>
         <translation>有符号整数</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="357"/>
+        <location filename="../unpack/protocoldialog.cpp" line="366"/>
         <source>Float (32-bit)</source>
         <translation>浮点 (32 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="359"/>
+        <location filename="../unpack/protocoldialog.cpp" line="368"/>
         <source>Double (64-bit)</source>
         <translation>双精度浮点 (64 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="360"/>
+        <location filename="../unpack/protocoldialog.cpp" line="369"/>
         <source>Hex</source>
         <translation type="unfinished">十六进制</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="361"/>
+        <location filename="../unpack/protocoldialog.cpp" line="370"/>
         <source>Binary</source>
         <translation>二进制</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="408"/>
+        <location filename="../unpack/protocoldialog.cpp" line="416"/>
         <source>Fixed bytes that mark the start of a frame.</source>
         <translation>标记帧起点的固定字节。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="411"/>
+        <location filename="../unpack/protocoldialog.cpp" line="419"/>
         <source>Leave Value empty to accept any ID; otherwise only frames with this ID are decoded.</source>
         <translation>“值”留空表示接受任意 ID；否则只解析该 ID 的帧。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="415"/>
         <source>Number of data bytes between this field and the checksum / tail. Use the offset if the device counts differently.</source>
-        <translation>本字段之后、校验/帧尾之前的数据字节数。设备的计法不同时请调整偏移。</translation>
+        <translation type="vanished">本字段之后、校验/帧尾之前的数据字节数。设备的计法不同时请调整偏移。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="419"/>
+        <location filename="../unpack/protocoldialog.cpp" line="428"/>
         <source>Variable-length payload: everything in the length field&apos;s data area that the fixed fields around it do not use. Needs a Length field before it.</source>
         <translation>变长数据段：长度字段所指数据区里，除前后固定字段之外的全部字节。前面必须有帧长度字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="424"/>
+        <location filename="../unpack/protocoldialog.cpp" line="433"/>
         <source>Frames whose checksum does not match are dropped.</source>
         <translation>校验不匹配的帧会被丢弃。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="427"/>
+        <location filename="../unpack/protocoldialog.cpp" line="436"/>
         <source>Fixed bytes at the end of a frame.</source>
         <translation>标记帧结尾的固定字节。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="496"/>
+        <location filename="../unpack/protocoldialog.cpp" line="508"/>
+        <source>Length range</source>
+        <translation>长度区间</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="508"/>
+        <source>Checksum range</source>
+        <translation>校验区间</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="514"/>
+        <source>Auto</source>
+        <translation>自动</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="516"/>
+        <source>NO.%1 %2</source>
+        <translation>NO.%1 %2</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="536"/>
+        <source>Invalid range</source>
+        <translation>区间无效</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="541"/>
+        <source>Currently: no fields (0 bytes)</source>
+        <translation>当前：无字段（0 字节）</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="550"/>
+        <source>Currently: NO.%1 ~ NO.%2 (%3 bytes + payload)</source>
+        <translation>当前：NO.%1 ~ NO.%2（%3 字节 + 数据段）</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="551"/>
+        <source>Currently: NO.%1 ~ NO.%2 (%3 bytes)</source>
+        <translation>当前：NO.%1 ~ NO.%2（%3 字节）</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="605"/>
         <source>The frame must start with a Header that has at least one byte.</source>
         <translation>帧必须以至少一个字节的帧头开始。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="498"/>
+        <location filename="../unpack/protocoldialog.cpp" line="607"/>
         <source>Only one Header is allowed, and it must be the first field.</source>
         <translation>只能有一个帧头，且必须是第一个字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="500"/>
+        <location filename="../unpack/protocoldialog.cpp" line="609"/>
         <source>A Tail needs at least one byte.</source>
         <translation>帧尾至少需要一个字节。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="502"/>
+        <location filename="../unpack/protocoldialog.cpp" line="611"/>
         <source>Checksum and Tail must come last; no data fields may follow them.</source>
         <translation>校验和帧尾必须放在最后，其后不能再有数据字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="504"/>
+        <location filename="../unpack/protocoldialog.cpp" line="613"/>
         <source>A Data field needs a Length field before it.</source>
         <translation>数据段前面必须有帧长度字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="506"/>
+        <location filename="../unpack/protocoldialog.cpp" line="615"/>
         <source>Only one Data field is allowed.</source>
         <translation>只能有一个数据段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="508"/>
+        <location filename="../unpack/protocoldialog.cpp" line="617"/>
+        <source>The Length / Checksum range is not valid: it must go from a lower NO. to a higher one, and a checksum can only cover fields before itself.</source>
+        <translation>长度/校验的区间无效：必须从较小的 NO. 到较大的 NO.，且校验只能覆盖它前面的字段。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="620"/>
+        <source>The Data field must be inside the range of the Length field.</source>
+        <translation>数据段必须位于长度字段的区间内。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="622"/>
         <source>Only one Length field is allowed.</source>
         <translation>只能有一个帧长度字段。</translation>
     </message>

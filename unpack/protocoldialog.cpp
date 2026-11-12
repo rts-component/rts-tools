@@ -11,8 +11,10 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSpinBox>
 #include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QBrush>
+#include <QColor>
 #include <QVBoxLayout>
 
 namespace {
@@ -134,28 +136,61 @@ ProtocolDialog::ProtocolDialog(const QVector<ProtoField> &layout, QWidget *paren
     m_checksumCombo->addItem(tr("Sum (16-bit)"), int(ProtoChecksum::Sum16));
     m_checksumCombo->addItem(QStringLiteral("CRC-16/MODBUS"), int(ProtoChecksum::Crc16Modbus));
     m_checksumCombo->addItem(QStringLiteral("CRC-16/CCITT-FALSE"), int(ProtoChecksum::Crc16Ccitt));
-    m_checksumRangeCombo = new QComboBox(this);
-    m_checksumRangeCombo->addItem(tr("From header"), true);
-    m_checksumRangeCombo->addItem(tr("After header"), false);
-    m_lengthOffsetSpin = new QSpinBox(this);
-    m_lengthOffsetSpin->setRange(-255, 255);
-    m_lengthOffsetSpin->setToolTip(tr("Data bytes = value in frame + this offset"));
+    // 范围：从 NO.x 到 NO.y（校验 / 长度共用一行，标签随字段类型变化）
+    m_rangeRow = new QWidget(this);
+    m_rangeFromCombo = new QComboBox(m_rangeRow);
+    m_rangeToCombo = new QComboBox(m_rangeRow);
+    auto *rangeLayout = new QHBoxLayout(m_rangeRow);
+    rangeLayout->setContentsMargins(0, 0, 0, 0);
+    rangeLayout->addWidget(new QLabel(tr("From"), m_rangeRow));
+    rangeLayout->addWidget(m_rangeFromCombo, 1);
+    rangeLayout->addWidget(new QLabel(tr("to"), m_rangeRow));
+    rangeLayout->addWidget(m_rangeToCombo, 1);
+    m_invertCheck = new QCheckBox(tr("Invert result (e.g. 0xFF - sum)"), this);
     m_bigEndianCheck = new QCheckBox(tr("High byte first"), this);
     m_showCheck = new QCheckBox(tr("Show on panel"), this);
+
+    // 位命名（仅二进制显示）：每行一组，位写 "1:0" 或 "3"，取值名写 "0=停止;1=运行"
+    m_bitRow = new QWidget(this);
+    m_bitTable = new QTableWidget(0, 3, m_bitRow);
+    m_bitTable->setHorizontalHeaderLabels({tr("Name"), tr("Bits"), tr("Value names")});
+    m_bitTable->horizontalHeader()->setStretchLastSection(true);
+    m_bitTable->verticalHeader()->setVisible(false);
+    m_bitTable->setMinimumHeight(110);
+    m_bitTable->setToolTip(tr("Bits: \"1:0\" for bit1..bit0, or \"3\" for one bit.\n"
+                              "Value names: \"0=Stop;1=Run;2=Fault\". Unnamed values show the number."));
+    auto *addBit = new QPushButton(tr("Add"), m_bitRow);
+    auto *removeBit = new QPushButton(tr("Remove"), m_bitRow);
+    auto *bitButtons = new QHBoxLayout;
+    bitButtons->addWidget(addBit);
+    bitButtons->addWidget(removeBit);
+    bitButtons->addStretch();
+    auto *bitLayout = new QVBoxLayout(m_bitRow);
+    bitLayout->setContentsMargins(0, 0, 0, 0);
+    bitLayout->addWidget(m_bitTable);
+    bitLayout->addLayout(bitButtons);
+    connect(addBit, &QPushButton::clicked, this, [this] { addBitGroup(); });
+    connect(removeBit, &QPushButton::clicked, this, [this] { removeBitGroup(); });
+    connect(m_bitTable, &QTableWidget::cellChanged, this,
+            [this](int row, int column) { onBitCellChanged(row, column); });
 
     m_form = new QFormLayout;
     m_form->addRow(tr("Name"), m_nameEdit);
     m_form->addRow(tr("Value"), m_valueEdit);
     m_form->addRow(tr("Conversion"), m_conversionCombo);
-    m_form->addRow(tr("Length offset"), m_lengthOffsetSpin);
+    m_form->addRow(tr("Range"), m_rangeRow);
     m_form->addRow(tr("Algorithm"), m_checksumCombo);
-    m_form->addRow(tr("Range"), m_checksumRangeCombo);
+    m_form->addRow(tr("Bit names"), m_bitRow);
+    m_form->addRow(tr("Invert"), m_invertCheck);
     m_form->addRow(tr("Byte order"), m_bigEndianCheck);
     m_form->addRow(tr("Panel"), m_showCheck);
 
     m_propertyHint = new QLabel(this);
     m_propertyHint->setWordWrap(true);
     m_propertyHint->setStyleSheet(QStringLiteral("color: #8a8a8a;"));
+
+    m_rangeHint = new QLabel(this);
+    m_rangeHint->setWordWrap(true);
 
     auto *propertiesTitle = new QLabel(tr("Field properties"), this);
     QFont titleFont = propertiesTitle->font();
@@ -166,6 +201,7 @@ ProtocolDialog::ProtocolDialog(const QVector<ProtoField> &layout, QWidget *paren
     right->addWidget(propertiesTitle);
     right->addLayout(m_form);
     right->addWidget(m_propertyHint);
+    right->addWidget(m_rangeHint);
     right->addStretch();
 
     auto *body = new QHBoxLayout;
@@ -189,8 +225,9 @@ ProtocolDialog::ProtocolDialog(const QVector<ProtoField> &layout, QWidget *paren
     connect(m_valueEdit, &QLineEdit::textEdited, this, [this] { onValueEdited(); });
     connect(m_conversionCombo, &QComboBox::activated, this, [this] { onConversionChanged(); });
     connect(m_checksumCombo, &QComboBox::activated, this, [this] { onOptionChanged(); });
-    connect(m_checksumRangeCombo, &QComboBox::activated, this, [this] { onOptionChanged(); });
-    connect(m_lengthOffsetSpin, &QSpinBox::valueChanged, this, [this] { onOptionChanged(); });
+    connect(m_rangeFromCombo, &QComboBox::activated, this, [this] { onOptionChanged(); });
+    connect(m_rangeToCombo, &QComboBox::activated, this, [this] { onOptionChanged(); });
+    connect(m_invertCheck, &QCheckBox::toggled, this, [this] { onOptionChanged(); });
     connect(m_bigEndianCheck, &QCheckBox::toggled, this, [this] { onOptionChanged(); });
     connect(m_showCheck, &QCheckBox::toggled, this, [this] { onOptionChanged(); });
     connect(buttonBox, &QDialogButtonBox::accepted, this, &ProtocolDialog::accept);
@@ -262,6 +299,7 @@ void ProtocolDialog::addField(ProtoFieldType type)
         }
     }
 
+    remapRanges(Edit::Insert, row);
     m_layout.insert(row, field);
     refreshTable(row);
 }
@@ -271,6 +309,7 @@ void ProtocolDialog::removeCurrent()
     const int row = m_table->currentRow();
     if (row < 0 || row >= m_layout.size())
         return;
+    remapRanges(Edit::Remove, row);
     m_layout.removeAt(row);
     refreshTable(qMin(row, int(m_layout.size()) - 1));
 }
@@ -281,6 +320,7 @@ void ProtocolDialog::moveCurrent(int offset)
     const int target = row + offset;
     if (row < 0 || target < 0 || target >= m_layout.size())
         return;
+    remapRanges(Edit::Swap, row, target);
     m_layout.swapItemsAt(row, target);
     refreshTable(target);
 }
@@ -366,8 +406,8 @@ void ProtocolDialog::loadProperties()
     const int row = m_table->currentRow();
     const bool valid = row >= 0 && row < m_layout.size();
     for (QWidget *editor : std::initializer_list<QWidget *>{
-             m_nameEdit, m_valueEdit, m_conversionCombo, m_lengthOffsetSpin, m_checksumCombo,
-             m_checksumRangeCombo, m_bigEndianCheck, m_showCheck})
+             m_nameEdit, m_valueEdit, m_conversionCombo, m_rangeRow, m_checksumCombo,
+             m_bitRow, m_invertCheck, m_bigEndianCheck, m_showCheck})
         setRowShown(editor, false);
     m_propertyHint->clear();
     if (!valid)
@@ -383,9 +423,12 @@ void ProtocolDialog::loadProperties()
     setRowShown(m_showCheck, showable);
     setRowShown(m_valueEdit, usesHexValue(field.type));
     setRowShown(m_conversionCombo, hasConversion(field.type));
-    setRowShown(m_lengthOffsetSpin, field.type == ProtoFieldType::Length);
+    const bool hasRange = field.type == ProtoFieldType::Length || field.type == ProtoFieldType::Checksum;
+    setRowShown(m_rangeRow, hasRange);
     setRowShown(m_checksumCombo, field.type == ProtoFieldType::Checksum);
-    setRowShown(m_checksumRangeCombo, field.type == ProtoFieldType::Checksum);
+    setRowShown(m_invertCheck, field.type == ProtoFieldType::Checksum);
+    setRowShown(m_bitRow, hasConversion(field.type) && field.conversion == ProtoConversion::Binary);
+    loadBitGroups(field);
     setRowShown(m_bigEndianCheck, size > 1 && field.type != ProtoFieldType::Header
                                           && field.type != ProtoFieldType::Tail);
 
@@ -396,10 +439,10 @@ void ProtocolDialog::loadProperties()
         m_conversionCombo->setCurrentIndex(
                 qMax(0, m_conversionCombo->findData(int(field.conversion))));
     }
-    m_lengthOffsetSpin->setValue(field.lengthOffset);
+    if (hasRange)
+        populateRangeCombos(row);
     m_checksumCombo->setCurrentIndex(qMax(0, m_checksumCombo->findData(int(field.checksum))));
-    m_checksumRangeCombo->setCurrentIndex(
-            qMax(0, m_checksumRangeCombo->findData(field.checksumFromHeader)));
+    m_invertCheck->setChecked(field.invertChecksum);
     m_bigEndianCheck->setChecked(field.bigEndian);
     m_showCheck->setChecked(field.show);
 
@@ -412,8 +455,9 @@ void ProtocolDialog::loadProperties()
                                    "with this ID are decoded."));
         break;
     case ProtoFieldType::Length:
-        m_propertyHint->setText(tr("Number of data bytes between this field and the checksum / "
-                                   "tail. Use the offset if the device counts differently."));
+        m_propertyHint->setText(tr("The length value is the number of bytes of the fields in this "
+                                   "range. With a Data field, the Data field takes whatever the "
+                                   "length leaves over."));
         break;
     case ProtoFieldType::Data:
         m_propertyHint->setText(tr("Variable-length payload: everything in the length field's data "
@@ -430,6 +474,74 @@ void ProtocolDialog::loadProperties()
         break;
     }
     m_updating = wasUpdating;
+    updateRangeHint();
+}
+
+void ProtocolDialog::loadBitGroups(const ProtoField &field)
+{
+    const bool wasUpdating = m_updating;
+    m_updating = true;
+    m_bitTable->setRowCount(0);
+    for (const ProtoBitGroup &group : field.bitGroups) {
+        const int row = m_bitTable->rowCount();
+        m_bitTable->insertRow(row);
+        m_bitTable->setItem(row, 0, new QTableWidgetItem(group.name));
+        m_bitTable->setItem(row, 1, new QTableWidgetItem(protoBitRangeText(group)));
+        m_bitTable->setItem(row, 2, new QTableWidgetItem(protoBitValuesText(group)));
+    }
+    m_updating = wasUpdating;
+}
+
+void ProtocolDialog::addBitGroup()
+{
+    const int row = m_table->currentRow();
+    if (row < 0 || row >= m_layout.size())
+        return;
+    ProtoBitGroup group;
+    // 默认从上一组的上一位继续（bit0 起）
+    for (const ProtoBitGroup &other : std::as_const(m_layout[row].bitGroups))
+        group.low = group.high = qMax(group.low, other.high + 1);
+    group.high = qMin(group.high, 63);
+    group.low = group.high;
+    m_layout[row].bitGroups.append(group);
+    loadBitGroups(m_layout[row]);
+    refreshRow(row);
+}
+
+void ProtocolDialog::removeBitGroup()
+{
+    const int row = m_table->currentRow();
+    const int bitRow = m_bitTable->currentRow();
+    if (row < 0 || row >= m_layout.size() || bitRow < 0 || bitRow >= m_layout[row].bitGroups.size())
+        return;
+    m_layout[row].bitGroups.remove(bitRow);
+    loadBitGroups(m_layout[row]);
+    refreshRow(row);
+}
+
+void ProtocolDialog::onBitCellChanged(int bitRow, int column)
+{
+    const int row = m_table->currentRow();
+    if (m_updating || row < 0 || row >= m_layout.size() || bitRow < 0
+        || bitRow >= m_layout[row].bitGroups.size())
+        return;
+    ProtoBitGroup &group = m_layout[row].bitGroups[bitRow];
+    const QString text = m_bitTable->item(bitRow, column)->text();
+    if (column == 0) {
+        group.name = text.trimmed();
+    } else if (column == 1) {
+        int low = 0;
+        int high = 0;
+        const bool ok = protoParseBitRange(text, &low, &high);
+        m_bitTable->item(bitRow, column)->setForeground(ok ? QBrush() : QBrush(QColor("#d32f2f")));
+        if (ok) {
+            group.low = low;
+            group.high = high;
+        }
+    } else {
+        group.valueNames = protoParseBitValues(text);
+    }
+    refreshRow(row);
 }
 
 void ProtocolDialog::onNameEdited()
@@ -465,6 +577,7 @@ void ProtocolDialog::onConversionChanged()
     if (m_updating || row < 0 || row >= m_layout.size())
         return;
     m_layout[row].conversion = ProtoConversion(m_conversionCombo->currentData().toInt());
+    setRowShown(m_bitRow, m_layout[row].conversion == ProtoConversion::Binary);
 }
 
 void ProtocolDialog::onOptionChanged()
@@ -473,9 +586,12 @@ void ProtocolDialog::onOptionChanged()
     if (m_updating || row < 0 || row >= m_layout.size())
         return;
     ProtoField &field = m_layout[row];
-    field.lengthOffset = m_lengthOffsetSpin->value();
     field.checksum = ProtoChecksum(m_checksumCombo->currentData().toInt());
-    field.checksumFromHeader = m_checksumRangeCombo->currentData().toBool();
+    if (field.type == ProtoFieldType::Length || field.type == ProtoFieldType::Checksum) {
+        field.rangeFrom = m_rangeFromCombo->currentData().toInt();
+        field.rangeTo = m_rangeToCombo->currentData().toInt();
+    }
+    field.invertChecksum = m_invertCheck->isChecked();
     field.bigEndian = m_bigEndianCheck->isChecked();
     field.show = m_showCheck->isChecked();
     // 校验算法决定字节数，需要重新计算大小 / 预览；高字节选项随之显隐
@@ -485,6 +601,103 @@ void ProtocolDialog::onOptionChanged()
     setRowShown(m_bigEndianCheck, protoFieldSize(field) > 1 && field.type != ProtoFieldType::Header
                                           && field.type != ProtoFieldType::Tail);
     m_updating = wasUpdating;
+    updateRangeHint();
+}
+
+void ProtocolDialog::populateRangeCombos(int row)
+{
+    const ProtoField &field = m_layout.at(row);
+    const bool isLength = field.type == ProtoFieldType::Length;
+    if (auto *label = qobject_cast<QLabel *>(m_form->labelForField(m_rangeRow)))
+        label->setText(isLength ? tr("Length range") : tr("Checksum range"));
+
+    // 校验只能覆盖自己前面的字段；长度可以选任意字段
+    const int limit = isLength ? int(m_layout.size()) : row;
+    for (QComboBox *combo : {m_rangeFromCombo, m_rangeToCombo}) {
+        combo->clear();
+        combo->addItem(tr("Auto"), -1);
+        for (int i = 0; i < limit; ++i)
+            combo->addItem(tr("NO.%1 %2").arg(i).arg(typeLabel(m_layout.at(i).type)), i);
+    }
+    m_rangeFromCombo->setCurrentIndex(qMax(0, m_rangeFromCombo->findData(field.rangeFrom)));
+    m_rangeToCombo->setCurrentIndex(qMax(0, m_rangeToCombo->findData(field.rangeTo)));
+}
+
+void ProtocolDialog::updateRangeHint()
+{
+    m_rangeHint->clear();
+    const int row = m_table->currentRow();
+    if (row < 0 || row >= m_layout.size())
+        return;
+    const ProtoField &field = m_layout.at(row);
+    if (field.type != ProtoFieldType::Length && field.type != ProtoFieldType::Checksum)
+        return;
+
+    int from = 0;
+    int to = 0;
+    if (!protoResolveRange(m_layout, row, &from, &to)) {
+        m_rangeHint->setStyleSheet(QStringLiteral("color: #d32f2f;"));
+        m_rangeHint->setText(tr("Invalid range"));
+        return;
+    }
+    m_rangeHint->setStyleSheet(QString());
+    if (from > to) {
+        m_rangeHint->setText(tr("Currently: no fields (0 bytes)"));
+        return;
+    }
+    int bytes = 0;
+    bool variable = false;
+    for (int i = from; i <= to; ++i) {
+        bytes += protoFieldSize(m_layout.at(i));
+        variable = variable || m_layout.at(i).type == ProtoFieldType::Data;
+    }
+    m_rangeHint->setText((variable ? tr("Currently: NO.%1 ~ NO.%2 (%3 bytes + payload)")
+                                   : tr("Currently: NO.%1 ~ NO.%2 (%3 bytes)"))
+                                 .arg(from)
+                                 .arg(to)
+                                 .arg(bytes));
+}
+
+void ProtocolDialog::remapRanges(Edit edit, int a, int b)
+{
+    for (int i = 0; i < m_layout.size(); ++i) {
+        ProtoField &field = m_layout[i];
+        if (field.type != ProtoFieldType::Length && field.type != ProtoFieldType::Checksum)
+            continue;
+
+        for (int pass = 0; pass < 2; ++pass) {
+            const bool isTo = pass == 1;
+            int &value = isTo ? field.rangeTo : field.rangeFrom;
+            if (value < 0)
+                continue; // 自动范围不用调整
+
+            const int old = value;
+            switch (edit) {
+            case Edit::Insert:
+                if (value >= a)
+                    ++value;
+                // 校验原本一直盖到自己前一个字段：在它前面新增的字段也要盖进去
+                if (isTo && field.type == ProtoFieldType::Checksum && old == i - 1 && a == i)
+                    ++value;
+                break;
+            case Edit::Remove:
+                if (value > a)
+                    --value;
+                else if (value == a && isTo)
+                    value = qMax(0, a - 1);
+                break;
+            case Edit::Swap:
+                if (value == a)
+                    value = b;
+                else if (value == b)
+                    value = a;
+                break;
+            }
+        }
+        // 两端都是具体编号时，保证从小到大
+        if (field.rangeFrom >= 0 && field.rangeTo >= 0 && field.rangeFrom > field.rangeTo)
+            std::swap(field.rangeFrom, field.rangeTo);
+    }
 }
 
 void ProtocolDialog::accept()
@@ -504,6 +717,11 @@ void ProtocolDialog::accept()
             text = tr("A Data field needs a Length field before it.");
         else if (problem == QLatin1String("data-count"))
             text = tr("Only one Data field is allowed.");
+        else if (problem == QLatin1String("range"))
+            text = tr("The Length / Checksum range is not valid: it must go from a lower NO. to a "
+                      "higher one, and a checksum can only cover fields before itself.");
+        else if (problem == QLatin1String("data-range"))
+            text = tr("The Data field must be inside the range of the Length field.");
         else if (problem == QLatin1String("length"))
             text = tr("Only one Length field is allowed.");
         else
