@@ -1181,6 +1181,11 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
     </message>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="134"/>
+        <source>LIN (8-bit)</source>
+        <translation>LIN（8 位）</translation>
+    </message>
+    <message>
+        <location filename="../unpack/protocoldialog.cpp" line="134"/>
         <source>XOR (8-bit)</source>
         <translation>异或 (8 位)</translation>
     </message>

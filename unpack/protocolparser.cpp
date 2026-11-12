@@ -115,6 +115,7 @@ int checksumSize(ProtoChecksum algorithm)
     case ProtoChecksum::Sum8:
     case ProtoChecksum::Xor8:
     case ProtoChecksum::Crc8:
+    case ProtoChecksum::Lin8:
         return 1;
     case ProtoChecksum::Sum16:
     case ProtoChecksum::Crc16Modbus:
@@ -143,6 +144,14 @@ quint32 computeChecksum(ProtoChecksum algorithm, const QByteArray &data)
     }
     case ProtoChecksum::Crc8:
         return crc8(data);
+    case ProtoChecksum::Lin8: {
+        quint32 sum = 0;
+        for (const char ch : data) {
+            sum += quint8(ch);
+            sum = (sum & 0xFF) + (sum >> 8);
+        }
+        return ~sum & 0xFF;
+    }
     case ProtoChecksum::Sum16: {
         quint32 sum = 0;
         for (const char ch : data)

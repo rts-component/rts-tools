@@ -131,6 +131,7 @@ ProtocolDialog::ProtocolDialog(const QVector<ProtoField> &layout, QWidget *paren
     m_conversionCombo = new QComboBox(this);
     m_checksumCombo = new QComboBox(this);
     m_checksumCombo->addItem(tr("Sum (8-bit)"), int(ProtoChecksum::Sum8));
+    m_checksumCombo->addItem(tr("LIN (8-bit)"), int(ProtoChecksum::Lin8));
     m_checksumCombo->addItem(tr("XOR (8-bit)"), int(ProtoChecksum::Xor8));
     m_checksumCombo->addItem(QStringLiteral("CRC-8"), int(ProtoChecksum::Crc8));
     m_checksumCombo->addItem(tr("Sum (16-bit)"), int(ProtoChecksum::Sum16));
@@ -415,7 +416,9 @@ void ProtocolDialog::loadProperties()
 
     const bool wasUpdating = m_updating;
     m_updating = true;
-    const ProtoField &field = m_layout.at(row);
+    ProtoField &field = m_layout[row];
+    if (field.type == ProtoFieldType::Checksum && field.checksum == ProtoChecksum::Lin8)
+        field.invertChecksum = false;
     const int size = protoFieldSize(field);
 
     const bool showable = protoFieldShowable(field);
@@ -442,6 +445,7 @@ void ProtocolDialog::loadProperties()
     if (hasRange)
         populateRangeCombos(row);
     m_checksumCombo->setCurrentIndex(qMax(0, m_checksumCombo->findData(int(field.checksum))));
+    m_invertCheck->setEnabled(field.checksum != ProtoChecksum::Lin8);
     m_invertCheck->setChecked(field.invertChecksum);
     m_bigEndianCheck->setChecked(field.bigEndian);
     m_showCheck->setChecked(field.show);
@@ -587,6 +591,15 @@ void ProtocolDialog::onOptionChanged()
         return;
     ProtoField &field = m_layout[row];
     field.checksum = ProtoChecksum(m_checksumCombo->currentData().toInt());
+    if (field.checksum == ProtoChecksum::Lin8) {
+        const bool wasUpdating = m_updating;
+        m_updating = true;
+        m_invertCheck->setChecked(false);
+        m_invertCheck->setEnabled(false);
+        m_updating = wasUpdating;
+    } else {
+        m_invertCheck->setEnabled(true);
+    }
     if (field.type == ProtoFieldType::Length || field.type == ProtoFieldType::Checksum) {
         field.rangeFrom = m_rangeFromCombo->currentData().toInt();
         field.rangeTo = m_rangeToCombo->currentData().toInt();

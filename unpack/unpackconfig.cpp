@@ -31,6 +31,7 @@ const NamedType kChecksums[] = {
     {"crc8", int(ProtoChecksum::Crc8)},         {"sum16", int(ProtoChecksum::Sum16)},
     {"crc16modbus", int(ProtoChecksum::Crc16Modbus)},
     {"crc16ccitt", int(ProtoChecksum::Crc16Ccitt)},
+    {"lin8", int(ProtoChecksum::Lin8)},
 };
 
 template <size_t N>

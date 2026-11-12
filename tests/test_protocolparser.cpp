@@ -41,6 +41,7 @@ class TestProtocolParser : public QObject
 
 private slots:
     void checksumKnownValues();
+    void linChecksumFrameRoundTrips();
     void hexTextParsing();
     void fixedFrameDecodesLittleEndian();
     void bigEndianAndSigned();
@@ -74,6 +75,35 @@ void TestProtocolParser::checksumKnownValues()
     QCOMPARE(computeChecksum(ProtoChecksum::Sum8, QByteArray::fromHex("FF02")), 0x01u);
     QCOMPARE(computeChecksum(ProtoChecksum::Xor8, QByteArray::fromHex("0F F0")), 0xFFu);
     QCOMPARE(computeChecksum(ProtoChecksum::Sum16, QByteArray::fromHex("FF02")), 0x0101u);
+    QCOMPARE(computeChecksum(ProtoChecksum::Lin8, QByteArray::fromHex("06 D0 41 00 00")), 0xE7u);
+}
+
+void TestProtocolParser::linChecksumFrameRoundTrips()
+{
+    ProtoField id = field(ProtoFieldType::Id, "PID");
+    id.value = QByteArray::fromHex("06");
+    ProtoField checksum = field(ProtoFieldType::Checksum);
+    checksum.checksum = ProtoChecksum::Lin8;
+    checksum.rangeFrom = 1;
+    checksum.rangeTo = 5;
+    const QVector<ProtoField> layout{
+        headerField(QByteArray::fromHex("55")), id,
+        field(ProtoFieldType::Byte1, "Data0"), field(ProtoFieldType::Byte1, "Data1"),
+        field(ProtoFieldType::Byte1, "Data2"), field(ProtoFieldType::Byte1, "Data3"), checksum,
+    };
+
+    const QByteArray frame = QByteArray::fromHex("55 06 D0 41 00 00 E7");
+    ProtocolParser parser;
+    parser.setLayout(layout);
+    const auto frames = parser.feed(frame);
+    QCOMPARE(frames.size(), 1);
+    QCOMPARE(frames.first(), QStringList({"6", "208", "65", "0", "0"}));
+
+    QByteArray encoded;
+    QString error;
+    QVERIFY2(encodeFrame(layout, QStringLiteral("208 65 0 0"), false, 0, &encoded, &error),
+             qPrintable(error));
+    QCOMPARE(encoded, frame);
 }
 
 void TestProtocolParser::hexTextParsing()

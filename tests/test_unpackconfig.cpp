@@ -9,6 +9,7 @@ class TestUnpackConfig : public QObject
 private slots:
     void groupIdsAreUnique();
     void protocolFieldsFollowLayout();
+    void linChecksumConfigRoundTrips();
 };
 
 void TestUnpackConfig::groupIdsAreUnique()
@@ -44,6 +45,17 @@ void TestUnpackConfig::protocolFieldsFollowLayout()
     QCOMPARE(fields.at(0).color, QStringLiteral("#112233"));
     QVERIFY(fields.at(0).curve);
     QVERIFY(!fields.at(1).numeric); // 二进制是文本，不能画曲线
+}
+
+void TestUnpackConfig::linChecksumConfigRoundTrips()
+{
+    ProtoField checksum;
+    checksum.type = ProtoFieldType::Checksum;
+    checksum.checksum = ProtoChecksum::Lin8;
+
+    const QVector<ProtoField> restored = protoLayoutFromJson(protoLayoutToJson({checksum}));
+    QCOMPARE(restored.size(), 1);
+    QCOMPARE(restored.first().checksum, ProtoChecksum::Lin8);
 }
 
 QTEST_APPLESS_MAIN(TestUnpackConfig)

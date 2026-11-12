@@ -41,6 +41,7 @@ enum class ProtoChecksum {
     Sum16,
     Crc16Modbus,
     Crc16Ccitt, // CCITT-FALSE，init 0xFFFF
+    Lin8,       // LIN checksum: end-around carry, then one's complement
 };
 
 // 二进制显示时的位分组：bit low..high 为一组，各取值可命名（如 bit1:0 = 模式：0 停止 / 1 运行）
