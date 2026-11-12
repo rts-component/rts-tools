@@ -34,6 +34,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSplitter>
+#include <QSpinBox>
 #include <QTcpSocket>
 #include <QMessageBox>
 #include <QMenu>
@@ -222,6 +223,14 @@ SerialPanel::SerialPanel(QWidget *parent)
         if (!checked)
             flushReceiveQueue();
     });
+    auto applyAutoClear = [this] {
+        m_logView->setAutoClear(ui->autoClearCheckBox->isChecked(),
+                                ui->autoClearLinesSpinBox->value());
+        ui->autoClearLinesSpinBox->setEnabled(ui->autoClearCheckBox->isChecked());
+    };
+    connect(ui->autoClearCheckBox, &QCheckBox::toggled, this, applyAutoClear);
+    connect(ui->autoClearLinesSpinBox, &QSpinBox::valueChanged, this, applyAutoClear);
+    applyAutoClear();
     connect(ui->expandButton, &QPushButton::clicked, this, [this] {
         setTabsFrameVisible(ui->tabsFrame->isHidden());
     });
@@ -240,6 +249,9 @@ SerialPanel::SerialPanel(QWidget *parent)
     m_sendStateTimer->setInterval(kSendStateSaveDelayMs);
     connect(m_sendStateTimer, &QTimer::timeout, this, &SerialPanel::saveSendPanelState);
     connect(ui->hexSendCheckBox, &QCheckBox::toggled, this, [this] { m_sendStateTimer->start(); });
+    connect(ui->autoClearCheckBox, &QCheckBox::toggled, this, [this] { m_sendStateTimer->start(); });
+    connect(ui->autoClearLinesSpinBox, &QSpinBox::valueChanged, this,
+            [this] { m_sendStateTimer->start(); });
     connect(ui->addEndComboBox, &QComboBox::currentIndexChanged, this,
             [this] { m_sendStateTimer->start(); });
     connect(ui->sendInput, &QPlainTextEdit::textChanged, this, [this] { m_sendStateTimer->start(); });
@@ -994,6 +1006,8 @@ void SerialPanel::loadSendPanelState()
         const QSignalBlocker blocker(ui->addEndComboBox);
         ui->addEndComboBox->setCurrentIndex(addEnd);
     }
+    ui->autoClearLinesSpinBox->setValue(object.value(QLatin1String("autoClearLines")).toInt(5000));
+    ui->autoClearCheckBox->setChecked(object.value(QLatin1String("autoClear")).toBool(false));
     ui->sendInput->setPlainText(object.value(QLatin1String("text")).toString());
     m_sendStateTimer->stop(); // 载入过程不算改动
 }
@@ -1005,6 +1019,8 @@ void SerialPanel::saveSendPanelState()
     QJsonObject object;
     object.insert(QLatin1String("hexSend"), ui->hexSendCheckBox->isChecked());
     object.insert(QLatin1String("addEnd"), ui->addEndComboBox->currentIndex());
+    object.insert(QLatin1String("autoClear"), ui->autoClearCheckBox->isChecked());
+    object.insert(QLatin1String("autoClearLines"), ui->autoClearLinesSpinBox->value());
     object.insert(QLatin1String("text"), ui->sendInput->toPlainText());
 
     JsonStore::write(sendPanelFilePath(), QJsonDocument(object), "send panel settings");

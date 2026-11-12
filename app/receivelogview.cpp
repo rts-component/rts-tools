@@ -73,10 +73,21 @@ void ReceiveLogView::clear()
     m_edit->clear();
 }
 
+void ReceiveLogView::setAutoClear(bool enabled, int maxLines)
+{
+    m_autoClear = enabled;
+    m_autoClearLines = qMax(1, maxLines);
+}
+
 void ReceiveLogView::append(const QString &text, bool continueLine)
 {
     if (text.isEmpty())
         return;
+
+    if (m_autoClear && m_edit->document()->blockCount() >= m_autoClearLines) {
+        m_edit->clear();
+        continueLine = false;
+    }
 
     const bool followOutput = m_following;
 

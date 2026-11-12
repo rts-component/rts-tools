@@ -539,6 +539,35 @@ QGroupBox#statusBar QLabel {
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="autoClearCheckBox">
+              <property name="toolTip">
+               <string>Clear the log display automatically once it holds this many lines</string>
+              </property>
+              <property name="text">
+               <string>Auto Clear</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="autoClearLinesSpinBox">
+              <property name="suffix">
+               <string> lines</string>
+              </property>
+              <property name="minimum">
+               <number>100</number>
+              </property>
+              <property name="maximum">
+               <number>20000</number>
+              </property>
+              <property name="singleStep">
+               <number>500</number>
+              </property>
+              <property name="value">
+               <number>5000</number>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="hexDisplayCheckBox">
               <property name="text">
                <string>Hex</string>
