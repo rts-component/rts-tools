@@ -88,6 +88,8 @@ QString protoBitValuesText(const ProtoBitGroup &group);
 QMap<int, QString> protoParseBitValues(const QString &text);
 // 按位分组把 raw 显示成多行 "名称: 取值名\n"（每组一行，末尾带换行）
 QString protoBitGroupsDisplay(const QVector<ProtoBitGroup> &groups, quint64 raw);
+// 位分组 group 在 raw 里的数值（取 low..high 位），位分组生成曲线时用
+quint64 protoBitGroupValue(const ProtoBitGroup &group, quint64 raw);
 
 quint32 computeChecksum(ProtoChecksum algorithm, const QByteArray &data);
 
@@ -132,15 +134,18 @@ public:
     void setLayout(const QVector<ProtoField> &layout);
     void reset();
 
-    // 喂入原始字节；返回本次解出的帧（每帧一个值列表，与 protocolDisplayNames 逐项对应）
-    QVector<QStringList> feed(const QByteArray &bytes);
+    // 喂入原始字节；返回本次解出的帧（每帧一个值列表，与 protocolDisplayNames 逐项对应）。
+    // bitValues 非空时，按帧顺序追加各位分组的数值：每帧一个列表，与 protocolDisplayNames
+    // 逐项对应；带位分组的二进制字段里是各组的数值（与 bitGroups 同序），其余字段为空
+    QVector<QStringList> feed(const QByteArray &bytes,
+                              QVector<QVector<QVector<quint64>>> *bitValues = nullptr);
 
     quint64 goodFrames() const { return m_good; }
     quint64 badFrames() const { return m_bad; } // 校验/帧尾/长度不符的帧
 
 private:
     enum class Result { NeedMore, Frame, Reject, Filtered };
-    Result tryParse(QStringList *values, int *consumed);
+    Result tryParse(QStringList *values, QVector<QVector<quint64>> *bits, int *consumed);
     QString decode(const ProtoField &field, const QByteArray &bytes) const;
 
     QVector<ProtoField> m_layout;

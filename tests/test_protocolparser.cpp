@@ -47,6 +47,7 @@ private slots:
     void bigEndianAndSigned();
     void floatConversion();
     void binaryConversion();
+    void bitGroupValuesForCurves();
     void badChecksumIsRejectedAndResyncs();
     void frameSplitAcrossReads();
     void leadingGarbageIsSkipped();
@@ -169,6 +170,27 @@ void TestProtocolParser::binaryConversion()
     parser.setLayout({headerField(QByteArray::fromHex("A5")), value});
     QCOMPARE(parser.feed(QByteArray::fromHex("A5 3412")).first(),
              QStringList({"00110100 00010010"}));
+}
+
+// 位分组的数值（供生成曲线）：与显示文本同一帧、同一顺序；没有位分组的字段为空
+void TestProtocolParser::bitGroupValuesForCurves()
+{
+    ProtoField plain = field(ProtoFieldType::Byte1, "p");
+    ProtoField bits = field(ProtoFieldType::Byte2, "b");
+    bits.conversion = ProtoConversion::Binary;
+    bits.bitGroups = {ProtoBitGroup{"mode", 0, 1, {}}, ProtoBitGroup{"level", 4, 11, {}}};
+    ProtocolParser parser;
+    parser.setLayout({headerField(QByteArray::fromHex("A5")), plain, bits});
+
+    QVector<QVector<QVector<quint64>>> bitValues;
+    // 小端 b = 0x0AB3：bit1:0 = 3，bit11:4 = 0xAB
+    const auto frames = parser.feed(QByteArray::fromHex("A5 07 B30A"), &bitValues);
+    QCOMPARE(frames.size(), 1);
+    QCOMPARE(bitValues.size(), 1);
+    QCOMPARE(bitValues.first().size(), 2);
+    QVERIFY(bitValues.first().at(0).isEmpty());
+    QCOMPARE(bitValues.first().at(1), QVector<quint64>({3, 0xAB}));
+    QCOMPARE(protoBitGroupValue(bits.bitGroups.at(0), 0x0AB3), quint64(3));
 }
 
 void TestProtocolParser::badChecksumIsRejectedAndResyncs()

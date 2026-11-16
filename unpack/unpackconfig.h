@@ -12,6 +12,14 @@
 // 生成一个新的分组 id（曲线系列命名用）
 QString newGroupId();
 
+// 二进制字段里的一个位分组：数值本身可以单独生成曲线
+struct UnpackBitCurve
+{
+    QString name;  // 位分组名称（由协议定义同步，用作曲线系列名）
+    QString color; // 曲线颜色 "#rrggbb"，空 = 按 key 自动分配
+    bool curve = false;
+};
+
 // 一行里的一个显示字段
 struct UnpackField
 {
@@ -20,6 +28,7 @@ struct UnpackField
     QString color;          // 曲线颜色 "#rrggbb"，空 = 按 key 自动分配
     bool numeric = true;    // 是否数字：非数字字段不显示 fx / 曲线
     bool curve = false;
+    QVector<UnpackBitCurve> bits; // 仅带位分组的二进制字段：与协议里的 bitGroups 逐项对应
 };
 
 enum class UnpackMode {

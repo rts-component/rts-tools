@@ -215,69 +215,83 @@
 <context>
     <name>EndpointDialog</name>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="33"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="33"/>
         <source>Choose curve group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="39"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="39"/>
         <source>Group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="39"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="39"/>
         <source>Series</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="39"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="39"/>
         <source>State</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="39"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="39"/>
         <source>Pipe</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="52"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="52"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="55"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="55"/>
         <source>Connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="80"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="80"/>
         <source>Cannot read %1 (%2).
 Start %3 and enable Curve in the CSV panel first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="87"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="87"/>
         <source>%1 is running but exposes no curve group.
 Tick Curve on an Unpack row and enable the curve icon of a numeric column.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="94"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="94"/>
         <source>Session %1 (%2 group(s)) - updated %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="106"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="106"/>
         <source>in use</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="106"/>
+        <location filename="../plot/endpointdialog.cpp" line="116"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="106"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="116"/>
         <source>free</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/endpointdialog.cpp" line="129"/>
         <location filename="../plot/viewer/endpointdialog.cpp" line="129"/>
         <source>Select a group first.</source>
         <translation type="unfinished"></translation>
@@ -686,26 +700,31 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
 <context>
     <name>PlotCanvas</name>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="286"/>
         <location filename="../plot/viewer/plotcanvas.cpp" line="249"/>
         <source>Connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="289"/>
         <location filename="../plot/viewer/plotcanvas.cpp" line="252"/>
         <source>No group selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="292"/>
         <location filename="../plot/viewer/plotcanvas.cpp" line="255"/>
         <source>Disconnected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="648"/>
         <location filename="../plot/viewer/plotcanvas.cpp" line="634"/>
         <source>Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="816"/>
         <location filename="../plot/viewer/plotcanvas.cpp" line="820"/>
         <source>ΔIndex: %1    ΔTime: %2</source>
         <translation type="unfinished"></translation>
@@ -716,16 +735,19 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="910"/>
         <location filename="../plot/viewer/plotcanvas.cpp" line="963"/>
         <source>Series %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="938"/>
         <location filename="../plot/viewer/plotcanvas.cpp" line="991"/>
         <source>Value:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="955"/>
         <location filename="../plot/viewer/plotcanvas.cpp" line="1008"/>
         <source>Index:</source>
         <translation type="unfinished"></translation>
@@ -734,62 +756,75 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
 <context>
     <name>PlotClient</name>
     <message>
+        <location filename="../plot/plotclient.cpp" line="94"/>
         <location filename="../plot/viewer/plotclient.cpp" line="82"/>
         <source>Waiting for rts-tools: no endpoint for &quot;%1&quot; in %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="168"/>
         <location filename="../plot/viewer/plotclient.cpp" line="152"/>
         <source>Connecting to %1 ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="185"/>
         <location filename="../plot/viewer/plotclient.cpp" line="165"/>
         <source>Disconnected - retrying in %1 s ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="230"/>
         <location filename="../plot/viewer/plotclient.cpp" line="210"/>
         <source>Protocol version mismatch: rts-plot %1, rts-tools %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="242"/>
         <location filename="../plot/viewer/plotclient.cpp" line="222"/>
         <source>Connected - %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="446"/>
         <location filename="../plot/viewer/plotclient.cpp" line="427"/>
         <source>No group selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="449"/>
+        <location filename="../plot/plotclient.cpp" line="471"/>
         <location filename="../plot/viewer/plotclient.cpp" line="430"/>
         <location filename="../plot/viewer/plotclient.cpp" line="452"/>
         <source>Connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="465"/>
         <location filename="../plot/viewer/plotclient.cpp" line="446"/>
         <source>Idle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="467"/>
         <location filename="../plot/viewer/plotclient.cpp" line="448"/>
         <source>Resolving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="469"/>
         <location filename="../plot/viewer/plotclient.cpp" line="450"/>
         <source>Connecting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="473"/>
         <location filename="../plot/viewer/plotclient.cpp" line="454"/>
         <source>Retrying</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotclient.cpp" line="475"/>
         <location filename="../plot/viewer/plotclient.cpp" line="456"/>
         <source>Failed</source>
         <translation type="unfinished"></translation>
@@ -798,16 +833,19 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
 <context>
     <name>PlotLauncher</name>
     <message>
+        <location filename="../plot/plotlauncher.cpp" line="53"/>
         <location filename="../plot/server/plotlauncher.cpp" line="51"/>
         <source>Cannot find %1. Build the rts-plot target or copy it next to %2.</source>
         <translation>找不到 %1。请构建 rts-plot，或把它复制到 %2 旁边。</translation>
     </message>
     <message>
+        <location filename="../plot/plotlauncher.cpp" line="87"/>
         <location filename="../plot/server/plotlauncher.cpp" line="85"/>
         <source>Cannot start %1: %2</source>
         <translation>无法启动 %1：%2</translation>
     </message>
     <message>
+        <location filename="../plot/plotlauncher.cpp" line="137"/>
         <location filename="../plot/server/plotlauncher.cpp" line="159"/>
         <source>rts-plot for &quot;%1&quot; exited unexpectedly (code %2) and will not be restarted automatically.</source>
         <translation>“%1”的 rts-plot 异常退出（退出码 %2），不会再自动重启。</translation>
@@ -816,12 +854,15 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
 <context>
     <name>PlotWindow</name>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1002"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="105"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="282"/>
         <source>rts-plot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1067"/>
+        <location filename="../plot/plotwindow.cpp" line="1528"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="172"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="283"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="640"/>
@@ -829,52 +870,61 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1068"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="173"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="284"/>
         <source>Pause / resume the view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1078"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="177"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="285"/>
         <source>Fit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1079"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="178"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="286"/>
         <source>Fit all data to the view and follow new samples</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1089"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="180"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="287"/>
         <source>Clear</source>
         <translation type="unfinished">清空</translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1090"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="181"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="288"/>
         <source>Clear buffered samples of every series</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1107"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="193"/>
         <source>X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1109"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="195"/>
         <source>Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1114"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="198"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="289"/>
         <source>Auto:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1121"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="206"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="292"/>
         <source>Max (%1)</source>
@@ -887,6 +937,7 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1128"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="213"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="294"/>
         <source>Pause first, then drag the two vertical lines to measure the index / time difference</source>
@@ -905,119 +956,142 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1133"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="224"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="290"/>
         <source>Cache:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1159"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="251"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="299"/>
         <source>Horizontal lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1528"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="283"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="640"/>
         <source>Resume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1255"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="367"/>
         <source>(no group)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1260"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="372"/>
         <source>Connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1260"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="372"/>
         <source>Disconnected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1289"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="401"/>
         <source>Line %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1323"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="435"/>
         <source>Show / hide this line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1327"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="439"/>
         <source>Name</source>
         <translation type="unfinished">名称</translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1328"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="440"/>
         <source>Line name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1336"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="448"/>
         <source>Line value (Y)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1341"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="453"/>
         <source>Click to change this line&apos;s colour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1346"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="458"/>
         <source>Delete this line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1381"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="493"/>
         <source>Line colour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1396"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="508"/>
         <source>Add a horizontal line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1397"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="509"/>
         <source>At most %1 lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1421"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="533"/>
         <source>Show / hide this curve</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1423"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="535"/>
         <source>Series %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1437"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="549"/>
         <source>Click to change this curve&apos;s colour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1461"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="573"/>
         <source>No series in this group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1483"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="595"/>
         <source>Index: %1 - %2    Spacing: %3 px    Sampling: 1/%4    Samples: %5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1490"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="602"/>
         <source>    (+%1 new)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../plot/plotwindow.cpp" line="1505"/>
         <location filename="../plot/viewer/plotwindow.cpp" line="617"/>
         <source>Curve colour</source>
         <translation type="unfinished"></translation>
@@ -1026,49 +1100,49 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
 <context>
     <name>Protocol</name>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="421"/>
+        <location filename="../unpack/protocolparser.cpp" line="435"/>
         <source>Value &quot;%1&quot; for field &quot;%2&quot;: %3</source>
         <translation>字段“%2”的值“%1”：%3</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="429"/>
+        <location filename="../unpack/protocolparser.cpp" line="443"/>
         <source>not a number</source>
         <translation>不是数字</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="461"/>
+        <location filename="../unpack/protocolparser.cpp" line="475"/>
         <source>not a valid number</source>
         <translation>不是有效的数字</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="466"/>
+        <location filename="../unpack/protocolparser.cpp" line="480"/>
         <source>negative value for an unsigned field</source>
         <translation>无符号字段不能为负数</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="469"/>
-        <location filename="../unpack/protocolparser.cpp" line="474"/>
-        <location filename="../unpack/protocolparser.cpp" line="476"/>
+        <location filename="../unpack/protocolparser.cpp" line="483"/>
+        <location filename="../unpack/protocolparser.cpp" line="488"/>
+        <location filename="../unpack/protocolparser.cpp" line="490"/>
         <source>does not fit in %1 byte(s)</source>
         <translation>超出 %1 字节能表示的范围</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="502"/>
+        <location filename="../unpack/protocolparser.cpp" line="516"/>
         <source>The frame format is not valid. Open the format editor and fix it.</source>
         <translation>帧格式无效，请打开格式编辑器修正。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="526"/>
+        <location filename="../unpack/protocolparser.cpp" line="540"/>
         <source>This frame format needs %1 value(s), separated by spaces; got %2.</source>
         <translation>该帧格式需要 %1 个值（用空格分隔），实际给了 %2 个。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="565"/>
+        <location filename="../unpack/protocolparser.cpp" line="579"/>
         <source>The data part must be hex bytes, e.g. 01 0A FF.</source>
         <translation>数据段必须是十六进制字节，例如 01 0A FF。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocolparser.cpp" line="597"/>
+        <location filename="../unpack/protocolparser.cpp" line="611"/>
         <source>The data length %1 does not fit in the length field.</source>
         <translation>数据长度 %1 超出了长度字段能表示的范围。</translation>
     </message>
@@ -1082,19 +1156,19 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
     </message>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="37"/>
-        <location filename="../unpack/protocoldialog.cpp" line="266"/>
+        <location filename="../unpack/protocoldialog.cpp" line="267"/>
         <source>Seq</source>
         <translation>帧序号</translation>
     </message>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="38"/>
-        <location filename="../unpack/protocoldialog.cpp" line="263"/>
+        <location filename="../unpack/protocoldialog.cpp" line="264"/>
         <source>ID</source>
         <translation>帧ID</translation>
     </message>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="39"/>
-        <location filename="../unpack/protocoldialog.cpp" line="269"/>
+        <location filename="../unpack/protocoldialog.cpp" line="270"/>
         <source>Length</source>
         <translation>帧长度</translation>
     </message>
@@ -1165,7 +1239,7 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
     </message>
     <message>
         <location filename="../unpack/protocoldialog.cpp" line="112"/>
-        <location filename="../unpack/protocoldialog.cpp" line="163"/>
+        <location filename="../unpack/protocoldialog.cpp" line="164"/>
         <source>Remove</source>
         <translation type="unfinished">删除</translation>
     </message>
@@ -1185,54 +1259,54 @@ Tick Curve on an Unpack row and enable the curve icon of a numeric column.</sour
         <translation>LIN（8 位）</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="134"/>
+        <location filename="../unpack/protocoldialog.cpp" line="135"/>
         <source>XOR (8-bit)</source>
         <translation>异或 (8 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="136"/>
+        <location filename="../unpack/protocoldialog.cpp" line="137"/>
         <source>Sum (16-bit)</source>
         <translation>累加和 (16 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="149"/>
+        <location filename="../unpack/protocoldialog.cpp" line="150"/>
         <source>Invert result (e.g. 0xFF - sum)</source>
         <translation>结果取反(如 0xFF - 累加和)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="156"/>
+        <location filename="../unpack/protocoldialog.cpp" line="157"/>
         <source>Bits</source>
         <translation>位</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="156"/>
+        <location filename="../unpack/protocoldialog.cpp" line="157"/>
         <source>Value names</source>
         <translation>取值名称</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="160"/>
+        <location filename="../unpack/protocoldialog.cpp" line="161"/>
         <source>Bits: &quot;1:0&quot; for bit1..bit0, or &quot;3&quot; for one bit.
 Value names: &quot;0=Stop;1=Run;2=Fault&quot;. Unnamed values show the number.</source>
         <translation>位:&quot;1:0&quot; 表示 bit1..bit0,&quot;3&quot; 表示单个位。
 取值名称:&quot;0=停止;1=运行;2=故障&quot;。未命名的取值显示数字。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="162"/>
+        <location filename="../unpack/protocoldialog.cpp" line="163"/>
         <source>Add</source>
         <translation type="unfinished">添加</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="183"/>
+        <location filename="../unpack/protocoldialog.cpp" line="184"/>
         <source>Bit names</source>
         <translation>位命名</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="184"/>
+        <location filename="../unpack/protocoldialog.cpp" line="185"/>
         <source>Invert</source>
         <translation>取反</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="458"/>
+        <location filename="../unpack/protocoldialog.cpp" line="462"/>
         <source>The length value is the number of bytes of the fields in this range. With a Data field, the Data field takes whatever the length leaves over.</source>
         <translation>长度值 = 本区间内各字段的字节数之和。有数据段时，数据段占长度扣除其余字段后剩下的字节。</translation>
     </message>
@@ -1249,28 +1323,28 @@ Value names: &quot;0=Stop;1=Run;2=Fault&quot;. Unnamed values show the number.</
         <translation type="vanished">数据区字节数 = 帧中的值 + 此偏移</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="150"/>
+        <location filename="../unpack/protocoldialog.cpp" line="151"/>
         <source>High byte first</source>
         <translation>高字节在前</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="151"/>
+        <location filename="../unpack/protocoldialog.cpp" line="152"/>
         <source>Show on panel</source>
         <translation>显示到面板</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="156"/>
-        <location filename="../unpack/protocoldialog.cpp" line="178"/>
+        <location filename="../unpack/protocoldialog.cpp" line="157"/>
+        <location filename="../unpack/protocoldialog.cpp" line="179"/>
         <source>Name</source>
         <translation type="unfinished">名称</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="179"/>
+        <location filename="../unpack/protocoldialog.cpp" line="180"/>
         <source>Value</source>
         <translation>值</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="180"/>
+        <location filename="../unpack/protocoldialog.cpp" line="181"/>
         <source>Conversion</source>
         <translation>数据转换</translation>
     </message>
@@ -1279,107 +1353,107 @@ Value names: &quot;0=Stop;1=Run;2=Fault&quot;. Unnamed values show the number.</
         <translation type="vanished">长度偏移</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="182"/>
+        <location filename="../unpack/protocoldialog.cpp" line="183"/>
         <source>Algorithm</source>
         <translation>算法</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="181"/>
+        <location filename="../unpack/protocoldialog.cpp" line="182"/>
         <source>Range</source>
         <translation>校验范围</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="145"/>
+        <location filename="../unpack/protocoldialog.cpp" line="146"/>
         <source>From</source>
         <translation>从</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="147"/>
+        <location filename="../unpack/protocoldialog.cpp" line="148"/>
         <source>to</source>
         <translation>到</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="185"/>
+        <location filename="../unpack/protocoldialog.cpp" line="186"/>
         <source>Byte order</source>
         <translation>字节顺序</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="186"/>
+        <location filename="../unpack/protocoldialog.cpp" line="187"/>
         <source>Panel</source>
         <translation>面板显示</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="195"/>
+        <location filename="../unpack/protocoldialog.cpp" line="196"/>
         <source>Field properties</source>
         <translation>字段属性设置</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="272"/>
+        <location filename="../unpack/protocoldialog.cpp" line="273"/>
         <source>Payload</source>
         <translation>数据</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="281"/>
+        <location filename="../unpack/protocoldialog.cpp" line="282"/>
         <source>Data%1</source>
         <translation>数据%1</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="368"/>
+        <location filename="../unpack/protocoldialog.cpp" line="369"/>
         <source>Declared frame size: %1 bytes + payload</source>
         <translation>已声明的帧大小：%1 字节 + 数据段</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="369"/>
+        <location filename="../unpack/protocoldialog.cpp" line="370"/>
         <source>Declared frame size: %1 bytes</source>
         <translation>已声明的帧大小：%1 字节</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="389"/>
+        <location filename="../unpack/protocoldialog.cpp" line="390"/>
         <source>Hex bytes</source>
         <translation>十六进制字节</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="390"/>
+        <location filename="../unpack/protocoldialog.cpp" line="391"/>
         <source>Text</source>
         <translation>文本</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="394"/>
+        <location filename="../unpack/protocoldialog.cpp" line="395"/>
         <source>Unsigned</source>
         <translation>无符号整数</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="395"/>
+        <location filename="../unpack/protocoldialog.cpp" line="396"/>
         <source>Signed</source>
         <translation>有符号整数</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="397"/>
+        <location filename="../unpack/protocoldialog.cpp" line="398"/>
         <source>Float (32-bit)</source>
         <translation>浮点 (32 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="399"/>
+        <location filename="../unpack/protocoldialog.cpp" line="400"/>
         <source>Double (64-bit)</source>
         <translation>双精度浮点 (64 位)</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="400"/>
+        <location filename="../unpack/protocoldialog.cpp" line="401"/>
         <source>Hex</source>
         <translation type="unfinished">十六进制</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="401"/>
+        <location filename="../unpack/protocoldialog.cpp" line="402"/>
         <source>Binary</source>
         <translation>二进制</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="451"/>
+        <location filename="../unpack/protocoldialog.cpp" line="455"/>
         <source>Fixed bytes that mark the start of a frame.</source>
         <translation>标记帧起点的固定字节。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="454"/>
+        <location filename="../unpack/protocoldialog.cpp" line="458"/>
         <source>Leave Value empty to accept any ID; otherwise only frames with this ID are decoded.</source>
         <translation>“值”留空表示接受任意 ID；否则只解析该 ID 的帧。</translation>
     </message>
@@ -1388,102 +1462,102 @@ Value names: &quot;0=Stop;1=Run;2=Fault&quot;. Unnamed values show the number.</
         <translation type="vanished">本字段之后、校验/帧尾之前的数据字节数。设备的计法不同时请调整偏移。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="463"/>
+        <location filename="../unpack/protocoldialog.cpp" line="467"/>
         <source>Variable-length payload: everything in the length field&apos;s data area that the fixed fields around it do not use. Needs a Length field before it.</source>
         <translation>变长数据段：长度字段所指数据区里，除前后固定字段之外的全部字节。前面必须有帧长度字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="468"/>
+        <location filename="../unpack/protocoldialog.cpp" line="472"/>
         <source>Frames whose checksum does not match are dropped.</source>
         <translation>校验不匹配的帧会被丢弃。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="471"/>
+        <location filename="../unpack/protocoldialog.cpp" line="475"/>
         <source>Fixed bytes at the end of a frame.</source>
         <translation>标记帧结尾的固定字节。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="612"/>
+        <location filename="../unpack/protocoldialog.cpp" line="625"/>
         <source>Length range</source>
         <translation>长度区间</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="612"/>
+        <location filename="../unpack/protocoldialog.cpp" line="625"/>
         <source>Checksum range</source>
         <translation>校验区间</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="618"/>
+        <location filename="../unpack/protocoldialog.cpp" line="631"/>
         <source>Auto</source>
         <translation>自动</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="620"/>
+        <location filename="../unpack/protocoldialog.cpp" line="633"/>
         <source>NO.%1 %2</source>
         <translation>NO.%1 %2</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="640"/>
+        <location filename="../unpack/protocoldialog.cpp" line="653"/>
         <source>Invalid range</source>
         <translation>区间无效</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="645"/>
+        <location filename="../unpack/protocoldialog.cpp" line="658"/>
         <source>Currently: no fields (0 bytes)</source>
         <translation>当前：无字段（0 字节）</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="654"/>
+        <location filename="../unpack/protocoldialog.cpp" line="667"/>
         <source>Currently: NO.%1 ~ NO.%2 (%3 bytes + payload)</source>
         <translation>当前：NO.%1 ~ NO.%2（%3 字节 + 数据段）</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="655"/>
+        <location filename="../unpack/protocoldialog.cpp" line="668"/>
         <source>Currently: NO.%1 ~ NO.%2 (%3 bytes)</source>
         <translation>当前：NO.%1 ~ NO.%2（%3 字节）</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="709"/>
+        <location filename="../unpack/protocoldialog.cpp" line="722"/>
         <source>The frame must start with a Header that has at least one byte.</source>
         <translation>帧必须以至少一个字节的帧头开始。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="711"/>
+        <location filename="../unpack/protocoldialog.cpp" line="724"/>
         <source>Only one Header is allowed, and it must be the first field.</source>
         <translation>只能有一个帧头，且必须是第一个字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="713"/>
+        <location filename="../unpack/protocoldialog.cpp" line="726"/>
         <source>A Tail needs at least one byte.</source>
         <translation>帧尾至少需要一个字节。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="715"/>
+        <location filename="../unpack/protocoldialog.cpp" line="728"/>
         <source>Checksum and Tail must come last; no data fields may follow them.</source>
         <translation>校验和帧尾必须放在最后，其后不能再有数据字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="717"/>
+        <location filename="../unpack/protocoldialog.cpp" line="730"/>
         <source>A Data field needs a Length field before it.</source>
         <translation>数据段前面必须有帧长度字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="719"/>
+        <location filename="../unpack/protocoldialog.cpp" line="732"/>
         <source>Only one Data field is allowed.</source>
         <translation>只能有一个数据段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="721"/>
+        <location filename="../unpack/protocoldialog.cpp" line="734"/>
         <source>The Length / Checksum range is not valid: it must go from a lower NO. to a higher one, and a checksum can only cover fields before itself.</source>
         <translation>长度/校验的区间无效：必须从较小的 NO. 到较大的 NO.，且校验只能覆盖它前面的字段。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="724"/>
+        <location filename="../unpack/protocoldialog.cpp" line="737"/>
         <source>The Data field must be inside the range of the Length field.</source>
         <translation>数据段必须位于长度字段的区间内。</translation>
     </message>
     <message>
-        <location filename="../unpack/protocoldialog.cpp" line="726"/>
+        <location filename="../unpack/protocoldialog.cpp" line="739"/>
         <source>Only one Length field is allowed.</source>
         <translation>只能有一个帧长度字段。</translation>
     </message>
@@ -1526,8 +1600,8 @@ Value names: &quot;0=Stop;1=Run;2=Fault&quot;. Unnamed values show the number.</
         <translation>ELF 节超出文件范围</translation>
     </message>
     <message>
-        <location filename="../flash/flmfile.cpp" line="39"/>
         <location filename="../flash/firmwareimage.cpp" line="18"/>
+        <location filename="../flash/flmfile.cpp" line="39"/>
         <source>Cannot open %1: %2</source>
         <translation>无法打开 %1：%2</translation>
     </message>
@@ -1607,11 +1681,11 @@ Value names: &quot;0=Stop;1=Run;2=Fault&quot;. Unnamed values show the number.</
         <translation>Flash 算法 UnInit 失败(返回 %1)</translation>
     </message>
     <message>
-        <location filename="../flash/gdbremoteprobe.cpp" line="109"/>
-        <location filename="../flash/gdbremoteprobe.cpp" line="400"/>
         <location filename="../flash/flashalgo.cpp" line="148"/>
         <location filename="../flash/flashalgo.cpp" line="233"/>
         <location filename="../flash/flashalgo.cpp" line="278"/>
+        <location filename="../flash/gdbremoteprobe.cpp" line="109"/>
+        <location filename="../flash/gdbremoteprobe.cpp" line="400"/>
         <source>Cancelled</source>
         <translation>已取消</translation>
     </message>
@@ -2491,139 +2565,149 @@ Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
 <context>
     <name>UnpackPanel</name>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="583"/>
+        <location filename="../unpack/unpackpanel.cpp" line="639"/>
         <source>No data rows yet. Use + to add one.</source>
         <translation>还没有数据行，点击 + 添加。</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="584"/>
+        <location filename="../unpack/unpackpanel.cpp" line="640"/>
         <source>Start parsing</source>
         <translation>开始解析</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="67"/>
+        <location filename="../unpack/unpackpanel.cpp" line="84"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="78"/>
-        <location filename="../unpack/unpackpanel.cpp" line="581"/>
+        <location filename="../unpack/unpackpanel.cpp" line="95"/>
+        <location filename="../unpack/unpackpanel.cpp" line="637"/>
         <source>Curve</source>
         <translation>曲线</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="579"/>
+        <location filename="../unpack/unpackpanel.cpp" line="236"/>
+        <source>No column selected for this row yet - click the curve icon of a numeric column or bit group to pick the data.</source>
+        <translation>这一行还没有选中要画的数据：请点击数字列或位分组的曲线图标选择。</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="635"/>
         <source>No.</source>
         <translation>序号</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="580"/>
+        <location filename="../unpack/unpackpanel.cpp" line="636"/>
         <source>Data panel</source>
         <translation>数据面板</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="141"/>
-        <location filename="../unpack/unpackpanel.cpp" line="585"/>
+        <location filename="../unpack/unpackpanel.cpp" line="166"/>
+        <location filename="../unpack/unpackpanel.cpp" line="641"/>
         <source>Duplicate the selected row</source>
         <translation>复制选中的行</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="142"/>
-        <location filename="../unpack/unpackpanel.cpp" line="586"/>
+        <location filename="../unpack/unpackpanel.cpp" line="167"/>
+        <location filename="../unpack/unpackpanel.cpp" line="642"/>
         <source>Add a new row</source>
         <translation>添加一行</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="143"/>
-        <location filename="../unpack/unpackpanel.cpp" line="587"/>
+        <location filename="../unpack/unpackpanel.cpp" line="168"/>
+        <location filename="../unpack/unpackpanel.cpp" line="643"/>
         <source>Delete the selected row</source>
         <translation>删除选中的行</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="144"/>
-        <location filename="../unpack/unpackpanel.cpp" line="588"/>
+        <location filename="../unpack/unpackpanel.cpp" line="169"/>
+        <location filename="../unpack/unpackpanel.cpp" line="644"/>
         <source>Move the selected row up</source>
         <translation>选中行上移</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="145"/>
-        <location filename="../unpack/unpackpanel.cpp" line="589"/>
+        <location filename="../unpack/unpackpanel.cpp" line="170"/>
+        <location filename="../unpack/unpackpanel.cpp" line="645"/>
         <source>Move the selected row down</source>
         <translation>选中行下移</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="212"/>
         <source>No column selected for this row yet - click the curve icon of a numeric column to pick the data.</source>
-        <translation>这一行还没有选择要画的列 - 请点击数值列的曲线图标。</translation>
+        <translation type="vanished">这一行还没有选择要画的列 - 请点击数值列的曲线图标。</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="233"/>
+        <location filename="../unpack/unpackpanel.cpp" line="259"/>
+        <location filename="../unpack/unpackpanel.cpp" line="275"/>
         <source>Tick Curve of this row first - the row decides whether its columns are drawn.</source>
         <translation>请先勾选这一行的“曲线” - 是否绘制由行决定。</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="507"/>
+        <location filename="../unpack/unpackpanel.cpp" line="563"/>
         <source>%1 copy</source>
         <translation>%1 副本</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="548"/>
+        <location filename="../unpack/unpackpanel.cpp" line="604"/>
         <source>Close the curve window of this row before editing it.</source>
         <translation>编辑前请先关闭这一行的曲线窗口。</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="567"/>
+        <location filename="../unpack/unpackpanel.cpp" line="623"/>
         <source>Edit...</source>
         <translation>编辑...</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="568"/>
+        <location filename="../unpack/unpackpanel.cpp" line="624"/>
         <source>Duplicate</source>
         <translation>复制一行</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="570"/>
+        <location filename="../unpack/unpackpanel.cpp" line="626"/>
         <source>Move up</source>
         <translation>上移</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="571"/>
+        <location filename="../unpack/unpackpanel.cpp" line="627"/>
         <source>Move down</source>
         <translation>下移</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="573"/>
+        <location filename="../unpack/unpackpanel.cpp" line="629"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="599"/>
+        <location filename="../unpack/unpackpanel.cpp" line="655"/>
         <source>Parsing is off</source>
         <translation>解析未开启</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="603"/>
+        <location filename="../unpack/unpackpanel.cpp" line="659"/>
         <source>%1 line(s) parsed, %2 skipped</source>
         <translation>已解析 %1 行，跳过 %2 行</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="638"/>
+        <location filename="../unpack/unpackpanel.cpp" line="704"/>
         <source>Row %1</source>
         <translation>第 %1 行</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="647"/>
+        <location filename="../unpack/unpackpanel.cpp" line="708"/>
         <source>Column %1</source>
         <translation>第 %1 列</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="735"/>
+        <location filename="../unpack/unpackpanel.cpp" line="729"/>
+        <source>%1 bit group %2</source>
+        <translation>%1 位分组 %2</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackpanel.cpp" line="826"/>
         <source>Unnamed%1</source>
         <translation>未命名%1</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackpanel.cpp" line="739"/>
-        <location filename="../unpack/unpackpanel.cpp" line="747"/>
+        <location filename="../unpack/unpackpanel.cpp" line="830"/>
+        <location filename="../unpack/unpackpanel.cpp" line="838"/>
         <source>Unnamed</source>
         <translation>未命名</translation>
     </message>
@@ -2631,12 +2715,12 @@ Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
 <context>
     <name>UnpackRowList</name>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="393"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="422"/>
         <source>Hide this field&apos;s curve</source>
         <translation>隐藏该字段的曲线</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="394"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="423"/>
         <source>Show this field on the curve</source>
         <translation>在曲线中显示该字段</translation>
     </message>
@@ -2645,52 +2729,63 @@ Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
         <translation type="vanished">编辑</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="382"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="411"/>
         <source>Edit name, separator and columns</source>
         <translation>编辑名称、分隔符和列</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="380"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="409"/>
         <source>Use this row</source>
         <translation>启用此行</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="384"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="413"/>
         <source>Show curve for this row (needs at least one column with the curve icon)</source>
         <translation>显示此行的曲线（至少要有一列点亮曲线图标）</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="386"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="415"/>
         <source>More actions</source>
         <translation>更多操作</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="476"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="430"/>
+        <source>Hide this bit group&apos;s curve</source>
+        <translation>隐藏此位分组的曲线</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="430"/>
+        <source>Show this bit group on the curve</source>
+        <translation>显示此位分组的曲线</translation>
+    </message>
+    <message>
+        <location filename="../unpack/unpackrowlist.cpp" line="512"/>
         <source>Unnamed</source>
         <translation>未命名</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="392"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="421"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="428"/>
         <source>Close the curve window to change the curves</source>
         <translation>请先关闭曲线窗口再修改曲线</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="486"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="522"/>
         <source>No columns - click the pencil to configure</source>
         <translation>还没有列 - 点击铅笔图标进行配置</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="508"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="544"/>
         <source>Field %1</source>
         <translation>字段 %1</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="388"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="417"/>
         <source>Formula conversion (not implemented yet)</source>
         <translation>公式换算（尚未实现）</translation>
     </message>
     <message>
-        <location filename="../unpack/unpackrowlist.cpp" line="683"/>
+        <location filename="../unpack/unpackrowlist.cpp" line="744"/>
         <source>Formula conversion is not implemented yet</source>
         <translation>公式换算尚未实现</translation>
     </message>
@@ -2819,10 +2914,5 @@ Hex mode accepts 0-9 and A-F only, e.g. 01 0A FF.</source>
 </context>
 <context>
     <name>main</name>
-    <message>
-        <location filename="../plot/viewer/main_plot.cpp" line="88"/>
-        <source>No group #%1 in %2</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 </TS>

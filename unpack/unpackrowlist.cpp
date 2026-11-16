@@ -26,6 +26,7 @@ constexpr int kCardWidth = 118;
 constexpr int kCardHeight = 62;
 constexpr int kCardSpacing = 4;
 constexpr int kTableLineHeight = 17; // 位分组表格每行的高度
+constexpr int kBitCurveSize = 14;    // 位分组表格每行右侧的曲线图标
 constexpr int kCheckSize = 16;
 constexpr int kIconSize = 14;
 
@@ -214,7 +215,7 @@ int UnpackRowList::tableWidthFor(const QString &text) const
         const int sep = line.indexOf(QLatin1String(": "));
         const int left = sep >= 0 ? lm.horizontalAdvance(line.left(sep)) : 0;
         const int right = lm.horizontalAdvance(sep >= 0 ? line.mid(sep + 2) : line);
-        need = qMax(need, left + 16 + right);
+        need = qMax(need, left + 16 + right + kBitCurveSize + 4);
     }
     return need + 12 + 8; // 左右内边距 + 余量（字体度量与实际绘制有几个像素的偏差）
 }
@@ -311,6 +312,20 @@ QRect UnpackRowList::cardCurveRect(const QRect &card)
     return QRect(card.right() + 1 - 6 - 16, card.top() + 4, 16, 16);
 }
 
+// 这张卡片当前显示的是位分组表格（有取值文本，且定义了位分组）
+bool UnpackRowList::hasBitTable(const Row &row, int card) const
+{
+    return card < row.values.size() && row.values.at(card).endsWith(QLatin1Char('\n'))
+            && !row.group.fields.at(card).bits.isEmpty();
+}
+
+QRect UnpackRowList::bitCurveRect(const QRect &card, int line)
+{
+    const int top = card.top() + 4 + 16 + 1 + line * kTableLineHeight;
+    return QRect(card.right() + 1 - 6 - kBitCurveSize, top + (kTableLineHeight - kBitCurveSize) / 2,
+                 kBitCurveSize, kBitCurveSize);
+}
+
 UnpackRowList::Hit UnpackRowList::hitTest(const QPoint &viewportPos) const
 {
     Hit hit;
@@ -336,7 +351,20 @@ UnpackRowList::Hit UnpackRowList::hitTest(const QPoint &viewportPos) const
         } else {
             for (int card = 0; card < row.group.fields.size(); ++card) {
                 const QRect cr = cardRect(i, card);
-                if (!cr.contains(local) || !row.group.fields.at(card).numeric)
+                if (!cr.contains(local))
+                    continue;
+                if (hasBitTable(row, card)) {
+                    for (int bit = 0; bit < row.group.fields.at(card).bits.size(); ++bit) {
+                        if (bitCurveRect(cr, bit).contains(local) && !isLocked(row)) {
+                            hit.part = Part::BitCurve;
+                            hit.card = card;
+                            hit.bit = bit;
+                            break;
+                        }
+                    }
+                    break;
+                }
+                if (!row.group.fields.at(card).numeric)
                     continue;
                 if (fxRect(cr).contains(local)) {
                     hit.part = Part::Fx;
@@ -368,6 +396,7 @@ QRect UnpackRowList::partRect(const Hit &hit) const
     case Part::Menu: local = g.menu; break;
     case Part::Fx: local = fxRect(cardRect(hit.row, hit.card)); break;
     case Part::CardCurve: local = cardCurveRect(cardRect(hit.row, hit.card)); break;
+    case Part::BitCurve: local = bitCurveRect(cardRect(hit.row, hit.card), hit.bit); break;
     case Part::None: return QRect();
     }
     return local.translated(base.topLeft());
@@ -392,6 +421,13 @@ QString UnpackRowList::toolTipFor(const Hit &hit) const
             return tr("Close the curve window to change the curves");
         return row.group.fields.at(hit.card).curve ? tr("Hide this field's curve")
                                                     : tr("Show this field on the curve");
+    }
+    case Part::BitCurve: {
+        const Row &row = m_rows.at(hit.row);
+        if (isLocked(row))
+            return tr("Close the curve window to change the curves");
+        return row.group.fields.at(hit.card).bits.at(hit.bit).curve
+                ? tr("Hide this bit group's curve") : tr("Show this bit group on the curve");
     }
     case Part::None:
         break;
@@ -549,13 +585,17 @@ void UnpackRowList::paintRow(QPainter *painter, int index, int width) const
             const QFontMetrics lm(lineFont);
             const QStringList lines = text.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
             int y = valueRect.top() + 1;
+            int lineNo = 0;
             for (const QString &line : lines) {
                 const int sep = line.indexOf(QLatin1String(": "));
                 const QString left = sep >= 0 ? line.left(sep) : QString();
                 const QString right = sep >= 0 ? line.mid(sep + 2) : line;
                 const int leftWidth = left.isEmpty() ? 0 : qMin(lm.horizontalAdvance(left) + 4,
                                                                 valueRect.width() - 20);
-                const QRect lineRect(valueRect.left(), y, valueRect.width(), kTableLineHeight);
+                const bool hasBit = lineNo < field.bits.size();
+                const int iconSpace = hasBit ? kBitCurveSize + 4 : 0;
+                const QRect lineRect(valueRect.left(), y, valueRect.width() - iconSpace,
+                                     kTableLineHeight);
                 painter->setPen(QColor(255, 255, 255, 190));
                 painter->drawText(lineRect, Qt::AlignLeft | Qt::AlignVCenter,
                                   lm.elidedText(left, Qt::ElideRight, leftWidth));
@@ -563,7 +603,28 @@ void UnpackRowList::paintRow(QPainter *painter, int index, int width) const
                 const QRect rightRect = lineRect.adjusted(leftWidth + 4, 0, 0, 0);
                 painter->drawText(rightRect, Qt::AlignRight | Qt::AlignVCenter,
                                   lm.elidedText(right, Qt::ElideRight, rightRect.width()));
+                if (hasBit) {
+                    const UnpackBitCurve &bit = field.bits.at(lineNo);
+                    const QRect iconRect = bitCurveRect(cr, lineNo);
+                    const bool hover = m_hover.row == index && m_hover.part == Part::BitCurve
+                            && m_hover.card == card && m_hover.bit == lineNo;
+                    if (bit.curve) {
+                        painter->setPen(QPen(Qt::white, 1));
+                        painter->setBrush(hover ? QColor(0xe8, 0xf4, 0xff) : QColor(Qt::white));
+                        painter->drawRoundedRect(QRectF(iconRect).adjusted(0.5, 0.5, -0.5, -0.5), 3, 3);
+                    } else if (hover && !locked) {
+                        painter->setPen(QPen(QColor(255, 255, 255, 204), 1));
+                        painter->setBrush(QColor(255, 255, 255, 64));
+                        painter->drawRoundedRect(QRectF(iconRect).adjusted(0.5, 0.5, -0.5, -0.5), 3, 3);
+                    }
+                    if (locked)
+                        painter->setOpacity((group.enabled ? 1.0 : 0.45) * 0.4);
+                    drawIcon(painter, chartIcon(bit.curve), iconRect);
+                    painter->setOpacity(group.enabled ? 1.0 : 0.45);
+                    painter->setFont(lineFont);
+                }
                 y += kTableLineHeight;
+                ++lineNo;
             }
             continue;
         }
@@ -688,6 +749,13 @@ void UnpackRowList::mouseReleaseEvent(QMouseEvent *event)
         field.curve = !field.curve;
         invalidateRow(index);
         emit fieldCurveToggled(index, pressed.card, field.curve);
+        break;
+    }
+    case Part::BitCurve: {
+        UnpackBitCurve &bit = row.group.fields[pressed.card].bits[pressed.bit];
+        bit.curve = !bit.curve;
+        invalidateRow(index);
+        emit bitCurveToggled(index, pressed.card, pressed.bit, bit.curve);
         break;
     }
     case Part::None:

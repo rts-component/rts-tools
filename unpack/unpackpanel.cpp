@@ -56,6 +56,23 @@ QString curveKeyFor(const UnpackGroup &group, int fieldIndex)
     return id + QLatin1Char('f') + QString::number(fieldIndex);
 }
 
+// 二进制字段里第 bitIndex 个位分组的曲线 key
+QString bitCurveKeyFor(const UnpackGroup &group, int fieldIndex, int bitIndex)
+{
+    return curveKeyFor(group, fieldIndex) + QLatin1Char('b') + QString::number(bitIndex);
+}
+
+bool fieldHasCurve(const UnpackField &field)
+{
+    if (field.numeric && field.curve)
+        return true;
+    for (const UnpackBitCurve &bit : field.bits) {
+        if (bit.curve)
+            return true;
+    }
+    return false;
+}
+
 } // namespace
 
 UnpackPanel::UnpackPanel(QWidget *parent)
@@ -99,11 +116,19 @@ UnpackPanel::UnpackPanel(QWidget *parent)
                 for (int groupIndex = 0; groupIndex < m_config.groups.size(); ++groupIndex) {
                     UnpackGroup &group = m_config.groups[groupIndex];
                     for (int fieldIndex = 0; fieldIndex < group.fields.size(); ++fieldIndex) {
-                        if (curveKeyFor(group, fieldIndex) != seriesKey)
-                            continue;
-                        group.fields[fieldIndex].color = color.name();
-                        saveConfig();
-                        return;
+                        UnpackField &field = group.fields[fieldIndex];
+                        if (curveKeyFor(group, fieldIndex) == seriesKey) {
+                            field.color = color.name();
+                            saveConfig();
+                            return;
+                        }
+                        for (int bitIndex = 0; bitIndex < field.bits.size(); ++bitIndex) {
+                            if (bitCurveKeyFor(group, fieldIndex, bitIndex) != seriesKey)
+                                continue;
+                            field.bits[bitIndex].color = color.name();
+                            saveConfig();
+                            return;
+                        }
                     }
                 }
             });
@@ -200,9 +225,8 @@ UnpackPanel::UnpackPanel(QWidget *parent)
             return;
 
         UnpackGroup &group = m_config.groups[groupIndex];
-        const bool anyPlotted = std::any_of(
-                group.fields.cbegin(), group.fields.cend(),
-                [](const UnpackField &field) { return field.numeric && field.curve; });
+        const bool anyPlotted = std::any_of(group.fields.cbegin(), group.fields.cend(),
+                                            fieldHasCurve);
         if (on && !anyPlotted) {
             // 这一行还没有选中要画的数据：不允许打勾，勾选框退回未选中并说明原因
             group.curve = false;
@@ -210,7 +234,7 @@ UnpackPanel::UnpackPanel(QWidget *parent)
             m_list->setGroup(groupIndex, group);
             syncCurveSeries();
             showHint(tr("No column selected for this row yet - click the curve icon of a "
-                        "numeric column to pick the data."));
+                        "numeric column or bit group to pick the data."));
             return;
         }
 
@@ -218,6 +242,24 @@ UnpackPanel::UnpackPanel(QWidget *parent)
         saveConfig();
         syncCurveSeries();
     });
+    connect(m_list, &UnpackRowList::bitCurveToggled, this,
+            [this](int groupIndex, int fieldIndex, int bitIndex, bool on) {
+                if (groupIndex < 0 || groupIndex >= m_config.groups.size() || fieldIndex < 0
+                    || fieldIndex >= m_config.groups.at(groupIndex).fields.size())
+                    return;
+                UnpackGroup &group = m_config.groups[groupIndex];
+                UnpackField &field = group.fields[fieldIndex];
+                if (bitIndex < 0 || bitIndex >= field.bits.size())
+                    return;
+                field.bits[bitIndex].curve = on;
+                saveConfig();
+                syncCurveSeries();
+
+                if (on && !group.curve) {
+                    showHint(tr("Tick Curve of this row first - the row decides whether its "
+                                "columns are drawn."));
+                }
+            });
     connect(m_list, &UnpackRowList::fieldCurveToggled, this,
             [this](int groupIndex, int fieldIndex, bool on) {
                 if (groupIndex < 0 || groupIndex >= m_config.groups.size() || fieldIndex < 0
@@ -291,9 +333,10 @@ void UnpackPanel::feed(const QByteArray &bytes)
             hasTextGroup = true;
             continue;
         }
-        const QVector<QStringList> frames = m_protocolParsers[index].feed(bytes);
-        for (const QStringList &frame : frames) {
-            applyRecord(index, frame);
+        QVector<QVector<QVector<quint64>>> bitValues;
+        const QVector<QStringList> frames = m_protocolParsers[index].feed(bytes, &bitValues);
+        for (int frameIndex = 0; frameIndex < frames.size(); ++frameIndex) {
+            applyRecord(index, frames.at(frameIndex), bitValues.value(frameIndex));
             protocolMatched = true;
         }
     }
@@ -400,7 +443,8 @@ void UnpackPanel::processLine(const QString &line)
     updateStatus();
 }
 
-void UnpackPanel::applyRecord(int index, const QStringList &fields)
+void UnpackPanel::applyRecord(int index, const QStringList &fields,
+                              const QVector<QVector<quint64>> &bitValues)
 {
     if (index < 0 || index >= m_values.size())
         return;
@@ -416,6 +460,18 @@ void UnpackPanel::applyRecord(int index, const QStringList &fields)
             if (keys.at(field).isEmpty() || !isNumericValue(fields.at(field)))
                 continue; // 协议帧里放不下的字段是空串，不画
             m_plotServer->append(keys.at(field), fields.at(field).toDouble(), now);
+        }
+        // 二进制字段的位分组：每组的数值各画一条曲线
+        if (index < m_bitCurveKeys.size()) {
+            const QVector<QStringList> &bitKeys = m_bitCurveKeys.at(index);
+            for (int field = 0; field < bitKeys.size() && field < bitValues.size(); ++field) {
+                const QStringList &keysOfField = bitKeys.at(field);
+                for (int bit = 0; bit < keysOfField.size() && bit < bitValues.at(field).size(); ++bit) {
+                    if (keysOfField.at(bit).isEmpty())
+                        continue;
+                    m_plotServer->append(keysOfField.at(bit), double(bitValues.at(field).at(bit)), now);
+                }
+            }
         }
     }
 
@@ -611,16 +667,26 @@ void UnpackPanel::saveConfig()
 void UnpackPanel::rebuildCurveKeys()
 {
     m_curveKeys.clear();
+    m_bitCurveKeys.clear();
     for (const UnpackGroup &group : std::as_const(m_config.groups)) {
         QStringList keys;
+        QVector<QStringList> bitKeys;
         keys.reserve(group.fields.size());
         for (int field = 0; field < group.fields.size(); ++field) {
             const UnpackField &definition = group.fields.at(field);
-            const bool plotted = group.enabled && group.curve && definition.numeric
-                    && definition.curve;
+            const bool active = group.enabled && group.curve;
+            const bool plotted = active && definition.numeric && definition.curve;
             keys.append(plotted ? curveKeyFor(group, field) : QString());
+
+            QStringList keysOfField;
+            for (int bit = 0; bit < definition.bits.size(); ++bit) {
+                keysOfField.append(active && definition.bits.at(bit).curve
+                                           ? bitCurveKeyFor(group, field, bit) : QString());
+            }
+            bitKeys.append(keysOfField);
         }
         m_curveKeys.append(keys);
+        m_bitCurveKeys.append(bitKeys);
     }
 }
 
@@ -638,19 +704,36 @@ void UnpackPanel::syncCurveSeries()
         definition.title = group.name.isEmpty() ? tr("Row %1").arg(groupIndex + 1) : group.name;
 
         for (int field = 0; field < keys.size(); ++field) {
-            if (keys.at(field).isEmpty())
-                continue;
-
             const UnpackField &csvField = group.fields.at(field);
-            PlotServer::SeriesDefinition series;
-            series.key = keys.at(field);
-            series.title = csvField.name.isEmpty() ? tr("Column %1").arg(field + 1)
-                                                   : csvField.name;
-            series.color = csvField.color.isEmpty() ? colorForKey(series.key)
-                                                    : QColor(csvField.color);
-            if (!series.color.isValid())
-                series.color = colorForKey(series.key);
-            definition.series.append(series);
+            const QString fieldTitle = csvField.name.isEmpty() ? tr("Column %1").arg(field + 1)
+                                                               : csvField.name;
+            if (!keys.at(field).isEmpty()) {
+                PlotServer::SeriesDefinition series;
+                series.key = keys.at(field);
+                series.title = fieldTitle;
+                series.color = csvField.color.isEmpty() ? colorForKey(series.key)
+                                                        : QColor(csvField.color);
+                if (!series.color.isValid())
+                    series.color = colorForKey(series.key);
+                definition.series.append(series);
+            }
+
+            const QStringList &bitKeys = m_bitCurveKeys.at(groupIndex).at(field);
+            for (int bit = 0; bit < bitKeys.size(); ++bit) {
+                if (bitKeys.at(bit).isEmpty())
+                    continue;
+                const UnpackBitCurve &bitField = csvField.bits.at(bit);
+                PlotServer::SeriesDefinition series;
+                series.key = bitKeys.at(bit);
+                series.title = bitField.name.isEmpty()
+                        ? tr("%1 bit group %2").arg(fieldTitle).arg(bit + 1)
+                        : fieldTitle + QLatin1Char('.') + bitField.name;
+                series.color = bitField.color.isEmpty() ? colorForKey(series.key)
+                                                        : QColor(bitField.color);
+                if (!series.color.isValid())
+                    series.color = colorForKey(series.key);
+                definition.series.append(series);
+            }
         }
 
         if (definition.series.isEmpty())
@@ -669,6 +752,14 @@ int UnpackPanel::curveSeriesCount() const
         for (const QString &key : keys) {
             if (!key.isEmpty())
                 ++count;
+        }
+    }
+    for (const QVector<QStringList> &fields : m_bitCurveKeys) {
+        for (const QStringList &keys : fields) {
+            for (const QString &key : keys) {
+                if (!key.isEmpty())
+                    ++count;
+            }
         }
     }
     return count;

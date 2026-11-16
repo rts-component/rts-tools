@@ -53,7 +53,9 @@ private:
     void updateStatus();
     void processLine(const QString &line);
     // 一条已解析好的记录（CSV 行或协议帧）进入显示 / 曲线
-    void applyRecord(int index, const QStringList &fields);
+    // bitValues：协议帧里各字段的位分组数值（CSV 记录为空）
+    void applyRecord(int index, const QStringList &fields,
+                     const QVector<QVector<quint64>> &bitValues = {});
     void rebuildProtocolParsers();
     void saveConfig();
     void showGroupMenu(int index, const QPoint &globalPos);
@@ -74,6 +76,7 @@ private:
     QVector<QStringList> m_pendingValues; // 每行各自的最新值
     QVector<bool> m_pendingDirty;
     QVector<QStringList> m_curveKeys;     // 每行每个字段对应的曲线 key，空串表示不画
+    QVector<QVector<QStringList>> m_bitCurveKeys; // 每行每个字段每个位分组的曲线 key，空串表示不画
     PlotServer *m_plotServer = nullptr;
     PlotLauncher *m_plotLauncher = nullptr;
 

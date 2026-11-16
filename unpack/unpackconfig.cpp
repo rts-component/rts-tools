@@ -202,7 +202,35 @@ UnpackConfig loadUnpackConfig()
             field.curve = fieldObject.value(QLatin1String("curve")).toBool(false);
             if (!field.numeric)
                 field.curve = false; // 非数字字段没有曲线
+            const QJsonArray bits = fieldObject.value(QLatin1String("bits")).toArray();
+            for (const QJsonValue &bitValue : bits) {
+                const QJsonObject bitObject = bitValue.toObject();
+                UnpackBitCurve bit;
+                bit.name = bitObject.value(QLatin1String("name")).toString();
+                bit.color = bitObject.value(QLatin1String("color")).toString();
+                bit.curve = bitObject.value(QLatin1String("curve")).toBool(false);
+                field.bits.append(bit);
+            }
             group.fields.append(field);
+        }
+
+        // 旧配置里没有位分组的曲线项：按协议定义补齐（颜色 / 勾选沿用已保存的）
+        if (group.isProtocol()) {
+            const QVector<int> indexes = protocolDisplayIndexes(group.layout);
+            for (int i = 0; i < indexes.size() && i < group.fields.size(); ++i) {
+                const ProtoField &protoField = group.layout.at(indexes.at(i));
+                QVector<UnpackBitCurve> bits;
+                if (protoField.type != ProtoFieldType::Data
+                    && protoField.conversion == ProtoConversion::Binary) {
+                    for (int bit = 0; bit < protoField.bitGroups.size(); ++bit) {
+                        UnpackBitCurve item = bit < group.fields.at(i).bits.size()
+                                ? group.fields.at(i).bits.at(bit) : UnpackBitCurve();
+                        item.name = protoField.bitGroups.at(bit).name;
+                        bits.append(item);
+                    }
+                }
+                group.fields[i].bits = bits;
+            }
         }
 
         config.groups.append(group);
@@ -223,6 +251,17 @@ void saveUnpackConfig(const UnpackConfig &config)
             fieldObject.insert(QLatin1String("color"), field.color);
             fieldObject.insert(QLatin1String("numeric"), field.numeric);
             fieldObject.insert(QLatin1String("curve"), field.numeric && field.curve);
+            if (!field.bits.isEmpty()) {
+                QJsonArray bits;
+                for (const UnpackBitCurve &bit : field.bits) {
+                    QJsonObject bitObject;
+                    bitObject.insert(QLatin1String("name"), bit.name);
+                    bitObject.insert(QLatin1String("color"), bit.color);
+                    bitObject.insert(QLatin1String("curve"), bit.curve);
+                    bits.append(bitObject);
+                }
+                fieldObject.insert(QLatin1String("bits"), bits);
+            }
             fields.append(fieldObject);
         }
 
@@ -259,9 +298,22 @@ QVector<UnpackField> protocolFields(const QVector<ProtoField> &layout, const QVe
             field.curve = oldFields.at(i).curve;
         }
         field.name = names.at(i);
-        field.numeric = protoFieldNumeric(layout.at(indexes.at(i)));
+        const ProtoField &protoField = layout.at(indexes.at(i));
+        field.numeric = protoFieldNumeric(protoField);
         if (!field.numeric)
             field.curve = false;
+        // 位分组：名称取自协议，颜色 / 曲线勾选按位置沿用旧的
+        if (protoField.type != ProtoFieldType::Data && protoField.conversion == ProtoConversion::Binary) {
+            for (int bit = 0; bit < protoField.bitGroups.size(); ++bit) {
+                UnpackBitCurve item;
+                if (i < oldFields.size() && bit < oldFields.at(i).bits.size()) {
+                    item.color = oldFields.at(i).bits.at(bit).color;
+                    item.curve = oldFields.at(i).bits.at(bit).curve;
+                }
+                item.name = protoField.bitGroups.at(bit).name;
+                field.bits.append(item);
+            }
+        }
         fields.append(field);
     }
     return fields;

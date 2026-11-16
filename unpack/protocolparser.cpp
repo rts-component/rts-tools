@@ -348,13 +348,18 @@ QMap<int, QString> protoParseBitValues(const QString &text)
     return result;
 }
 
+quint64 protoBitGroupValue(const ProtoBitGroup &group, quint64 raw)
+{
+    const int width = group.high - group.low + 1;
+    const quint64 mask = width >= 64 ? ~quint64(0) : ((quint64(1) << width) - 1);
+    return (raw >> group.low) & mask;
+}
+
 QString protoBitGroupsDisplay(const QVector<ProtoBitGroup> &groups, quint64 raw)
 {
     QStringList parts;
     for (const ProtoBitGroup &group : groups) {
-        const int width = group.high - group.low + 1;
-        const quint64 mask = width >= 64 ? ~quint64(0) : ((quint64(1) << width) - 1);
-        const int value = int((raw >> group.low) & mask);
+        const int value = int(protoBitGroupValue(group, raw));
         const QString valueText = group.valueNames.value(value, QString::number(value));
         parts.append(group.name.isEmpty() ? valueText : group.name + QLatin1String(": ") + valueText);
     }
@@ -704,7 +709,8 @@ QString ProtocolParser::decode(const ProtoField &field, const QByteArray &bytes)
     return QString();
 }
 
-ProtocolParser::Result ProtocolParser::tryParse(QStringList *values, int *consumed)
+ProtocolParser::Result ProtocolParser::tryParse(QStringList *values, QVector<QVector<quint64>> *bits,
+                                                int *consumed)
 {
     // 调用前保证 m_buffer 以帧头开头
     const int count = int(m_layout.size());
@@ -795,13 +801,26 @@ ProtocolParser::Result ProtocolParser::tryParse(QStringList *values, int *consum
     }
 
     values->clear();
-    for (const int index : protocolDisplayIndexes(m_layout))
-        values->append(decode(m_layout.at(index), frame.mid(offsets.at(index), sizes.at(index))));
+    bits->clear();
+    for (const int index : protocolDisplayIndexes(m_layout)) {
+        const ProtoField &field = m_layout.at(index);
+        const QByteArray bytes = frame.mid(offsets.at(index), sizes.at(index));
+        values->append(decode(field, bytes));
+
+        QVector<quint64> groupValues;
+        if (field.type != ProtoFieldType::Data && field.conversion == ProtoConversion::Binary) {
+            const quint64 raw = readInteger(bytes, field.bigEndian);
+            for (const ProtoBitGroup &group : field.bitGroups)
+                groupValues.append(protoBitGroupValue(group, raw));
+        }
+        bits->append(groupValues);
+    }
     *consumed = total;
     return Result::Frame;
 }
 
-QVector<QStringList> ProtocolParser::feed(const QByteArray &bytes)
+QVector<QStringList> ProtocolParser::feed(const QByteArray &bytes,
+                                          QVector<QVector<QVector<quint64>>> *bitValues)
 {
     QVector<QStringList> frames;
     if (!m_valid || bytes.isEmpty())
@@ -823,13 +842,16 @@ QVector<QStringList> ProtocolParser::feed(const QByteArray &bytes)
             m_buffer.remove(0, start);
 
         QStringList values;
+        QVector<QVector<quint64>> bits;
         int consumed = 0;
-        const Result result = tryParse(&values, &consumed);
+        const Result result = tryParse(&values, &bits, &consumed);
         if (result == Result::NeedMore)
             break;
         if (result == Result::Frame) {
             ++m_good;
             frames.append(values);
+            if (bitValues)
+                bitValues->append(bits);
             m_buffer.remove(0, consumed);
             continue;
         }

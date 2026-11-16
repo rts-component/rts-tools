@@ -43,6 +43,7 @@ signals:
     void enabledToggled(int index, bool on);
     void curveToggled(int index, bool on);
     void fieldCurveToggled(int index, int fieldIndex, bool on);
+    void bitCurveToggled(int index, int fieldIndex, int bitIndex, bool on);
     void menuRequested(int index, const QPoint &globalPos);
 
 protected:
@@ -58,7 +59,7 @@ protected:
 private:
     friend class TstUnpackRowList;
 
-    enum class Part { None, Enabled, Edit, CurveCheck, Menu, Fx, CardCurve };
+    enum class Part { None, Enabled, Edit, CurveCheck, Menu, Fx, CardCurve, BitCurve };
 
     struct Row
     {
@@ -74,10 +75,12 @@ private:
         int row = -1;
         Part part = Part::None;
         int card = -1;
+        int bit = -1;
 
         bool operator==(const Hit &other) const
         {
-            return row == other.row && part == other.part && card == other.card;
+            return row == other.row && part == other.part && card == other.card
+                    && bit == other.bit;
         }
         bool operator!=(const Hit &other) const { return !(*this == other); }
     };
@@ -103,6 +106,9 @@ private:
     QRect cardRect(int index, int card) const; // 行内坐标
     static QRect fxRect(const QRect &card);
     static QRect cardCurveRect(const QRect &card);
+    // 位分组表格里第 line 行的曲线图标（行内坐标）
+    bool hasBitTable(const Row &row, int card) const;
+    static QRect bitCurveRect(const QRect &card, int line);
 
     bool isLocked(const Row &row) const { return row.group.curve; }
     Hit hitTest(const QPoint &viewportPos) const;
